@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ManageMyParking</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Page -->
+        <div id="loginPage" class="page">
+            <div class="login-container">
+                <div class="login-card">
+                    <h1>ManageMyParking</h1>
+                    <p class="subtitle">Vehicle & Property Management</p>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" required autofocus>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        
+                        <div id="loginError" class="error-message"></div>
+                        
+                        <button type="submit" class="btn btn-primary">Sign In</button>
+                    </form>
+                    
+                    <p class="help-text">Default credentials: admin / admin123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page" style="display: none;">
+            <nav class="navbar">
+                <div class="nav-brand">ManageMyParking</div>
+                <div class="nav-menu">
+                    <span id="userInfo"></span>
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </nav>
+
+            <div class="container">
+                <header class="page-header">
+                    <h2>Vehicle Management</h2>
+                    <div class="header-actions">
+                        <button id="exportBtn" class="btn btn-secondary">Export CSV</button>
+                        <button id="addVehicleBtn" class="btn btn-primary">Add Vehicle</button>
+                    </div>
+                </header>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Search by tag, plate, owner, apartment...">
+                    <select id="propertyFilter">
+                        <option value="">All Properties</option>
+                    </select>
+                    <button id="searchBtn" class="btn btn-primary">Search</button>
+                </div>
+
+                <!-- Results -->
+                <div id="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Vehicle Modal -->
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add Vehicle</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="vehicleForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleProperty">Property *</label>
+                        <select id="vehicleProperty" name="property" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleTag">Tag Number</label>
+                        <input type="text" id="vehicleTag" name="tagNumber">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehiclePlate">Plate Number</label>
+                        <input type="text" id="vehiclePlate" name="plateNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleState">State</label>
+                        <input type="text" id="vehicleState" name="state" maxlength="2">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleMake">Make</label>
+                        <input type="text" id="vehicleMake" name="make">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleModel">Model</label>
+                        <input type="text" id="vehicleModel" name="model">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleColor">Color</label>
+                        <input type="text" id="vehicleColor" name="color">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleYear">Year</label>
+                        <input type="text" id="vehicleYear" name="year" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleApt">Apartment Number</label>
+                        <input type="text" id="vehicleApt" name="aptNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleSpace">Reserved Space</label>
+                        <input type="text" id="vehicleSpace" name="reservedSpace">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicleOwner">Owner Name</label>
+                    <input type="text" id="vehicleOwner" name="ownerName">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehiclePhone">Owner Phone</label>
+                        <input type="tel" id="vehiclePhone" name="ownerPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleEmail">Owner Email</label>
+                        <input type="email" id="vehicleEmail" name="ownerEmail">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/app.js"></script>
+</body>
+</html>
