@@ -1,161 +1,95 @@
-# ManageMyParking Project
+# ManageMyParking - Shared Hosting Edition
 
 ## Project Overview
 
-This is a complete PHP 8.3 + MySQL vehicle and property management system built for deployment on https://2clv.com/jrk.
+Complete PHP + MySQL vehicle and property management system restructured for **shared hosting deployment** (FTP-only, no frameworks, no build tools).
 
-**Status:** Development Complete  
-**Deployment Target:** Third-party hosting (not Replit)
+**Status:** Ready for Deployment  
+**Deployment Target:** https://2clv.com/jrk (or any shared hosting)
+
+## What Changed
+
+**From:** Laravel 11 + React (required Composer, Node.js, command-line access)  
+**To:** Plain PHP + Vanilla JavaScript (FTP upload only)
 
 ## Architecture
 
 ### Backend
-- **Framework:** Laravel 11
-- **Language:** PHP 8.4 (compatible with 8.3+ requirement)
-- **Database:** MySQL 8.0+ (required for production)
-- **Authentication:** Session-based with bcrypt password hashing
+- **Language:** Plain PHP 7.4+ (no framework)
+- **Database:** MySQL 5.7+ with PDO
+- **Authentication:** PHP sessions with password_hash/password_verify
+- **Routing:** Custom front controller pattern
 
 ### Frontend
-- **Framework:** React 18 with TypeScript
-- **Build Tool:** Vite 6
-- **UI Library:** Tailwind CSS 4 + Shadcn UI
-- **State Management:** TanStack Query v5
-- **Routing:** Wouter
+- **No Build Required:** Vanilla HTML/CSS/JavaScript
+- **No Dependencies:** Works immediately after upload
+- **Modern UI:** Responsive dark theme
 
 ## Project Structure
 
 ```
-├── backend/              # Laravel PHP backend
-│   ├── app/
-│   │   ├── Models/      # 5 Eloquent models with UUIDs
-│   │   ├── Http/
-│   │   │   ├── Controllers/  # Auth, Vehicle, Property, User controllers
-│   │   │   └── Middleware/   # RBAC middleware (Admin, Property Access, ReadOnly)
-│   ├── database/
-│   │   ├── migrations/  # 7 migration files for complete schema
-│   │   └── seeders/     # Admin user + 3 sample properties
-│   ├── routes/          # API routes with middleware protection
-│   └── config/          # Laravel configuration
-│
-├── frontend/            # React TypeScript frontend
-│   ├── src/
-│   │   ├── components/  # Reusable UI components
-│   │   ├── pages/       # Login & Dashboard pages
-│   │   └── lib/         # Utilities
-│   └── package.json
-│
-├── README.md           # Comprehensive project documentation
-├── DEPLOYMENT.md       # Production deployment guide
-└── backend/database/schema.sql  # Complete MySQL schema
+jrk/                         # Upload this entire folder via FTP
+├── api/                     # API endpoint files
+│   ├── login.php           # Authentication
+│   ├── vehicles-search.php # Vehicle search
+│   ├── vehicles-create.php # Vehicle creation
+│   └── ...                 # Other endpoints
+├── includes/               # Core PHP libraries
+│   ├── database.php        # PDO database layer
+│   ├── session.php         # Session management
+│   ├── helpers.php         # Helper functions
+│   └── router.php          # URL routing
+├── public/                 # Frontend assets
+│   ├── index.html          # Single-page app
+│   └── assets/
+│       ├── style.css       # Vanilla CSS
+│       └── app.js          # Vanilla JavaScript
+├── sql/
+│   └── install.sql         # Database schema + seed data
+├── config.php              # Configuration (edit for your hosting)
+├── .htaccess               # Apache rewrite rules
+├── index.php               # Front controller
+├── INSTALLATION-GUIDE.md   # Complete cPanel/phpMyAdmin guide
+└── README.txt              # Quick start
 ```
 
-## Key Features Implemented
+## Key Features
 
-✅ **Authentication System**
-- Session-based login/logout
-- Bcrypt password hashing
-- CSRF protection
-- Rate limiting on login
-
-✅ **Role-Based Access Control**
-- Admin: Full system access
-- User: Property-specific access
-- Operator: Read-only all properties
-
-✅ **Vehicle Management**
-- 14-field vehicle tracking
-- CRUD operations with validation
-- Property-based access control
-- Full-text search with MySQL FULLTEXT index
-
-✅ **Property Management**
+✅ **No Framework Dependencies** - Pure PHP, no Composer required  
+✅ **No Build Tools** - No Node.js, npm, or webpack needed  
+✅ **FTP Upload Only** - Works on any shared hosting  
+✅ **cPanel Compatible** - Uses phpMyAdmin for database setup  
+✅ **Same Functionality** - All core features preserved:
+- Vehicle management (14 fields)
 - Multi-property support
-- Up to 3 contacts per property
-- Cascade updates for property names
-- Vehicle count protection on delete
+- Role-based access control
+- Search functionality
+- CSV export
+- Audit logging
 
-✅ **User Management**
-- Admin-only user CRUD
-- Property assignments
-- Role management
-- Password validation
+## Deployment Package
 
-✅ **Audit Logging**
-- Tracks all user actions
-- Stores IP address and user agent
-- JSON details for complex data
-- Automatic logging in all controllers
+**File:** `managemyparking-shared-hosting.tar.gz` (18KB)  
+**Contains:** 26 files ready for FTP upload
 
-✅ **Database Schema**
-- 7 tables with proper foreign keys
-- UUID primary keys
-- Full-text indexes for search
-- Proper character set (utf8mb4)
+## Quick Deployment
 
-## Development Notes
+1. **Download** package from Replit file browser
+2. **Upload** `jrk/` folder to your web server via FTP
+3. **Create** MySQL database in cPanel
+4. **Import** `jrk/sql/install.sql` via phpMyAdmin
+5. **Edit** `jrk/config.php` with database credentials
+6. **Visit** https://2clv.com/jrk
+7. **Login** with admin/admin123
+8. **Change password** immediately!
 
-### Why Replit Shows Only Frontend
+See **INSTALLATION-GUIDE.md** for detailed step-by-step instructions.
 
-This application requires **MySQL 8.0+** which is not available on Replit. The backend is a complete Laravel application that will run on any standard PHP hosting with MySQL.
+## Testing on Replit
 
-**What's Running on Replit:**
-- Frontend development server (port 5000)
-- Demonstrates the React UI with sample data
-- Shows login page and dashboard interface
+A PHP test server is running on port 5000 for preview purposes only. This is NOT the production deployment - just a preview.
 
-**What Requires Production Server:**
-- PHP 8.3+ backend with Laravel 11
-- MySQL 8.0+ database
-- PHP-FPM for process management
-- Nginx or Apache web server
-
-### Database Schema
-
-All tables created via Laravel migrations:
-- `users` - Authentication and role management
-- `properties` - Property information
-- `property_contacts` - Up to 3 contacts per property
-- `user_assigned_properties` - Many-to-many user-property relationships
-- `vehicles` - 14-field vehicle records with FULLTEXT search
-- `audit_logs` - Complete system activity tracking
-- `sessions` - Database-backed session storage
-
-### API Endpoints
-
-**Public:**
-- `POST /api/login`
-
-**Authenticated:**
-- `GET /api/user`
-- `POST /api/logout`
-- `GET|POST|PATCH|DELETE /api/vehicles/*` (filtered by role)
-- `GET /api/properties` (filtered by role)
-
-**Admin Only:**
-- `POST|PATCH|DELETE /api/properties/*`
-- `GET|POST|PATCH|DELETE /api/admin/users/*`
-
-## Deployment Requirements
-
-### Server Software
-- PHP 8.3 or higher
-- MySQL 8.0 or higher
-- Composer
-- Node.js 18+ (for build)
-- Nginx or Apache
-- SSL certificate (Let's Encrypt recommended)
-
-### Deployment Steps
-1. Upload files to `/var/www/jrk`
-2. Run `composer install --no-dev`
-3. Build frontend with `npm run build`
-4. Configure `.env` with database credentials
-5. Run `php artisan migrate && php artisan db:seed`
-6. Configure Nginx/Apache for `/jrk` path
-7. Set up SSL certificate
-8. Configure automated backups
-
-See **DEPLOYMENT.md** for complete step-by-step instructions.
+⚠️ **Note:** The database connection will fail on Replit (no MySQL). To actually use the application, deploy to your shared hosting.
 
 ## Default Credentials
 
@@ -163,70 +97,61 @@ See **DEPLOYMENT.md** for complete step-by-step instructions.
 - Username: `admin`
 - Password: `admin123`
 
-⚠️ **Change immediately in production!**
+⚠️ **Change immediately after first login!**
+
+## What Works Immediately
+
+- ✅ FTP upload and go
+- ✅ phpMyAdmin database import
+- ✅ Edit config.php with text editor
+- ✅ Works on HTTP (HTTPS optional)
+- ✅ No command-line access needed
+- ✅ No special server configuration
 
 ## Security Features
 
-- Bcrypt password hashing (cost: 10)
-- HTTP-only session cookies
-- CSRF protection on all write operations
-- SQL injection prevention via Eloquent ORM
-- XSS prevention via Blade templating
-- Rate limiting on authentication
+- PDO prepared statements (SQL injection prevention)
+- Password hashing with bcrypt
+- PHP session security (HTTP-only cookies)
+- XSS prevention with htmlspecialchars
+- Role-based access control
 - Comprehensive audit logging
-- Role-based middleware authorization
+- Apache security headers in .htaccess
 
-## Testing Checklist
+## Sample Data Included
 
-✅ All migrations created and valid  
-✅ All models with proper relationships  
-✅ All controllers with CRUD operations  
-✅ Middleware for RBAC implemented  
-✅ Audit logging integrated  
-✅ Frontend UI components created  
-✅ Login page functional  
-✅ Dashboard with sample data  
-✅ Deployment documentation complete  
-✅ Database schema SQL file created  
+**Properties:** 3 sample properties  
+**Vehicles:** 3 sample vehicles  
+**Users:** 1 admin user
 
-## Remaining Production Tasks
+## Documentation
 
-When deploying to production hosting:
-1. Install and configure MySQL database
-2. Upload application files
-3. Install Composer and npm dependencies
-4. Build frontend production assets
-5. Configure environment variables
-6. Run migrations and seeders
-7. Set up Nginx/Apache configuration
-8. Install SSL certificate
-9. Configure automated backups
-10. Test all functionality
-11. Change default admin password
+- **README.txt** - Quick start guide
+- **INSTALLATION-GUIDE.md** - Complete cPanel/phpMyAdmin instructions with troubleshooting
+- **config.php** - Inline configuration comments
 
 ## Recent Changes
 
-**2025-10-22:** Complete implementation
-- Created 7 database migrations with full schema
-- Implemented 5 Eloquent models with relationships
-- Built 4 controllers (Auth, Vehicle, Property, User)
-- Created 4 middleware classes for RBAC
-- Implemented database seeder with admin and properties
-- Built React frontend with Tailwind + Shadcn UI
-- Created comprehensive documentation
-- Generated production deployment guide
+**2025-10-22:** Complete restructure for shared hosting
+- Removed Laravel framework and all dependencies
+- Created plain PHP backend with PDO
+- Built custom router and session handler
+- Created vanilla JavaScript frontend (no build required)
+- Generated complete SQL installation file
+- Wrote comprehensive cPanel/phpMyAdmin deployment guide
+- Fixed session cookie configuration for HTTP/HTTPS compatibility
 
 ## User Preferences
 
-None specified yet.
+User required deployment to shared hosting without custom installations (no Composer, no command-line access, FTP-only).
 
 ## Architecture Decisions
 
-1. **Laravel 11** chosen for robust PHP framework with built-in features
-2. **UUID** primary keys for portability and security
-3. **Session-based auth** (not JWT) for traditional web app deployment
-4. **Database sessions** for distributed deployment capability
-5. **Eloquent ORM** for SQL injection prevention
-6. **Full-text indexing** on vehicles table for fast search
-7. **Tailwind CSS** for modern, responsive design
-8. **Shadcn UI** for accessible, customizable components
+1. **Plain PHP** instead of Laravel for zero-dependency deployment
+2. **PDO with prepared statements** for database security
+3. **Custom router** for RESTful URL structure
+4. **PHP sessions** for authentication (no JWT complexity)
+5. **Vanilla JS frontend** to eliminate build tools
+6. **cPanel/phpMyAdmin** workflow for non-technical deployment
+7. **Auto-detect HTTPS** for seamless HTTP→HTTPS migration
+8. **Single SQL file** for one-click database installation
