@@ -149,10 +149,17 @@ jrk/
    - Install a free SSL certificate
    - Force HTTPS redirect
 
-3. **Update config.php:**
+3. **Update config.php for HTTPS:**
    ```php
    'session' => [
-       'secure' => true,  // Set to true after enabling HTTPS
+       'secure' => true,  // Now that HTTPS is enabled
+   ],
+   ```
+   
+   Or use auto-detection:
+   ```php
+   'session' => [
+       'secure' => 'auto',  // Automatically detects HTTP vs HTTPS
    ],
    ```
 

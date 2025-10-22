@@ -24,7 +24,7 @@ return [
     'session' => [
         'name' => 'managemyparking_session',
         'lifetime' => 1440, // 24 hours in minutes
-        'secure' => true, // Set to true for HTTPS
+        'secure' => false, // Set to true after enabling HTTPS
         'httponly' => true,
     ],
     
