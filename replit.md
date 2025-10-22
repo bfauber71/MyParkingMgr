@@ -69,7 +69,7 @@ jrk/                         # Upload this entire folder via FTP
 
 ## Deployment Package
 
-**File:** `managemyparking-shared-hosting.tar.gz` (18KB)  
+**File:** `managemyparking-shared-hosting.zip` (24KB)  
 **Contains:** 26 files ready for FTP upload
 
 ## Quick Deployment

@@ -3,11 +3,11 @@
 ## 📦 Download the Package
 
 1. In the Replit file browser (left sidebar)
-2. Find `managemyparking-shared-hosting.tar.gz`
+2. Find `managemyparking-shared-hosting.zip`
 3. Right-click → **Download**
 4. Save to your computer
 
-**Package Size:** 18 KB  
+**Package Size:** 24 KB  
 **Package Contents:** Complete application ready for FTP upload
 
 ## 🚀 Deploy to Your Server
@@ -17,10 +17,10 @@
 1. **Login to cPanel** on your hosting account
 2. **Open File Manager**
 3. **Navigate** to `public_html`
-4. **Click Upload** → Select the .tar.gz file
+4. **Click Upload** → Select the .zip file
 5. **Wait for upload** to complete
 6. **Right-click** the file → **Extract**
-7. **Delete** the .tar.gz file (optional)
+7. **Delete** the .zip file (optional)
 8. **Rename** the extracted folder to `jrk` (if needed)
 
 ### Option 2: Using FTP
@@ -31,7 +31,7 @@
    - Username: Your FTP username
    - Password: Your FTP password
 3. **Navigate** to `public_html` folder
-4. **Extract** the .tar.gz on your computer first
+4. **Extract** the .zip on your computer first
 5. **Upload** the entire `jrk` folder to `public_html/jrk`
 
 ## 🗄️ Set Up Database
