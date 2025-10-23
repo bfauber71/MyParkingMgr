@@ -5,20 +5,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+// Require authentication and create/delete permission for violations
+requirePermission(MODULE_VIOLATIONS, ACTION_CREATE_DELETE);
 
 $user = Session::user();
-$role = strtolower($user['role']);
-
-if ($role !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Access denied. Admin only.']);
-    exit;
-}
 
 $data = json_decode(file_get_contents('php://input'), true);
 $id = $data['id'] ?? '';

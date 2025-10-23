@@ -190,3 +190,169 @@ function exportToCsv($data, $filename, $headers) {
     fclose($output);
     exit;
 }
+
+/**
+ * ============================================================================
+ * PERMISSION MATRIX SYSTEM
+ * ============================================================================
+ */
+
+// Module constants
+define('MODULE_VEHICLES', 'vehicles');
+define('MODULE_USERS', 'users');
+define('MODULE_PROPERTIES', 'properties');
+define('MODULE_VIOLATIONS', 'violations');
+
+// Action constants
+define('ACTION_VIEW', 'view');
+define('ACTION_EDIT', 'edit');
+define('ACTION_CREATE_DELETE', 'create_delete');
+
+/**
+ * Check if user has specific permission
+ * @param string $module Module name (vehicles, users, properties, violations)
+ * @param string $action Action (view, edit, create_delete)
+ * @return bool True if user has permission
+ */
+function hasPermission($module, $action) {
+    $user = Session::user();
+    if (!$user) {
+        return false;
+    }
+    
+    // Check if permissions are loaded
+    if (!isset($user['permissions']) || empty($user['permissions'])) {
+        // BACKWARD COMPATIBILITY: Fall back to role-based permissions
+        // if permissions table doesn't exist yet
+        return hasPermissionByRole($module, $action, $user['role'] ?? '');
+    }
+    
+    // Get module permissions
+    $modulePerms = $user['permissions'][$module] ?? null;
+    if (!$modulePerms) {
+        return false;
+    }
+    
+    // Check action with hierarchy enforcement
+    // create_delete implies edit and view
+    // edit implies view
+    switch ($action) {
+        case ACTION_VIEW:
+            return $modulePerms['can_view'] || $modulePerms['can_edit'] || $modulePerms['can_create_delete'];
+        
+        case ACTION_EDIT:
+            return $modulePerms['can_edit'] || $modulePerms['can_create_delete'];
+        
+        case ACTION_CREATE_DELETE:
+            return $modulePerms['can_create_delete'];
+        
+        default:
+            return false;
+    }
+}
+
+/**
+ * Legacy role-based permission check (backward compatibility)
+ * @param string $module Module name
+ * @param string $action Action
+ * @param string $role User role
+ * @return bool True if role has permission
+ */
+function hasPermissionByRole($module, $action, $role) {
+    $role = strtolower($role);
+    
+    // Admin has all permissions
+    if ($role === 'admin') {
+        return true;
+    }
+    
+    // Operator has view-only on all modules
+    if ($role === 'operator') {
+        return $action === ACTION_VIEW;
+    }
+    
+    // User role has view/edit/create_delete on vehicles only, view-only on others
+    if ($role === 'user') {
+        if ($module === MODULE_VEHICLES) {
+            return true; // All actions on vehicles
+        }
+        return $action === ACTION_VIEW; // View-only on other modules
+    }
+    
+    return false;
+}
+
+/**
+ * Require specific permission or return 403 error
+ * @param string $module Module name
+ * @param string $action Action
+ */
+function requirePermission($module, $action) {
+    requireAuth();
+    
+    if (!hasPermission($module, $action)) {
+        $actionLabel = ucfirst(str_replace('_', '/', $action));
+        $moduleLabel = ucfirst($module);
+        jsonResponse([
+            'error' => "Forbidden - You don't have permission to {$actionLabel} {$moduleLabel}"
+        ], 403);
+    }
+}
+
+/**
+ * Get all permissions for current user
+ * @return array Associative array of module => permissions
+ */
+function getPermissions() {
+    $user = Session::user();
+    if (!$user || !isset($user['permissions'])) {
+        return [];
+    }
+    
+    return $user['permissions'];
+}
+
+/**
+ * Check if user has any permission for a module
+ * @param string $module Module name
+ * @return bool True if user has at least view permission
+ */
+function canAccessModule($module) {
+    return hasPermission($module, ACTION_VIEW);
+}
+
+/**
+ * Load user permissions from database
+ * @param string $userId User ID
+ * @return array Associative array of module => permissions
+ */
+function loadUserPermissions($userId) {
+    $sql = "SELECT module, can_view, can_edit, can_create_delete 
+            FROM user_permissions 
+            WHERE user_id = ?";
+    
+    $rows = Database::query($sql, [$userId]);
+    
+    $permissions = [];
+    foreach ($rows as $row) {
+        $permissions[$row['module']] = [
+            'can_view' => (bool)$row['can_view'],
+            'can_edit' => (bool)$row['can_edit'],
+            'can_create_delete' => (bool)$row['can_create_delete']
+        ];
+    }
+    
+    // Ensure all modules exist with default false values
+    $modules = [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS];
+    foreach ($modules as $module) {
+        if (!isset($permissions[$module])) {
+            $permissions[$module] = [
+                'can_view' => false,
+                'can_edit' => false,
+                'can_create_delete' => false
+            ];
+        }
+    }
+    
+    return $permissions;
+}

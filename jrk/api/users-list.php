@@ -5,19 +5,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+// Require authentication and view permission for users
+requirePermission(MODULE_USERS, ACTION_VIEW);
 
 $user = Session::user();
-
-if (strcasecmp($user['role'], 'admin') !== 0) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Access denied. Admin only.']);
-    exit;
-}
 
 $db = Database::getInstance();
 

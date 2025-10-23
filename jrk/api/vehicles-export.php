@@ -10,11 +10,8 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+// Require authentication and view permission for vehicles
+requirePermission(MODULE_VEHICLES, ACTION_VIEW);
 
 $db = Database::getInstance();
 $user = Session::user();

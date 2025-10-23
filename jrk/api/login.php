@@ -24,6 +24,14 @@ if (!$user || !password_verify($password, $user['password'])) {
     jsonResponse(['error' => 'Invalid credentials'], 401);
 }
 
+// Load user permissions
+try {
+    $user['permissions'] = loadUserPermissions($user['id']);
+} catch (Exception $e) {
+    // If permissions table doesn't exist, set empty permissions
+    $user['permissions'] = [];
+}
+
 // Login successful
 Session::login($user);
 
@@ -33,6 +41,7 @@ jsonResponse([
     'user' => [
         'id' => $user['id'],
         'username' => $user['username'],
-        'role' => $user['role']
+        'role' => $user['role'],
+        'permissions' => $user['permissions']
     ]
 ]);

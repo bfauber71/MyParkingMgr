@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS audit_logs;
 DROP TABLE IF EXISTS vehicles;
 DROP TABLE IF EXISTS property_contacts;
 DROP TABLE IF EXISTS user_assigned_properties;
+DROP TABLE IF EXISTS user_permissions;
 DROP TABLE IF EXISTS properties;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS sessions;
@@ -21,10 +22,27 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL COMMENT 'Bcrypt hashed',
     role ENUM('admin', 'user', 'operator') NOT NULL DEFAULT 'user',
+    email VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_username (username),
     INDEX idx_role (role)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- User Permissions Table (Permission Matrix)
+CREATE TABLE user_permissions (
+    id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    module ENUM('vehicles', 'users', 'properties', 'violations') NOT NULL,
+    can_view BOOLEAN NOT NULL DEFAULT FALSE,
+    can_edit BOOLEAN NOT NULL DEFAULT FALSE,
+    can_create_delete BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_module (user_id, module),
+    INDEX idx_user_id (user_id),
+    INDEX idx_module (module)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Properties Table
@@ -183,6 +201,13 @@ CREATE TABLE sessions (
 -- Insert Admin User (password: admin123)
 INSERT INTO users (id, username, password, role) VALUES
 ('550e8400-e29b-41d4-a716-446655440000', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
+
+-- Insert Admin User Permissions (All permissions enabled)
+INSERT INTO user_permissions (id, user_id, module, can_view, can_edit, can_create_delete) VALUES
+('990e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440000', 'vehicles', TRUE, TRUE, TRUE),
+('990e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440000', 'users', TRUE, TRUE, TRUE),
+('990e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440000', 'properties', TRUE, TRUE, TRUE),
+('990e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440000', 'violations', TRUE, TRUE, TRUE);
 
 -- Insert Sample Properties
 INSERT INTO properties (id, name, address) VALUES

@@ -102,7 +102,20 @@ class Session {
      * Get authenticated user
      */
     public static function user() {
-        return self::get('user');
+        $user = self::get('user');
+        
+        // Ensure permissions are loaded if table exists
+        if ($user && !isset($user['permissions'])) {
+            try {
+                $user['permissions'] = loadUserPermissions($user['id']);
+                self::set('user', $user); // Cache in session
+            } catch (Exception $e) {
+                // If permissions table doesn't exist yet, continue without permissions
+                $user['permissions'] = [];
+            }
+        }
+        
+        return $user;
     }
     
     /**

@@ -7,15 +7,10 @@ header('Content-Type: application/json');
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    jsonResponse(['error' => 'Unauthorized'], 401);
-}
+// Require authentication and edit permission for users
+requirePermission(MODULE_USERS, ACTION_EDIT);
 
 $user = Session::user();
-
-if (strcasecmp($user['role'], 'admin') !== 0) {
-    jsonResponse(['error' => 'Access denied. Admin only.'], 403);
-}
 
 $input = json_decode(file_get_contents('php://input'), true);
 

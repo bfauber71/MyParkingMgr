@@ -12,6 +12,8 @@ jsonResponse([
     'user' => [
         'id' => $user['id'],
         'username' => $user['username'],
-        'role' => $user['role']
+        'role' => $user['role'],
+        'email' => $user['email'] ?? '',
+        'permissions' => $user['permissions'] ?? []
     ]
 ]);

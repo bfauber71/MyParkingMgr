@@ -5,19 +5,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+// Require authentication and create/delete permission for vehicles
+requirePermission(MODULE_VEHICLES, ACTION_CREATE_DELETE);
 
 $user = Session::user();
-
-if (strcasecmp($user['role'], 'operator') === 0) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Operators cannot delete vehicles']);
-    exit;
-}
 
 $input = json_decode(file_get_contents('php://input'), true);
 $vehicleId = trim($input['id'] ?? '');

@@ -5,24 +5,21 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+$input = json_decode(file_get_contents('php://input'), true);
+$vehicleId = isset($input['id']) && $input['id'] !== '' ? trim($input['id']) : null;
+
+// Check permission: create requires create_delete, update requires edit
+if ($vehicleId) {
+    // Updating existing vehicle - requires edit permission
+    requirePermission(MODULE_VEHICLES, ACTION_EDIT);
+} else {
+    // Creating new vehicle - requires create/delete permission
+    requirePermission(MODULE_VEHICLES, ACTION_CREATE_DELETE);
 }
 
 $user = Session::user();
 
-if (strcasecmp($user['role'], 'operator') === 0) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Operators have read-only access']);
-    exit;
-}
-
-$input = json_decode(file_get_contents('php://input'), true);
-
 $property = trim($input['property'] ?? '');
-$vehicleId = isset($input['id']) && $input['id'] !== '' ? trim($input['id']) : null;
 
 if (empty($property)) {
     http_response_code(400);

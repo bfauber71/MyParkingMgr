@@ -10,21 +10,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
-if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+// Require authentication and create/delete permission for vehicles
+requirePermission(MODULE_VEHICLES, ACTION_CREATE_DELETE);
 
 $user = Session::user();
-
-// Only Admin and User roles can import vehicles (case-insensitive)
-$role = strtolower($user['role']);
-if ($role !== 'admin' && $role !== 'user') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Forbidden - Only Admin and User roles can import vehicles']);
-    exit;
-}
 
 if (!isset($_FILES['csv']) || $_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
     http_response_code(400);
