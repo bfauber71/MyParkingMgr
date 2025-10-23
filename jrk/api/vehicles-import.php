@@ -18,8 +18,9 @@ if (!Session::isAuthenticated()) {
 
 $user = Session::user();
 
-// Only Admin and User roles can import vehicles
-if ($user['role'] !== 'Admin' && $user['role'] !== 'User') {
+// Only Admin and User roles can import vehicles (case-insensitive)
+$role = strtolower($user['role']);
+if ($role !== 'admin' && $role !== 'user') {
     http_response_code(403);
     echo json_encode(['error' => 'Forbidden - Only Admin and User roles can import vehicles']);
     exit;
@@ -85,8 +86,8 @@ try {
             continue;
         }
         
-        // For non-Admin users, check if they have access to this property
-        if ($user['role'] !== 'Admin') {
+        // For non-Admin users, check if they have access to this property (case-insensitive)
+        if (strcasecmp($user['role'], 'admin') !== 0) {
             $accessCheck = $db->prepare("
                 SELECT 1 FROM user_assigned_properties uap
                 INNER JOIN properties p ON uap.property_id = p.id

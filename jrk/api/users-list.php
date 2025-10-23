@@ -13,7 +13,7 @@ if (!Session::isAuthenticated()) {
 
 $user = Session::user();
 
-if ($user['role'] !== 'Admin') {
+if (strcasecmp($user['role'], 'admin') !== 0) {
     http_response_code(403);
     echo json_encode(['error' => 'Access denied. Admin only.']);
     exit;

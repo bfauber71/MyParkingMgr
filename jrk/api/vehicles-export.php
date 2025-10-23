@@ -20,8 +20,9 @@ $db = Database::getInstance();
 $user = Session::user();
 
 try {
-    // Get accessible vehicles based on role
-    if ($user['role'] === 'Admin' || $user['role'] === 'Operator') {
+    // Get accessible vehicles based on role (case-insensitive)
+    $role = strtolower($user['role']);
+    if ($role === 'admin' || $role === 'operator') {
         // Admin and Operator can export all vehicles
         $stmt = $db->prepare("SELECT * FROM vehicles ORDER BY property, created_at DESC");
         $stmt->execute();

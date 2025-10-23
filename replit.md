@@ -143,12 +143,17 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** CRITICAL FIX - Role case sensitivity bug
-- **CRITICAL FIX:** Fixed role comparison bug - tabs and buttons now show correctly for all roles
-- **ROOT CAUSE:** Database stores roles as lowercase ('admin') but JS checked for capitalized ('Admin')
-- **RESULT:** All role comparisons now case-insensitive - permissions work for Admin, User, Operator
-- **VISIBLE CHANGE:** Admin users now see all 3 tabs (Vehicles, Properties, Users) and all buttons
-- Added console logging to help debug permission issues
+**2025-10-23 (Latest):** COMPLETE FIX - All case-sensitive role comparisons fixed
+- **CRITICAL FIX:** Fixed case-sensitive role comparisons in ENTIRE application (9 files)
+- **ROOT CAUSE:** Database stores roles as lowercase ('admin', 'user', 'operator') but ALL code checked for capitalized ('Admin', 'User', 'Operator')
+- **FILES FIXED:** app.js (frontend), helpers.php (core), 7 API endpoints (properties, users, vehicles, export)
+- **RESULT:** ALL features now work - tabs, buttons, CSV export, CRUD operations for properties/users/vehicles
+- **PHP FIX:** Used strcasecmp() and strtolower() for case-insensitive role comparisons
+- **JS FIX:** Normalize role to lowercase before all comparisons
+- **CSV EXPORT:** Now works for all roles (was completely broken)
+- **ADMIN:** Can now create/delete properties and users (was blocked)
+- **USER:** Can now create/edit/delete vehicles for assigned properties
+- **OPERATOR:** Correctly blocked from create/edit/delete, can export
 
 **2025-10-23:** Added CSV import and fixed all deployment issues
 - **NEW FEATURE:** CSV import functionality - Upload vehicles from CSV file with validation

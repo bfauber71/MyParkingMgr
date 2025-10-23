@@ -86,25 +86,25 @@ function auditLog($action, $entityType, $entityId = null, $details = null) {
 }
 
 /**
- * Check if user has role
+ * Check if user has role (case-insensitive)
  */
 function hasRole($role) {
     $user = Session::user();
-    return $user && $user['role'] === $role;
+    return $user && strcasecmp($user['role'], $role) === 0;
 }
 
 /**
  * Check if user is admin
  */
 function isAdmin() {
-    return hasRole('Admin');
+    return hasRole('admin');
 }
 
 /**
  * Check if user is operator
  */
 function isOperator() {
-    return hasRole('Operator');
+    return hasRole('operator');
 }
 
 /**
@@ -135,8 +135,9 @@ function canAccessProperty($propertyId) {
         return false;
     }
     
-    // Admins and operators can access all properties
-    if ($user['role'] === 'Admin' || $user['role'] === 'Operator') {
+    // Admins and operators can access all properties (case-insensitive)
+    $role = strtolower($user['role']);
+    if ($role === 'admin' || $role === 'operator') {
         return true;
     }
     
@@ -156,8 +157,9 @@ function getAccessibleProperties() {
         return [];
     }
     
-    // Admins and operators see all properties
-    if ($user['role'] === 'Admin' || $user['role'] === 'Operator') {
+    // Admins and operators see all properties (case-insensitive)
+    $role = strtolower($user['role']);
+    if ($role === 'admin' || $role === 'operator') {
         return Database::query("SELECT id, name FROM properties ORDER BY name");
     }
     

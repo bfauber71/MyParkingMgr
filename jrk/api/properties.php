@@ -21,8 +21,9 @@ $db = Database::getInstance();
 $user = Session::user();
 
 try {
-    // Get accessible properties based on role
-    if ($user['role'] === 'Admin' || $user['role'] === 'Operator') {
+    // Get accessible properties based on role (case-insensitive)
+    $role = strtolower($user['role']);
+    if ($role === 'admin' || $role === 'operator') {
         // Admin and Operator can see all properties
         $stmt = $db->prepare("
             SELECT id, name, address, created_at 

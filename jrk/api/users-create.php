@@ -13,7 +13,7 @@ if (!Session::isAuthenticated()) {
 
 $user = Session::user();
 
-if ($user['role'] !== 'Admin') {
+if (strcasecmp($user['role'], 'admin') !== 0) {
     http_response_code(403);
     echo json_encode(['error' => 'Access denied. Admin only.']);
     exit;
@@ -24,7 +24,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $username = trim($input['username'] ?? '');
 $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
-$role = $input['role'] ?? 'User';
+$role = strtolower($input['role'] ?? 'user');
 
 if (empty($username) || empty($password)) {
     http_response_code(400);
@@ -32,7 +32,7 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
-if (!in_array($role, ['Admin', 'User', 'Operator'])) {
+if (!in_array($role, ['admin', 'user', 'operator'])) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid role']);
     exit;

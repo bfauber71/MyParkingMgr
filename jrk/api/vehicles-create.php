@@ -13,7 +13,7 @@ if (!Session::isAuthenticated()) {
 
 $user = Session::user();
 
-if ($user['role'] === 'Operator') {
+if (strcasecmp($user['role'], 'operator') === 0) {
     http_response_code(403);
     echo json_encode(['error' => 'Operators have read-only access']);
     exit;
