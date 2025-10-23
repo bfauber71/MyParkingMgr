@@ -1474,15 +1474,25 @@ async function deleteViolationType(id, name) {
     }
 }
 
-// Violation History
+// Violation History with Pagination
+let currentViolationPage = 1;
+let allViolationTickets = [];
+const VIOLATIONS_PER_PAGE = 5;
+
 async function showViolationHistory(vehicleId, event) {
     if (event) event.stopPropagation();
     
     const modal = document.getElementById('violationHistoryModal');
     const content = document.getElementById('violationHistoryContent');
+    const pagination = document.getElementById('violationHistoryPagination');
+    
+    // Reset pagination
+    currentViolationPage = 1;
+    allViolationTickets = [];
     
     // Show loading state
     content.innerHTML = '<p style="text-align: center; color: #888;">Loading violation history...</p>';
+    pagination.innerHTML = '';
     modal.classList.add('show');
     
     try {
@@ -1495,32 +1505,44 @@ async function showViolationHistory(vehicleId, event) {
         }
         
         const data = await response.json();
-        displayViolationHistory(data.tickets);
+        allViolationTickets = data.tickets || [];
+        displayViolationHistory();
     } catch (error) {
         console.error('Error loading violation history:', error);
         content.innerHTML = '<p style="color: red; text-align: center;">Error loading violation history. Please try again.</p>';
+        pagination.innerHTML = '';
     }
 }
 
-function displayViolationHistory(tickets) {
+function displayViolationHistory() {
     const content = document.getElementById('violationHistoryContent');
+    const pagination = document.getElementById('violationHistoryPagination');
     
-    if (!tickets || tickets.length === 0) {
+    if (!allViolationTickets || allViolationTickets.length === 0) {
         content.innerHTML = '<p style="text-align: center; color: #888;">No violations found for this vehicle.</p>';
+        pagination.innerHTML = '';
         return;
     }
     
+    // Calculate pagination
+    const totalPages = Math.ceil(allViolationTickets.length / VIOLATIONS_PER_PAGE);
+    const startIndex = (currentViolationPage - 1) * VIOLATIONS_PER_PAGE;
+    const endIndex = startIndex + VIOLATIONS_PER_PAGE;
+    const ticketsToShow = allViolationTickets.slice(startIndex, endIndex);
+    
+    // Display tickets for current page
     let html = '<div class="violation-history-list">';
     
-    tickets.forEach((ticket, index) => {
+    ticketsToShow.forEach((ticket, index) => {
         const date = new Date(ticket.issued_at);
         const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
         const vehicleInfo = `${ticket.vehicle_year || ''} ${ticket.vehicle_color || ''} ${ticket.vehicle_make || ''} ${ticket.vehicle_model || ''}`.trim();
+        const globalIndex = startIndex + index;
         
         html += `
             <div class="violation-history-item">
                 <div class="violation-history-header">
-                    <strong>Violation #${tickets.length - index}</strong>
+                    <strong>Violation #${allViolationTickets.length - globalIndex}</strong>
                     <span class="violation-date">${formattedDate}</span>
                 </div>
                 <div class="violation-history-details">
@@ -1538,6 +1560,42 @@ function displayViolationHistory(tickets) {
     
     html += '</div>';
     content.innerHTML = html;
+    
+    // Display pagination controls
+    if (totalPages > 1) {
+        let paginationHtml = `
+            <button 
+                class="btn btn-small" 
+                onclick="changeViolationPage(${currentViolationPage - 1})" 
+                ${currentViolationPage === 1 ? 'disabled' : ''}
+                style="${currentViolationPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+            >
+                ← Previous
+            </button>
+            <span style="color: #888; font-size: 14px;">
+                Page ${currentViolationPage} of ${totalPages} (${allViolationTickets.length} total violations)
+            </span>
+            <button 
+                class="btn btn-small" 
+                onclick="changeViolationPage(${currentViolationPage + 1})" 
+                ${currentViolationPage === totalPages ? 'disabled' : ''}
+                style="${currentViolationPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+            >
+                Next →
+            </button>
+        `;
+        pagination.innerHTML = paginationHtml;
+    } else {
+        pagination.innerHTML = `<span style="color: #888; font-size: 14px;">${allViolationTickets.length} violation${allViolationTickets.length === 1 ? '' : 's'} found</span>`;
+    }
+}
+
+function changeViolationPage(newPage) {
+    const totalPages = Math.ceil(allViolationTickets.length / VIOLATIONS_PER_PAGE);
+    if (newPage < 1 || newPage > totalPages) return;
+    
+    currentViolationPage = newPage;
+    displayViolationHistory();
 }
 
 // Modal Management
