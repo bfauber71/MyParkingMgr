@@ -226,7 +226,7 @@ async function showDashboard() {
     
     userInfo.textContent = `${currentUser.username} (${currentUser.role})`;
     
-    applyRolePermissions();
+    applyPermissions();
     
     // Load properties in background, don't wait for it
     loadProperties().catch(err => console.error('Failed to load properties:', err));
@@ -240,8 +240,39 @@ function showError(message) {
     loginError.classList.add('show');
 }
 
-// Role-Based Permissions
-function applyRolePermissions() {
+// Permission System
+function hasPermission(module, action) {
+    if (!currentUser) return false;
+    
+    // Demo mode: give admin all permissions
+    if (!currentUser.permissions) {
+        const role = (currentUser.role || '').toLowerCase();
+        if (role === 'admin') return true;
+        if (role === 'operator') return action === 'view';
+        if (role === 'user') {
+            if (module === 'vehicles') return true;
+            return action === 'view';
+        }
+        return false;
+    }
+    
+    const perms = currentUser.permissions[module];
+    if (!perms) return false;
+    
+    // Action hierarchy: create_delete implies edit and view, edit implies view
+    switch (action) {
+        case 'view':
+            return perms.can_view || perms.can_edit || perms.can_create_delete;
+        case 'edit':
+            return perms.can_edit || perms.can_create_delete;
+        case 'create_delete':
+            return perms.can_create_delete;
+        default:
+            return false;
+    }
+}
+
+function applyPermissions() {
     const propertiesTab = document.getElementById('propertiesTab');
     const usersTab = document.getElementById('usersTab');
     const violationsTab = document.getElementById('violationsTab');
@@ -251,53 +282,29 @@ function applyRolePermissions() {
     const addPropertyBtn = document.getElementById('addPropertyBtn');
     const addUserBtn = document.getElementById('addUserBtn');
     
-    // Normalize role to lowercase for comparison
-    const role = (currentUser.role || '').toLowerCase();
+    console.log('Applying permissions for user:', currentUser.username);
     
-    console.log('Applying permissions for role:', role);
+    // Show tabs based on view permission
+    propertiesTab.style.display = hasPermission('properties', 'view') ? 'block' : 'none';
+    usersTab.style.display = hasPermission('users', 'view') ? 'block' : 'none';
+    violationsTab.style.display = hasPermission('violations', 'view') ? 'block' : 'none';
     
-    if (role === 'admin') {
-        propertiesTab.style.display = 'block';
-        usersTab.style.display = 'block';
-        violationsTab.style.display = 'block';
-        addVehicleBtn.style.display = 'inline-block';
-        importBtn.style.display = 'inline-block';
-        exportBtn.style.display = 'inline-block';
-        addPropertyBtn.style.display = 'inline-block';
-        addUserBtn.style.display = 'inline-block';
-        console.log('Admin permissions applied - all features visible');
-    } else if (role === 'user') {
-        propertiesTab.style.display = 'none';
-        usersTab.style.display = 'none';
-        violationsTab.style.display = 'none';
-        addVehicleBtn.style.display = 'inline-block';
-        importBtn.style.display = 'inline-block';
-        exportBtn.style.display = 'inline-block';
-        addPropertyBtn.style.display = 'none';
-        addUserBtn.style.display = 'none';
-        console.log('User permissions applied - vehicle features visible');
-    } else {
-        // Operator role
-        propertiesTab.style.display = 'none';
-        usersTab.style.display = 'none';
-        violationsTab.style.display = 'none';
-        addVehicleBtn.style.display = 'none';
-        importBtn.style.display = 'none';
-        exportBtn.style.display = 'inline-block';
-        addPropertyBtn.style.display = 'none';
-        addUserBtn.style.display = 'none';
-        console.log('Operator permissions applied - read-only mode');
-    }
+    // Show buttons based on create_delete permission
+    addVehicleBtn.style.display = hasPermission('vehicles', 'create_delete') ? 'inline-block' : 'none';
+    importBtn.style.display = hasPermission('vehicles', 'create_delete') ? 'inline-block' : 'none';
+    exportBtn.style.display = hasPermission('vehicles', 'view') ? 'inline-block' : 'none';
+    addPropertyBtn.style.display = hasPermission('properties', 'create_delete') ? 'inline-block' : 'none';
+    addUserBtn.style.display = hasPermission('users', 'create_delete') ? 'inline-block' : 'none';
+    
+    console.log('Permissions applied successfully');
 }
 
 function canEditVehicles() {
-    const role = (currentUser.role || '').toLowerCase();
-    return role === 'admin' || role === 'user';
+    return hasPermission('vehicles', 'edit');
 }
 
 function canDeleteVehicles() {
-    const role = (currentUser.role || '').toLowerCase();
-    return role === 'admin' || role === 'user';
+    return hasPermission('vehicles', 'create_delete');
 }
 
 // Tab Navigation
