@@ -70,12 +70,13 @@ $router->get('/.*', function() use ($config) {
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     
     // Serve static assets directly
-    if (preg_match('/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/', $uri)) {
+    if (preg_match('/\.(html|js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/', $uri)) {
         $file = __DIR__ . '/public' . str_replace($config['base_path'], '', $uri);
         if (file_exists($file)) {
             // Proper MIME types for static assets
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             $mimeTypes = [
+                'html' => 'text/html',
                 'css' => 'text/css',
                 'js' => 'application/javascript',
                 'png' => 'image/png',
