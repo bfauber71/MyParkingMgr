@@ -129,9 +129,11 @@ try {
     
     // Insert violation items
     $displayOrder = 0;
+    $validViolationsInserted = 0;
+    
     foreach ($violationIds as $violationId) {
         // Fetch violation name
-        $stmt = $db->prepare("SELECT name FROM violations WHERE id = ?");
+        $stmt = $db->prepare("SELECT name FROM violations WHERE id = ? AND is_active = 1");
         $stmt->execute([$violationId]);
         $violation = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -141,6 +143,7 @@ try {
                 VALUES (?, ?, ?, ?)
             ");
             $stmt->execute([$ticketId, $violationId, $violation['name'], $displayOrder++]);
+            $validViolationsInserted++;
         }
     }
     
@@ -151,6 +154,15 @@ try {
             VALUES (?, NULL, ?, ?)
         ");
         $stmt->execute([$ticketId, $customNote, $displayOrder]);
+        $validViolationsInserted++;
+    }
+    
+    // Verify at least one valid violation was inserted
+    if ($validViolationsInserted === 0) {
+        $db->rollBack();
+        http_response_code(400);
+        echo json_encode(['error' => 'No valid violations selected']);
+        exit;
     }
     
     $db->commit();

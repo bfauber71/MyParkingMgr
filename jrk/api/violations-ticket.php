@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
@@ -9,6 +10,8 @@ if (!Session::isAuthenticated()) {
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
+
+$user = Session::user();
 
 $ticketId = $_GET['id'] ?? '';
 
@@ -37,6 +40,17 @@ try {
     if (!$ticket) {
         http_response_code(404);
         echo json_encode(['error' => 'Ticket not found']);
+        exit;
+    }
+    
+    // Check property access - verify user has permission to view this ticket
+    $stmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
+    $stmt->execute([$ticket['property']]);
+    $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($propertyData && !canAccessProperty($propertyData['id'])) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You do not have access to this ticket']);
         exit;
     }
     
