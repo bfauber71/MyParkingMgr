@@ -7,6 +7,55 @@ let currentUser = null;
 let properties = [];
 let currentSection = 'vehicles';
 
+// Toast Notification System
+function showToast(message, type = 'info', autoClose = true) {
+    let toastContainer = document.querySelector('.toast-container');
+    
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" aria-label="Close">×</button>
+    `;
+    
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => removeToast(toast));
+    
+    toastContainer.appendChild(toast);
+    
+    if (autoClose) {
+        setTimeout(() => removeToast(toast), 2000);
+    }
+    
+    return toast;
+}
+
+function removeToast(toast) {
+    if (!toast || !toast.parentElement) return;
+    
+    toast.classList.add('removing');
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.parentElement.removeChild(toast);
+        }
+    }, 300);
+}
+
 // DOM Elements - Common
 const loginPage = document.getElementById('loginPage');
 const dashboardPage = document.getElementById('dashboardPage');
@@ -537,17 +586,17 @@ async function handleSaveProperty(e) {
         console.log('Property save response:', responseData);
         
         if (response.ok) {
-            alert('Property created successfully!');
+            showToast('Property created successfully!', 'success');
             closeModalByName('property');
             await loadProperties();
             loadPropertiesSection();
         } else {
             console.error('Property creation failed:', responseData);
-            alert(responseData.error || 'Error saving property');
+            showToast(responseData.error || 'Error saving property', 'error');
         }
     } catch (error) {
         console.error('Property save network error:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -604,17 +653,17 @@ async function handleUpdateProperty(e) {
         console.log('Property update response:', responseData);
         
         if (response.ok) {
-            alert('Property updated successfully!');
+            showToast('Property updated successfully!', 'success');
             closeModalByName('property');
             await loadProperties();
             loadPropertiesSection();
         } else {
             console.error('Property update failed:', responseData);
-            alert(responseData.error || 'Error updating property');
+            showToast(responseData.error || 'Error updating property', 'error');
         }
     } catch (error) {
         console.error('Property update network error:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -637,15 +686,15 @@ async function deleteProperty(id, name) {
         console.log('Delete property response:', responseData);
         
         if (response.ok) {
-            alert('Property deleted successfully!');
+            showToast('Property deleted successfully!', 'success');
             await loadProperties();
             loadPropertiesSection();
         } else {
-            alert(responseData.error || 'Error deleting property');
+            showToast(responseData.error || 'Error deleting property', 'error');
         }
     } catch (error) {
         console.error('Property delete error:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -758,16 +807,16 @@ async function handleSaveUser(e) {
         console.log('User save response:', responseData);
         
         if (response.ok) {
-            alert('User created successfully!');
+            showToast('User created successfully!', 'success');
             closeModalByName('user');
             loadUsersSection();
         } else {
             console.error('User creation failed:', responseData);
-            alert(responseData.error || 'Error saving user');
+            showToast(responseData.error || 'Error saving user', 'error');
         }
     } catch (error) {
         console.error('User save network error:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -788,10 +837,10 @@ async function deleteUser(id, username) {
             loadUsersSection();
         } else {
             const error = await response.json();
-            alert(error.error || 'Error deleting user');
+            showToast(error.error || 'Error deleting user', 'error');
         }
     } catch (error) {
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -1061,16 +1110,16 @@ async function handleSaveVehicle(e) {
         console.log('Vehicle save response:', responseData);
         
         if (response.ok) {
-            alert(isEdit ? 'Vehicle updated successfully!' : 'Vehicle created successfully!');
+            showToast(isEdit ? 'Vehicle updated successfully!' : 'Vehicle created successfully!', 'success');
             closeModalByName('vehicle');
             searchVehicles();
         } else {
             console.error('Vehicle save failed:', responseData);
-            alert(responseData.error || 'Error saving vehicle');
+            showToast(responseData.error || 'Error saving vehicle', 'error');
         }
     } catch (error) {
         console.error('Vehicle save network error:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -1093,14 +1142,14 @@ async function deleteVehicle(id, title) {
         console.log('Delete vehicle response:', responseData);
         
         if (response.ok) {
-            alert('Vehicle deleted successfully!');
+            showToast('Vehicle deleted successfully!', 'success');
             searchVehicles();
         } else {
-            alert(responseData.error || 'Error deleting vehicle');
+            showToast(responseData.error || 'Error deleting vehicle', 'error');
         }
     } catch (error) {
         console.error('Vehicle delete error:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -1125,14 +1174,14 @@ function importVehicles() {
             const data = await response.json();
             
             if (response.ok && data.success) {
-                alert(data.message + (data.errors.length > 0 ? '\n\nErrors:\n' + data.errors.join('\n') : ''));
+                showToast(data.message + (data.errors.length > 0 ? '\n\nErrors:\n' + data.errors.join('\n') : ''), 'success');
                 searchVehicles(); // Refresh the list
             } else {
-                alert('Import failed: ' + (data.error || 'Unknown error'));
+                showToast('Import failed: ' + (data.error || 'Unknown error'), 'error');
             }
         } catch (error) {
             console.error('Import error:', error);
-            alert('Import failed. Please try again.');
+            showToast('Import failed. Please try again.', 'error');
         }
         
         // Reset file input
@@ -1186,11 +1235,11 @@ async function loadViolations() {
             renderViolationCheckboxes();
         } else {
             console.error('Failed to load violations');
-            alert('Failed to load violation options');
+            showToast('Failed to load violation options', 'error');
         }
     } catch (error) {
         console.error('Error loading violations:', error);
-        alert('Error loading violation options');
+        showToast('Error loading violation options', 'error');
     }
 }
 
@@ -1241,7 +1290,7 @@ async function handleCreateViolation(e) {
     
     // Validate at least one violation
     if (selectedViolations.length === 0 && !customNote.trim()) {
-        alert('Please select at least one violation or enter a custom note');
+        showToast('Please select at least one violation or enter a custom note', 'warning');
         return;
     }
     
@@ -1286,16 +1335,16 @@ async function handleCreateViolation(e) {
         
         if (response.ok && data.success) {
             closeModalByName('violation');
-            alert('Violation ticket created successfully!');
+            showToast('Violation ticket created successfully!', 'success', false);
             
             // Open print window
             printViolationTicket(data.ticketId);
         } else {
-            alert(data.error || 'Failed to create violation ticket');
+            showToast(data.error || 'Failed to create violation ticket', 'error');
         }
     } catch (error) {
         console.error('Error creating violation:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -1400,11 +1449,11 @@ async function editViolationType(id) {
         if (violation) {
             openViolationTypeModal(violation);
         } else {
-            alert('Violation not found');
+            showToast('Violation not found', 'error');
         }
     } catch (error) {
         console.error('Error loading violation:', error);
-        alert('Error loading violation. Please try again.');
+        showToast('Error loading violation. Please try again.', 'error');
     }
 }
 
@@ -1417,7 +1466,7 @@ async function handleViolationTypeSave(e) {
     const isActive = document.getElementById('violationTypeIsActive').checked;
     
     if (!name) {
-        alert('Violation name is required');
+        showToast('Violation name is required', 'warning');
         return;
     }
     
@@ -1436,14 +1485,14 @@ async function handleViolationTypeSave(e) {
         if (response.ok) {
             closeModalByName('violationType');
             loadViolationTypesList();
-            alert(id ? 'Violation updated successfully!' : 'Violation added successfully!');
+            showToast(id ? 'Violation updated successfully!' : 'Violation added successfully!', 'success');
         } else {
             const error = await response.json();
-            alert(error.error || 'Error saving violation');
+            showToast(error.error || 'Error saving violation', 'error');
         }
     } catch (error) {
         console.error('Error saving violation:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
@@ -1462,14 +1511,14 @@ async function deleteViolationType(id, name) {
         
         if (response.ok) {
             loadViolationTypesList();
-            alert('Violation deleted successfully!');
+            showToast('Violation deleted successfully!', 'success');
         } else {
             const error = await response.json();
-            alert(error.error || 'Error deleting violation');
+            showToast(error.error || 'Error deleting violation', 'error');
         }
     } catch (error) {
         console.error('Error deleting violation:', error);
-        alert('Network error. Please try again.');
+        showToast('Network error. Please try again.', 'error');
     }
 }
 
