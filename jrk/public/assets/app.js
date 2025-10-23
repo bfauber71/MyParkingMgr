@@ -47,6 +47,27 @@ function setupEventListeners() {
 
 // Authentication
 async function checkAuth() {
+    // DEMO MODE: For Replit preview without database
+    const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+    
+    if (isDemo) {
+        // Simulate logged-in admin user for demo purposes
+        currentUser = {
+            id: 1,
+            username: 'admin',
+            role: 'Admin',
+            email: 'admin@example.com'
+        };
+        properties = [
+            { id: 1, name: 'Sunset Apartments' },
+            { id: 2, name: 'Oak Ridge Condos' },
+            { id: 3, name: 'Maple View Townhomes' }
+        ];
+        showDashboard();
+        return;
+    }
+    
+    // PRODUCTION MODE: Check real authentication
     try {
         const response = await fetch(`${API_BASE}/user`, {
             credentials: 'include'
@@ -239,6 +260,19 @@ function updatePropertyFilters() {
 async function loadPropertiesSection() {
     document.getElementById('addPropertyBtn').onclick = () => openPropertyModal();
     
+    // DEMO MODE: Show sample properties without database
+    const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+    if (isDemo) {
+        const demoProperties = [
+            { id: 1, name: 'Sunset Apartments', address: '123 Sunset Blvd', created_at: '2024-01-15' },
+            { id: 2, name: 'Oak Ridge Condos', address: '456 Oak Street', created_at: '2024-02-20' },
+            { id: 3, name: 'Maple View Townhomes', address: '789 Maple Avenue', created_at: '2024-03-10' }
+        ];
+        displayPropertiesTable(demoProperties);
+        return;
+    }
+    
+    // PRODUCTION MODE: Fetch from API
     try {
         const response = await fetch(`${API_BASE}/properties-list`, {
             credentials: 'include'
@@ -361,6 +395,19 @@ async function deleteProperty(id, name) {
 async function loadUsersSection() {
     document.getElementById('addUserBtn').onclick = () => openUserModal();
     
+    // DEMO MODE: Show sample users without database
+    const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+    if (isDemo) {
+        const demoUsers = [
+            { id: 1, username: 'admin', email: 'admin@example.com', role: 'Admin', created_at: '2024-01-01' },
+            { id: 2, username: 'manager', email: 'manager@example.com', role: 'User', created_at: '2024-02-15' },
+            { id: 3, username: 'viewer', email: 'viewer@example.com', role: 'Operator', created_at: '2024-03-20' }
+        ];
+        displayUsersTable(demoUsers);
+        return;
+    }
+    
+    // PRODUCTION MODE: Fetch from API
     try {
         const response = await fetch(`${API_BASE}/users-list`, {
             credentials: 'include'
@@ -498,6 +545,81 @@ async function searchVehicles() {
     const query = document.getElementById('searchInput').value;
     const property = document.getElementById('propertyFilter').value;
     
+    // DEMO MODE: Show sample vehicles without database
+    const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+    if (isDemo) {
+        const demoVehicles = [
+            {
+                id: 1,
+                property: 'Sunset Apartments',
+                tag_number: 'P12345',
+                plate_number: 'ABC-1234',
+                state: 'CA',
+                make: 'Toyota',
+                model: 'Camry',
+                color: 'Silver',
+                year: '2020',
+                apt_number: '101',
+                reserved_space: 'A-15',
+                owner_name: 'John Smith',
+                owner_phone: '555-1234',
+                owner_email: 'john@example.com'
+            },
+            {
+                id: 2,
+                property: 'Oak Ridge Condos',
+                tag_number: 'P67890',
+                plate_number: 'XYZ-5678',
+                state: 'CA',
+                make: 'Honda',
+                model: 'Civic',
+                color: 'Blue',
+                year: '2019',
+                apt_number: '205',
+                reserved_space: 'B-22',
+                owner_name: 'Jane Doe',
+                owner_phone: '555-5678',
+                owner_email: 'jane@example.com'
+            },
+            {
+                id: 3,
+                property: 'Maple View Townhomes',
+                tag_number: 'P11223',
+                plate_number: 'DEF-9012',
+                state: 'CA',
+                make: 'Ford',
+                model: 'F-150',
+                color: 'Black',
+                year: '2021',
+                apt_number: '12',
+                reserved_space: 'C-5',
+                owner_name: 'Bob Wilson',
+                owner_phone: '555-9012',
+                owner_email: 'bob@example.com'
+            }
+        ];
+        
+        // Filter demo vehicles by search query and property
+        let filtered = demoVehicles;
+        if (property) {
+            filtered = filtered.filter(v => v.property === property);
+        }
+        if (query) {
+            const q = query.toLowerCase();
+            filtered = filtered.filter(v =>
+                v.tag_number?.toLowerCase().includes(q) ||
+                v.plate_number?.toLowerCase().includes(q) ||
+                v.owner_name?.toLowerCase().includes(q) ||
+                v.make?.toLowerCase().includes(q) ||
+                v.model?.toLowerCase().includes(q)
+            );
+        }
+        
+        displayVehicles(filtered);
+        return;
+    }
+    
+    // PRODUCTION MODE: Fetch from API
     const params = new URLSearchParams();
     if (query) params.append('q', query);
     if (property) params.append('property', property);

@@ -91,9 +91,16 @@ See **INSTALLATION-GUIDE.md** for detailed step-by-step instructions.
 
 ## Testing on Replit
 
-A PHP test server is running on port 5000 for preview purposes only. This is NOT the production deployment - just a preview.
+A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
-⚠️ **Note:** The database connection will fail on Replit (no MySQL). To actually use the application, deploy to your shared hosting.
+✅ **Demo Features:**
+- Auto-login as Admin user (bypasses database requirement)
+- Shows all 3 tabs: Vehicles, Properties, Users
+- Displays sample data (3 vehicles, 3 properties, 3 users)
+- Search and filter work with demo data
+- Full UI/UX preview without MySQL database
+
+⚠️ **Note:** Demo mode ONLY works on Replit/localhost. On production (https://2clv.com/jrk), the app uses real MySQL database authentication and data.
 
 ## Default Credentials
 
