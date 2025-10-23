@@ -34,6 +34,13 @@ class Database {
     }
     
     /**
+     * Get PDO instance (alias for connect)
+     */
+    public static function getInstance() {
+        return self::connect();
+    }
+    
+    /**
      * Execute a SELECT query
      */
     public static function query($sql, $params = []) {

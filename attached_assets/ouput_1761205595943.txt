@@ -1,0 +1,49 @@
+ManageMyParking Diagnostic
+=== PHP VERSION ===
+PHP Version: 8.3.15
+Required: 7.4 or higher
+Status: ✅ OK
+
+=== PHP EXTENSIONS ===
+pdo: ✅ Loaded
+pdo_mysql: ✅ Loaded
+json: ✅ Loaded
+session: ✅ Loaded
+mbstring: ✅ Loaded
+
+=== CONFIG FILE ===
+config.php: ✅ Exists
+Database Host: mysql.2clv.com
+Database Name: managemyparking
+Database User: jrkwhitesands
+Database Password: ***SET***
+
+=== DATABASE CONNECTION ===
+Connection: ✅ SUCCESS
+
+=== DATABASE TABLES ===
+users: ✅ 1 rows
+properties: ✅ 3 rows
+vehicles: ✅ 3 rows
+property_contacts: ✅ 3 rows
+user_assigned_properties: ✅ 0 rows
+audit_logs: ✅ 8 rows
+sessions: ✅ 0 rows
+
+=== FILE PERMISSIONS ===
+includes/database.php: ✅ Exists (permissions: 0644)
+includes/session.php: ✅ Exists (permissions: 0644)
+api/properties.php: ✅ Exists (permissions: 0644)
+
+=== SESSION TEST ===
+Session: ✅ Working
+Session ID: 
+
+=== API ENDPOINT TEST ===
+Testing /api/properties endpoint...
+
+
+Fatal error:  Uncaught Error: Call to undefined method Database::getInstance() in /home/new2clvmgr/2clv.com/jrk/diagnostic.php:121
+Stack trace:
+#0 {main}
+  thrown in /home/new2clvmgr/2clv.com/jrk/diagnostic.php on line 121
