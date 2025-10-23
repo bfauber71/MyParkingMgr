@@ -1014,6 +1014,9 @@ async function handleSaveVehicle(e) {
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     
+    const isEdit = !!data.id;
+    console.log(isEdit ? 'Updating vehicle:' : 'Creating vehicle:', data);
+    
     try {
         const response = await fetch(`${API_BASE}/vehicles-create`, {
             method: 'POST',
@@ -1022,14 +1025,20 @@ async function handleSaveVehicle(e) {
             body: JSON.stringify(data)
         });
         
+        console.log('Vehicle save response status:', response.status);
+        const responseData = await response.json();
+        console.log('Vehicle save response:', responseData);
+        
         if (response.ok) {
+            alert(isEdit ? 'Vehicle updated successfully!' : 'Vehicle created successfully!');
             closeModalByName('vehicle');
             searchVehicles();
         } else {
-            const error = await response.json();
-            alert(error.error || 'Error saving vehicle');
+            console.error('Vehicle save failed:', responseData);
+            alert(responseData.error || 'Error saving vehicle');
         }
     } catch (error) {
+        console.error('Vehicle save network error:', error);
         alert('Network error. Please try again.');
     }
 }
@@ -1039,6 +1048,8 @@ async function deleteVehicle(id, title) {
         return;
     }
     
+    console.log('Deleting vehicle:', id);
+    
     try {
         const response = await fetch(`${API_BASE}/vehicles-delete`, {
             method: 'POST',
@@ -1047,13 +1058,17 @@ async function deleteVehicle(id, title) {
             body: JSON.stringify({ id })
         });
         
+        const responseData = await response.json();
+        console.log('Delete vehicle response:', responseData);
+        
         if (response.ok) {
+            alert('Vehicle deleted successfully!');
             searchVehicles();
         } else {
-            const error = await response.json();
-            alert(error.error || 'Error deleting vehicle');
+            alert(responseData.error || 'Error deleting vehicle');
         }
     } catch (error) {
+        console.error('Vehicle delete error:', error);
         alert('Network error. Please try again.');
     }
 }

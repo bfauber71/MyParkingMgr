@@ -55,7 +55,6 @@ try {
     if ($vehicleId) {
         $stmt = $db->prepare("
             UPDATE vehicles SET
-                property_id = ?,
                 property = ?,
                 tag_number = ?,
                 plate_number = ?,
@@ -74,7 +73,6 @@ try {
         ");
         
         $stmt->execute([
-            $propertyId,
             $property,
             $input['tagNumber'] ?? null,
             $input['plateNumber'] ?? null,
@@ -100,15 +98,17 @@ try {
             'message' => 'Vehicle updated successfully'
         ]);
     } else {
+        $newId = Database::uuid();
+        
         $stmt = $db->prepare("
             INSERT INTO vehicles (
-                property_id, property, tag_number, plate_number, state, make, model, color, year,
+                id, property, tag_number, plate_number, state, make, model, color, year,
                 apt_number, owner_name, owner_phone, owner_email, reserved_space, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
         
         $stmt->execute([
-            $propertyId,
+            $newId,
             $property,
             $input['tagNumber'] ?? null,
             $input['plateNumber'] ?? null,
@@ -124,9 +124,7 @@ try {
             $input['reservedSpace'] ?? null
         ]);
         
-        $newId = $db->lastInsertId();
-        
-        $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "ID $newId";
+        $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "New Vehicle";
         auditLog('create_vehicle', 'vehicles', $newId, "Created vehicle: $identifier");
         
         echo json_encode([
