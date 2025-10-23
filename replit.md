@@ -5,7 +5,8 @@
 ManageMyParking is a complete PHP and MySQL vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide a robust, no-framework solution for managing vehicles, properties, users, and violations, specifically tailored for deployment via FTP without requiring command-line access, Composer, or Node.js. The project aims for broad compatibility with standard shared hosting setups, including cPanel and phpMyAdmin for database management.
 
 Key capabilities include:
-- Role-based access control (Admin, User, Operator)
+- **Granular permission matrix system** replacing legacy role-based access control
+- Customizable per-user permissions for view, edit, and create/delete actions across all four modules (vehicles, users, properties, violations)
 - Comprehensive CRUD operations for vehicles, properties, and users
 - Violation ticketing system with printable tickets
 - CSV import/export for vehicle data
@@ -38,18 +39,24 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - **Authentication:** PHP sessions combined with `password_hash`/`password_verify` for secure user authentication.
 - **Routing:** A custom front controller pattern handles URL routing.
 - **Frontend:** Vanilla HTML/CSS/JavaScript with no external dependencies or build processes. Mobile-first responsive design with 44px minimum touch targets, 16px input font sizes (prevents iOS zoom), and progressive enhancement at 768px and 1024px breakpoints. Custom toast notification system with type-based styling and configurable auto-close.
-- **Security Features:** PDO prepared statements, bcrypt password hashing, HTTP-only session cookies, XSS prevention via `htmlspecialchars`, role-based access control, comprehensive audit logging, and Apache security headers.
-- **Role-Based System:**
-    - **Admin:** Full CRUD access to vehicles, properties, users, and violations.
-    - **User:** Manage vehicles and create violations for assigned properties.
-    - **Operator:** View-only access to vehicles.
-- **Deployment:** Optimized for FTP-only deployment to shared hosting, compatible with cPanel/phpMyAdmin. Includes a single `install.sql` file for database setup.
+- **Security Features:** PDO prepared statements, bcrypt password hashing, HTTP-only session cookies, XSS prevention via `htmlspecialchars`, granular permission-based access control, comprehensive audit logging, and Apache security headers.
+- **Permission Matrix System (Oct 23, 2025):**
+    - **Granular Permissions:** Each user has customizable permissions for all four modules (vehicles, users, properties, violations) across three action levels:
+        - **View:** Read-only access to module data
+        - **Edit:** Modify existing records (implies view permission)
+        - **Create/Delete:** Add new records and delete existing ones (implies edit and view permissions)
+    - **Permission Hierarchy:** Permissions follow a hierarchical model where create/delete implies edit and view, and edit implies view
+    - **Backward Compatibility:** System falls back to legacy role-based permissions if user_permissions table doesn't exist
+    - **Legacy Role Mapping:** Admin gets all permissions; User/Operator default to view-only until customized
+    - **Database Schema:** `user_permissions` table with user_id FK, module enum, and boolean flags for can_view, can_edit, can_create_delete
+    - **Migration Support:** `migrate-permissions.sql` creates permissions table and seeds from existing roles
+- **Deployment:** Optimized for FTP-only deployment to shared hosting, compatible with cPanel/phpMyAdmin. Includes `install.sql` for fresh installations and `migrate-permissions.sql` for upgrading existing systems.
 - **Environment:** Auto-detection for base paths (Replit vs. production) and HTTPS auto-detection for session cookies.
 
 ### Feature Specifications
 - **Vehicle Management:** 14 fields, search with clear button, edit, delete, export, CSV import with validation. Empty state displayed until search is performed. Violation count indicator appears on vehicle cards when violations exist.
 - **Property Management:** Create, edit, delete with 1-3 contacts per property, with transactions for data integrity. Property name changes automatically update vehicle references.
-- **User Management:** Create, edit, delete, role assignment (Admin only). Password is optional when editing (leave blank to keep current password).
+- **User Management:** Create, edit, delete, role assignment with granular permission matrix UI. Permission matrix displays all 12 possible permissions (4 modules × 3 actions) with preset buttons for Admin (all), View Only, and Custom configurations. Password is optional when editing (leave blank to keep current password). Frontend enforces permission dependencies (edit checkbox auto-checks view, create/delete auto-checks both edit and view).
 - **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
 - **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing violations with pagination (5 per page, up to 100 total) in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Includes Previous/Next navigation and page counter. Backend includes indexed queries for performance and property-based access control. The vehicles-search API endpoint returns violation_count for each vehicle with robust error handling and graceful degradation if violation_tickets table doesn't exist.

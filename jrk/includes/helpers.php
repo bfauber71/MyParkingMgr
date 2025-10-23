@@ -301,6 +301,11 @@ function hasPermission($module, $action) {
 
 /**
  * Legacy role-based permission check (backward compatibility)
+ * Matches original RBAC behavior:
+ * - Admin: All permissions on all modules
+ * - User: All permissions on vehicles ONLY
+ * - Operator: View-only on vehicles ONLY
+ * 
  * @param string $module Module name
  * @param string $action Action
  * @param string $role User role
@@ -309,22 +314,19 @@ function hasPermission($module, $action) {
 function hasPermissionByRole($module, $action, $role) {
     $role = strtolower($role);
     
-    // Admin has all permissions
+    // Admin has all permissions on all modules
     if ($role === 'admin') {
         return true;
     }
     
-    // Operator has view-only on all modules
+    // Operator has view-only on vehicles ONLY
     if ($role === 'operator') {
-        return $action === ACTION_VIEW;
+        return $module === MODULE_VEHICLES && $action === ACTION_VIEW;
     }
     
-    // User role has view/edit/create_delete on vehicles only, view-only on others
+    // User role has all permissions on vehicles ONLY
     if ($role === 'user') {
-        if ($module === MODULE_VEHICLES) {
-            return true; // All actions on vehicles
-        }
-        return $action === ACTION_VIEW; // View-only on other modules
+        return $module === MODULE_VEHICLES;
     }
     
     return false;

@@ -244,15 +244,13 @@ function showError(message) {
 function hasPermission(module, action) {
     if (!currentUser) return false;
     
-    // Demo mode: give admin all permissions
+    // Fallback to role-based permissions if permissions not loaded
+    // Matches legacy RBAC: Admin=all, User=vehicles only, Operator=vehicles view-only
     if (!currentUser.permissions) {
         const role = (currentUser.role || '').toLowerCase();
         if (role === 'admin') return true;
-        if (role === 'operator') return action === 'view';
-        if (role === 'user') {
-            if (module === 'vehicles') return true;
-            return action === 'view';
-        }
+        if (role === 'operator') return module === 'vehicles' && action === 'view';
+        if (role === 'user') return module === 'vehicles';
         return false;
     }
     

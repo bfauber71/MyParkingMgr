@@ -93,110 +93,28 @@ ON DUPLICATE KEY UPDATE
     can_edit = TRUE,
     can_create_delete = TRUE;
 
--- User role: VIEW-ONLY for vehicles (default behavior)
+-- User role: FULL permissions on vehicles only (matches legacy behavior)
+-- Legacy: "User" role could manage vehicles and create violations for assigned properties
 INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
 SELECT 
     u.id,
     'vehicles',
     TRUE,
-    FALSE,
-    FALSE
-FROM users u
-WHERE LOWER(u.role) = 'user'
-ON DUPLICATE KEY UPDATE
-    can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
-
-INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
-SELECT 
-    u.id,
-    'users',
     TRUE,
-    FALSE,
-    FALSE
+    TRUE
 FROM users u
 WHERE LOWER(u.role) = 'user'
 ON DUPLICATE KEY UPDATE
     can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
+    can_edit = TRUE,
+    can_create_delete = TRUE;
 
-INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
-SELECT 
-    u.id,
-    'properties',
-    TRUE,
-    FALSE,
-    FALSE
-FROM users u
-WHERE LOWER(u.role) = 'user'
-ON DUPLICATE KEY UPDATE
-    can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
-
-INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
-SELECT 
-    u.id,
-    'violations',
-    TRUE,
-    FALSE,
-    FALSE
-FROM users u
-WHERE LOWER(u.role) = 'user'
-ON DUPLICATE KEY UPDATE
-    can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
-
--- Operator role: VIEW-ONLY for all modules
+-- Operator role: VIEW-ONLY on vehicles only (matches legacy behavior)
+-- Legacy: "Operator" role had view-only access to vehicles
 INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
 SELECT 
     u.id,
     'vehicles',
-    TRUE,
-    FALSE,
-    FALSE
-FROM users u
-WHERE LOWER(u.role) = 'operator'
-ON DUPLICATE KEY UPDATE
-    can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
-
-INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
-SELECT 
-    u.id,
-    'users',
-    TRUE,
-    FALSE,
-    FALSE
-FROM users u
-WHERE LOWER(u.role) = 'operator'
-ON DUPLICATE KEY UPDATE
-    can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
-
-INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
-SELECT 
-    u.id,
-    'properties',
-    TRUE,
-    FALSE,
-    FALSE
-FROM users u
-WHERE LOWER(u.role) = 'operator'
-ON DUPLICATE KEY UPDATE
-    can_view = TRUE,
-    can_edit = FALSE,
-    can_create_delete = FALSE;
-
-INSERT INTO user_permissions (user_id, module, can_view, can_edit, can_create_delete)
-SELECT 
-    u.id,
-    'violations',
     TRUE,
     FALSE,
     FALSE
