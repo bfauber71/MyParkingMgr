@@ -92,6 +92,58 @@ CREATE TABLE vehicles (
     FULLTEXT INDEX ft_search (tag_number, plate_number, make, model, owner_name, apt_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Violations Reference Table
+CREATE TABLE violations (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    display_order TINYINT UNSIGNED DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_is_active (is_active),
+    INDEX idx_display_order (display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Violation Tickets Table
+CREATE TABLE violation_tickets (
+    id VARCHAR(36) PRIMARY KEY,
+    vehicle_id VARCHAR(36) NOT NULL,
+    property VARCHAR(255) NOT NULL,
+    issued_by_user_id VARCHAR(36) NOT NULL,
+    issued_by_username VARCHAR(255) NOT NULL,
+    issued_at DATETIME NOT NULL,
+    custom_note TEXT,
+    vehicle_year VARCHAR(10),
+    vehicle_color VARCHAR(50),
+    vehicle_make VARCHAR(100),
+    vehicle_model VARCHAR(100),
+    property_name VARCHAR(255),
+    property_address TEXT,
+    property_contact_name VARCHAR(255),
+    property_contact_phone VARCHAR(50),
+    property_contact_email VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
+    FOREIGN KEY (issued_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_vehicle_id (vehicle_id),
+    INDEX idx_property (property),
+    INDEX idx_issued_by (issued_by_user_id),
+    INDEX idx_issued_at (issued_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Violation Ticket Items (Join Table)
+CREATE TABLE violation_ticket_items (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ticket_id VARCHAR(36) NOT NULL,
+    violation_id VARCHAR(36),
+    description TEXT NOT NULL,
+    display_order TINYINT UNSIGNED DEFAULT 0,
+    FOREIGN KEY (ticket_id) REFERENCES violation_tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (violation_id) REFERENCES violations(id) ON DELETE SET NULL,
+    INDEX idx_ticket_id (ticket_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Audit Logs Table
 CREATE TABLE audit_logs (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -149,6 +201,19 @@ INSERT INTO vehicles (id, property, tag_number, plate_number, state, make, model
 ('770e8400-e29b-41d4-a716-446655440001', 'Sunset Apartments', 'PKG001', 'ABC123', 'CA', 'Toyota', 'Camry', 'Silver', '2020', '101', 'John Doe', '555-0111', 'john@example.com', 'A-15'),
 ('770e8400-e29b-41d4-a716-446655440002', 'Harbor View Complex', 'PKG002', 'XYZ789', 'CA', 'Honda', 'Accord', 'Black', '2021', '205', 'Jane Smith', '555-0222', 'jane@example.com', 'B-22'),
 ('770e8400-e29b-41d4-a716-446655440003', 'Mountain Ridge', 'PKG003', 'DEF456', 'CO', 'Ford', 'F-150', 'Blue', '2019', '304', 'Bob Johnson', '555-0333', 'bob@example.com', 'C-10');
+
+-- Insert Default Violations
+INSERT INTO violations (id, name, display_order) VALUES
+('880e8400-e29b-41d4-a716-446655440001', 'Expired Parking Permit', 1),
+('880e8400-e29b-41d4-a716-446655440002', 'No Parking Permit Displayed', 2),
+('880e8400-e29b-41d4-a716-446655440003', 'Parked in Reserved Space', 3),
+('880e8400-e29b-41d4-a716-446655440004', 'Parked in Fire Lane', 4),
+('880e8400-e29b-41d4-a716-446655440005', 'Parked in Handicapped Space Without Permit', 5),
+('880e8400-e29b-41d4-a716-446655440006', 'Blocking Dumpster/Loading Zone', 6),
+('880e8400-e29b-41d4-a716-446655440007', 'Double Parked', 7),
+('880e8400-e29b-41d4-a716-446655440008', 'Parked Over Line/Taking Multiple Spaces', 8),
+('880e8400-e29b-41d4-a716-446655440009', 'Abandoned Vehicle', 9),
+('880e8400-e29b-41d4-a716-446655440010', 'Commercial Vehicle in Residential Area', 10);
 
 -- ============================================
 -- INSTALLATION COMPLETE

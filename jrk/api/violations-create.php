@@ -1,0 +1,170 @@
+<?php
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+Session::start();
+
+if (!Session::isAuthenticated()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
+
+$user = Session::user();
+
+if (strcasecmp($user['role'], 'operator') === 0) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Operators cannot create violation tickets']);
+    exit;
+}
+
+$input = json_decode(file_get_contents('php://input'), true);
+
+$vehicleId = trim($input['vehicleId'] ?? '');
+$violationIds = $input['violations'] ?? [];
+$customNote = trim($input['customNote'] ?? '');
+
+if (empty($vehicleId)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Vehicle ID is required']);
+    exit;
+}
+
+if (empty($violationIds) && empty($customNote)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'At least one violation or custom note is required']);
+    exit;
+}
+
+$db = Database::getInstance();
+
+try {
+    $db->beginTransaction();
+    
+    // Fetch vehicle data
+    $stmt = $db->prepare("
+        SELECT id, property, year, color, make, model
+        FROM vehicles
+        WHERE id = ?
+    ");
+    $stmt->execute([$vehicleId]);
+    $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$vehicle) {
+        $db->rollBack();
+        http_response_code(404);
+        echo json_encode(['error' => 'Vehicle not found']);
+        exit;
+    }
+    
+    // Check property access
+    $stmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
+    $stmt->execute([$vehicle['property']]);
+    $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$propertyData) {
+        $db->rollBack();
+        http_response_code(404);
+        echo json_encode(['error' => 'Property not found']);
+        exit;
+    }
+    
+    $propertyId = $propertyData['id'];
+    
+    if (!canAccessProperty($propertyId)) {
+        $db->rollBack();
+        http_response_code(403);
+        echo json_encode(['error' => 'You do not have access to this property']);
+        exit;
+    }
+    
+    // Fetch property details with first contact
+    $stmt = $db->prepare("
+        SELECT 
+            p.id,
+            p.name,
+            p.address,
+            pc.name AS contact_name,
+            pc.phone AS contact_phone,
+            pc.email AS contact_email
+        FROM properties p
+        LEFT JOIN property_contacts pc ON p.id = pc.property_id AND pc.position = 0
+        WHERE p.id = ?
+    ");
+    $stmt->execute([$propertyId]);
+    $property = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Create violation ticket
+    $ticketId = Database::uuid();
+    $issuedAt = date('Y-m-d H:i:s');
+    
+    $stmt = $db->prepare("
+        INSERT INTO violation_tickets (
+            id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
+            custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+            property_name, property_address, property_contact_name, property_contact_phone,
+            property_contact_email
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    
+    $stmt->execute([
+        $ticketId,
+        $vehicleId,
+        $vehicle['property'],
+        $user['id'],
+        $user['username'],
+        $issuedAt,
+        $customNote ?: null,
+        $vehicle['year'],
+        $vehicle['color'],
+        $vehicle['make'],
+        $vehicle['model'],
+        $property['name'],
+        $property['address'],
+        $property['contact_name'],
+        $property['contact_phone'],
+        $property['contact_email']
+    ]);
+    
+    // Insert violation items
+    $displayOrder = 0;
+    foreach ($violationIds as $violationId) {
+        // Fetch violation name
+        $stmt = $db->prepare("SELECT name FROM violations WHERE id = ?");
+        $stmt->execute([$violationId]);
+        $violation = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($violation) {
+            $stmt = $db->prepare("
+                INSERT INTO violation_ticket_items (ticket_id, violation_id, description, display_order)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$ticketId, $violationId, $violation['name'], $displayOrder++]);
+        }
+    }
+    
+    // Insert custom note if provided
+    if (!empty($customNote)) {
+        $stmt = $db->prepare("
+            INSERT INTO violation_ticket_items (ticket_id, violation_id, description, display_order)
+            VALUES (?, NULL, ?, ?)
+        ");
+        $stmt->execute([$ticketId, $customNote, $displayOrder]);
+    }
+    
+    $db->commit();
+    
+    // Audit log
+    auditLog('create_violation', 'violation_tickets', $ticketId, "Created violation ticket for vehicle: {$vehicle['make']} {$vehicle['model']}");
+    
+    echo json_encode([
+        'success' => true,
+        'ticketId' => $ticketId,
+        'message' => 'Violation ticket created successfully'
+    ]);
+} catch (PDOException $e) {
+    $db->rollBack();
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error']);
+}
