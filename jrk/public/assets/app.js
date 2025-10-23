@@ -202,7 +202,12 @@ function applyRolePermissions() {
     const addPropertyBtn = document.getElementById('addPropertyBtn');
     const addUserBtn = document.getElementById('addUserBtn');
     
-    if (currentUser.role === 'Admin') {
+    // Normalize role to lowercase for comparison
+    const role = (currentUser.role || '').toLowerCase();
+    
+    console.log('Applying permissions for role:', role);
+    
+    if (role === 'admin') {
         propertiesTab.style.display = 'block';
         usersTab.style.display = 'block';
         addVehicleBtn.style.display = 'inline-block';
@@ -210,7 +215,8 @@ function applyRolePermissions() {
         exportBtn.style.display = 'inline-block';
         addPropertyBtn.style.display = 'inline-block';
         addUserBtn.style.display = 'inline-block';
-    } else if (currentUser.role === 'User') {
+        console.log('Admin permissions applied - all features visible');
+    } else if (role === 'user') {
         propertiesTab.style.display = 'none';
         usersTab.style.display = 'none';
         addVehicleBtn.style.display = 'inline-block';
@@ -218,7 +224,9 @@ function applyRolePermissions() {
         exportBtn.style.display = 'inline-block';
         addPropertyBtn.style.display = 'none';
         addUserBtn.style.display = 'none';
+        console.log('User permissions applied - vehicle features visible');
     } else {
+        // Operator role
         propertiesTab.style.display = 'none';
         usersTab.style.display = 'none';
         addVehicleBtn.style.display = 'none';
@@ -226,15 +234,18 @@ function applyRolePermissions() {
         exportBtn.style.display = 'inline-block';
         addPropertyBtn.style.display = 'none';
         addUserBtn.style.display = 'none';
+        console.log('Operator permissions applied - read-only mode');
     }
 }
 
 function canEditVehicles() {
-    return currentUser.role === 'Admin' || currentUser.role === 'User';
+    const role = (currentUser.role || '').toLowerCase();
+    return role === 'admin' || role === 'user';
 }
 
 function canDeleteVehicles() {
-    return currentUser.role === 'Admin' || currentUser.role === 'User';
+    const role = (currentUser.role || '').toLowerCase();
+    return role === 'admin' || role === 'user';
 }
 
 // Tab Navigation

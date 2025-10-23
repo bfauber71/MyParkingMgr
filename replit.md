@@ -143,7 +143,14 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** Added CSV import and fixed all deployment issues
+**2025-10-23 (Latest):** CRITICAL FIX - Role case sensitivity bug
+- **CRITICAL FIX:** Fixed role comparison bug - tabs and buttons now show correctly for all roles
+- **ROOT CAUSE:** Database stores roles as lowercase ('admin') but JS checked for capitalized ('Admin')
+- **RESULT:** All role comparisons now case-insensitive - permissions work for Admin, User, Operator
+- **VISIBLE CHANGE:** Admin users now see all 3 tabs (Vehicles, Properties, Users) and all buttons
+- Added console logging to help debug permission issues
+
+**2025-10-23:** Added CSV import and fixed all deployment issues
 - **NEW FEATURE:** CSV import functionality - Upload vehicles from CSV file with validation
 - **CRITICAL FIX:** Fixed CSV export endpoint - Now properly downloads vehicles.csv
 - **CRITICAL FIX:** Fixed properties API endpoints - Property dropdown now populated
