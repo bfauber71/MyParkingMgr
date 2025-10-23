@@ -27,6 +27,7 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - Violations tab added for admin users to manage violation types
 - Vehicle display defaults to empty state until search is performed
 - Clear button added to search bar for quick filter reset
+- Violation history tracking: "*Violations Exist" indicator on vehicle cards that displays count and opens history modal showing up to 100 past violations with details
 
 ### Technical Implementations
 - **Backend Language:** Plain PHP 7.4+ (no framework)
@@ -43,11 +44,12 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - **Environment:** Auto-detection for base paths (Replit vs. production) and HTTPS auto-detection for session cookies.
 
 ### Feature Specifications
-- **Vehicle Management:** 14 fields, search with clear button, edit, delete, export, CSV import with validation. Empty state displayed until search is performed.
+- **Vehicle Management:** 14 fields, search with clear button, edit, delete, export, CSV import with validation. Empty state displayed until search is performed. Violation count indicator appears on vehicle cards when violations exist.
 - **Property Management:** Create, edit, delete with 1-3 contacts per property, with transactions for data integrity. Property name changes automatically update vehicle references.
 - **User Management:** Create, delete, role assignment (Admin only).
 - **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
+- **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing up to 100 violations in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Backend includes indexed queries for performance and property-based access control.
 - **Audit Logging:** Comprehensive logging for all operations.
 
 ## External Dependencies
