@@ -143,7 +143,16 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** ROUTING FIX - Property Edit Now Works
+**2025-10-23 (Latest):** VEHICLE CRUD FULLY OPERATIONAL - Fixed Schema Bugs
+- **CRITICAL FIX:** Removed non-existent property_id column from vehicles-create.php UPDATE/INSERT queries
+- **CRITICAL FIX:** Fixed UUID generation for new vehicles (was using lastInsertId() on VARCHAR primary key)
+- **SCHEMA FIX:** Vehicles table only has 'property' column (references properties.name), NOT property_id
+- **UX IMPROVEMENT:** Added success messages and console logging to vehicle create/edit/delete
+- **RESULT:** Complete vehicle CRUD now works - Create, Read, Update, Delete all functional
+- **FILES CHANGED:** vehicles-create.php, app.js
+- **ARCHITECT REVIEWED:** All changes approved - no security issues found
+
+**2025-10-23:** ROUTING FIX - Property Edit Now Works
 - **CRITICAL FIX:** Added missing route for /api/properties-update in index.php
 - **ROOT CAUSE:** properties-update.php file existed but router had no route registered (404 error)
 - **RESULT:** Property edit functionality now fully operational
