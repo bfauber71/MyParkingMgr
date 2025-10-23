@@ -143,6 +143,14 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
+**2025-10-23 (Latest):** Fixed property contacts and dropdown display
+- **CRITICAL FIX:** Corrected properties API endpoint (properties.php) - was using non-existent helper functions
+- **FEATURE:** Added property contacts display in Properties tab (shows Primary Contact, Phone, Email)
+- **FIX:** Properties dropdown now properly populated (was showing blank due to broken API)
+- Updated both `/api/properties` and `/api/properties-list` to include contact information via JOIN
+- Enhanced demo mode with contact data for all 3 sample properties
+- Property contacts now displayed in 3 new columns: Primary Contact, Contact Phone, Contact Email
+
 **2025-10-23:** Fixed routing and environment auto-detection
 - **CRITICAL FIX:** Added environment auto-detection for base paths (Replit vs production)
 - **SECURITY FIX:** Added property access control to prevent unauthorized vehicle creation

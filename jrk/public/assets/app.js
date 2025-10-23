@@ -75,9 +75,30 @@ async function checkAuth() {
             email: 'admin@example.com'
         };
         properties = [
-            { id: 1, name: 'Sunset Apartments' },
-            { id: 2, name: 'Oak Ridge Condos' },
-            { id: 3, name: 'Maple View Townhomes' }
+            { 
+                id: 1, 
+                name: 'Sunset Apartments',
+                address: '123 Sunset Blvd',
+                contacts: [
+                    { name: 'Manager Office', phone: '555-0100', email: 'sunset@example.com', position: 0 }
+                ]
+            },
+            { 
+                id: 2, 
+                name: 'Oak Ridge Condos',
+                address: '456 Oak Street',
+                contacts: [
+                    { name: 'Front Desk', phone: '555-0200', email: 'oak@example.com', position: 0 }
+                ]
+            },
+            { 
+                id: 3, 
+                name: 'Maple View Townhomes',
+                address: '789 Maple Avenue',
+                contacts: [
+                    { name: 'Admin Office', phone: '555-0300', email: 'maple@example.com', position: 0 }
+                ]
+            }
         ];
         showDashboard();
         return;
@@ -302,9 +323,33 @@ async function loadPropertiesSection() {
     const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
     if (isDemo) {
         const demoProperties = [
-            { id: 1, name: 'Sunset Apartments', address: '123 Sunset Blvd', created_at: '2024-01-15' },
-            { id: 2, name: 'Oak Ridge Condos', address: '456 Oak Street', created_at: '2024-02-20' },
-            { id: 3, name: 'Maple View Townhomes', address: '789 Maple Avenue', created_at: '2024-03-10' }
+            { 
+                id: 1, 
+                name: 'Sunset Apartments', 
+                address: '123 Sunset Blvd', 
+                created_at: '2024-01-15',
+                contacts: [
+                    { name: 'Manager Office', phone: '555-0100', email: 'sunset@example.com', position: 0 }
+                ]
+            },
+            { 
+                id: 2, 
+                name: 'Oak Ridge Condos', 
+                address: '456 Oak Street', 
+                created_at: '2024-02-20',
+                contacts: [
+                    { name: 'Front Desk', phone: '555-0200', email: 'oak@example.com', position: 0 }
+                ]
+            },
+            { 
+                id: 3, 
+                name: 'Maple View Townhomes', 
+                address: '789 Maple Avenue', 
+                created_at: '2024-03-10',
+                contacts: [
+                    { name: 'Admin Office', phone: '555-0300', email: 'maple@example.com', position: 0 }
+                ]
+            }
         ];
         displayPropertiesTable(demoProperties);
         return;
@@ -340,15 +385,23 @@ function displayPropertiesTable(properties) {
                     <tr>
                         <th>Name</th>
                         <th>Address</th>
+                        <th>Primary Contact</th>
+                        <th>Contact Phone</th>
+                        <th>Contact Email</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${properties.map(prop => `
+                    ${properties.map(prop => {
+                        const primaryContact = prop.contacts && prop.contacts.length > 0 ? prop.contacts[0] : null;
+                        return `
                         <tr>
                             <td>${escapeHtml(prop.name)}</td>
                             <td>${escapeHtml(prop.address || 'N/A')}</td>
+                            <td>${primaryContact ? escapeHtml(primaryContact.name) : 'N/A'}</td>
+                            <td>${primaryContact && primaryContact.phone ? escapeHtml(primaryContact.phone) : 'N/A'}</td>
+                            <td>${primaryContact && primaryContact.email ? escapeHtml(primaryContact.email) : 'N/A'}</td>
                             <td>${formatDate(prop.created_at)}</td>
                             <td>
                                 <div class="table-actions">
@@ -356,7 +409,8 @@ function displayPropertiesTable(properties) {
                                 </div>
                             </td>
                         </tr>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </tbody>
             </table>
         </div>
