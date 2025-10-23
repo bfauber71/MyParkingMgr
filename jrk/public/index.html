@@ -47,25 +47,57 @@
             </nav>
 
             <div class="container">
-                <header class="page-header">
-                    <h2>Vehicle Management</h2>
-                    <div class="header-actions">
-                        <button id="exportBtn" class="btn btn-secondary">Export CSV</button>
-                        <button id="addVehicleBtn" class="btn btn-primary">Add Vehicle</button>
-                    </div>
-                </header>
-
-                <!-- Search Bar -->
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Search by tag, plate, owner, apartment...">
-                    <select id="propertyFilter">
-                        <option value="">All Properties</option>
-                    </select>
-                    <button id="searchBtn" class="btn btn-primary">Search</button>
+                <!-- Navigation Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="vehicles">Vehicles</button>
+                    <button class="tab-btn" data-tab="properties" id="propertiesTab">Properties</button>
+                    <button class="tab-btn" data-tab="users" id="usersTab">Users</button>
                 </div>
 
-                <!-- Results -->
-                <div id="results"></div>
+                <!-- Vehicles Section -->
+                <div id="vehiclesSection" class="tab-content active">
+                    <header class="page-header">
+                        <h2>Vehicle Management</h2>
+                        <div class="header-actions">
+                            <button id="exportBtn" class="btn btn-secondary">Export CSV</button>
+                            <button id="addVehicleBtn" class="btn btn-primary">Add Vehicle</button>
+                        </div>
+                    </header>
+
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search by tag, plate, owner, apartment...">
+                        <select id="propertyFilter">
+                            <option value="">All Properties</option>
+                        </select>
+                        <button id="searchBtn" class="btn btn-primary">Search</button>
+                    </div>
+
+                    <div id="vehiclesResults"></div>
+                </div>
+
+                <!-- Properties Section -->
+                <div id="propertiesSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Property Management</h2>
+                        <div class="header-actions">
+                            <button id="addPropertyBtn" class="btn btn-primary">Add Property</button>
+                        </div>
+                    </header>
+
+                    <div id="propertiesResults"></div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="usersSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>User Management</h2>
+                        <div class="header-actions">
+                            <button id="addUserBtn" class="btn btn-primary">Add User</button>
+                        </div>
+                    </header>
+
+                    <div id="usersResults"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -74,10 +106,11 @@
     <div id="vehicleModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle">Add Vehicle</h3>
-                <span class="close">&times;</span>
+                <h3 id="vehicleModalTitle">Add Vehicle</h3>
+                <span class="close" data-modal="vehicle">&times;</span>
             </div>
             <form id="vehicleForm">
+                <input type="hidden" id="vehicleId" name="id">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="vehicleProperty">Property *</label>
@@ -150,8 +183,76 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-cancel="vehicle">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Property Modal -->
+    <div id="propertyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="propertyModalTitle">Add Property</h3>
+                <span class="close" data-modal="property">&times;</span>
+            </div>
+            <form id="propertyForm">
+                <input type="hidden" id="propertyId" name="id">
+                <div class="form-group">
+                    <label for="propertyName">Property Name *</label>
+                    <input type="text" id="propertyName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="propertyAddress">Address</label>
+                    <textarea id="propertyAddress" name="address" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="property">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Property</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Add User</h3>
+                <span class="close" data-modal="user">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId" name="id">
+                <div class="form-group">
+                    <label for="userUsername">Username *</label>
+                    <input type="text" id="userUsername" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" name="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Password *</label>
+                    <input type="password" id="userPassword" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userRole">Role *</label>
+                    <select id="userRole" name="role" required>
+                        <option value="User">User</option>
+                        <option value="Operator">Operator</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="user">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save User</button>
                 </div>
             </form>
         </div>

@@ -39,12 +39,24 @@ $router->post('/api/logout', __DIR__ . '/api/logout.php');
 $router->get('/api/user', __DIR__ . '/api/user.php');
 
 // Vehicle routes
+$router->get('/api/vehicles-search', __DIR__ . '/api/vehicles-search.php');
 $router->get('/api/vehicles/search', __DIR__ . '/api/vehicles-search.php');
+$router->get('/api/vehicles-export', __DIR__ . '/api/vehicles-export.php');
 $router->get('/api/vehicles/export', __DIR__ . '/api/vehicles-export.php');
 $router->post('/api/vehicles', __DIR__ . '/api/vehicles-create.php');
+$router->post('/api/vehicles-create', __DIR__ . '/api/vehicles-create.php');
+$router->post('/api/vehicles-delete', __DIR__ . '/api/vehicles-delete.php');
 
 // Property routes
 $router->get('/api/properties', __DIR__ . '/api/properties.php');
+$router->get('/api/properties-list', __DIR__ . '/api/properties-list.php');
+$router->post('/api/properties-create', __DIR__ . '/api/properties-create.php');
+$router->post('/api/properties-delete', __DIR__ . '/api/properties-delete.php');
+
+// User routes (Admin only)
+$router->get('/api/users-list', __DIR__ . '/api/users-list.php');
+$router->post('/api/users-create', __DIR__ . '/api/users-create.php');
+$router->post('/api/users-delete', __DIR__ . '/api/users-delete.php');
 
 // Serve frontend for all other routes
 $router->get('/.*', function() use ($config) {

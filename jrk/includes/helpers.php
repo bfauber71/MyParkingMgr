@@ -97,14 +97,14 @@ function hasRole($role) {
  * Check if user is admin
  */
 function isAdmin() {
-    return hasRole('admin');
+    return hasRole('Admin');
 }
 
 /**
  * Check if user is operator
  */
 function isOperator() {
-    return hasRole('operator');
+    return hasRole('Operator');
 }
 
 /**
@@ -136,7 +136,7 @@ function canAccessProperty($propertyId) {
     }
     
     // Admins and operators can access all properties
-    if ($user['role'] === 'admin' || $user['role'] === 'operator') {
+    if ($user['role'] === 'Admin' || $user['role'] === 'Operator') {
         return true;
     }
     
@@ -157,7 +157,7 @@ function getAccessibleProperties() {
     }
     
     // Admins and operators see all properties
-    if ($user['role'] === 'admin' || $user['role'] === 'operator') {
+    if ($user['role'] === 'Admin' || $user['role'] === 'Operator') {
         return Database::query("SELECT id, name FROM properties ORDER BY name");
     }
     

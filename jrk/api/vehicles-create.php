@@ -1,60 +1,141 @@
 <?php
-/**
- * Create Vehicle API Endpoint
- * POST /api/vehicles
- */
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
-requireAuth();
+Session::start();
 
-// Operators are read-only
-if (isOperator()) {
-    jsonResponse(['error' => 'Operators have read-only access'], 403);
+if (!Session::isAuthenticated()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
 }
 
-$data = getJsonInput();
+$user = Session::user();
 
-// Validate required fields
-$missing = validateRequired($data, ['property']);
-if (!empty($missing)) {
-    jsonResponse(['error' => 'Property is required'], 400);
+if ($user['role'] === 'Operator') {
+    http_response_code(403);
+    echo json_encode(['error' => 'Operators have read-only access']);
+    exit;
 }
 
-// Check if property exists
-$property = Database::queryOne("SELECT id, name FROM properties WHERE name = ?", [$data['property']]);
-if (!$property) {
-    jsonResponse(['error' => 'Property not found'], 404);
+$input = json_decode(file_get_contents('php://input'), true);
+
+$property = trim($input['property'] ?? '');
+$vehicleId = isset($input['id']) && $input['id'] !== '' ? intval($input['id']) : null;
+
+if (empty($property)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Property is required']);
+    exit;
 }
 
-// Check access
-if (!canAccessProperty($property['id'])) {
-    jsonResponse(['error' => 'You do not have access to this property'], 403);
+$db = Database::getInstance();
+
+try {
+    $stmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
+    $stmt->execute([$property]);
+    $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$propertyData) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Property not found']);
+        exit;
+    }
+    
+    $propertyId = $propertyData['id'];
+    
+    // Check if user has access to this property
+    if (!canAccessProperty($propertyId)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You do not have access to this property']);
+        exit;
+    }
+    
+    if ($vehicleId) {
+        $stmt = $db->prepare("
+            UPDATE vehicles SET
+                property_id = ?,
+                property = ?,
+                tag_number = ?,
+                plate_number = ?,
+                state = ?,
+                make = ?,
+                model = ?,
+                color = ?,
+                year = ?,
+                apt_number = ?,
+                owner_name = ?,
+                owner_phone = ?,
+                owner_email = ?,
+                reserved_space = ?,
+                updated_at = NOW()
+            WHERE id = ?
+        ");
+        
+        $stmt->execute([
+            $propertyId,
+            $property,
+            $input['tagNumber'] ?? null,
+            $input['plateNumber'] ?? null,
+            $input['state'] ?? null,
+            $input['make'] ?? null,
+            $input['model'] ?? null,
+            $input['color'] ?? null,
+            $input['year'] ?? null,
+            $input['aptNumber'] ?? null,
+            $input['ownerName'] ?? null,
+            $input['ownerPhone'] ?? null,
+            $input['ownerEmail'] ?? null,
+            $input['reservedSpace'] ?? null,
+            $vehicleId
+        ]);
+        
+        $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "ID $vehicleId";
+        auditLog('update_vehicle', 'vehicles', $vehicleId, "Updated vehicle: $identifier");
+        
+        echo json_encode([
+            'success' => true,
+            'id' => $vehicleId,
+            'message' => 'Vehicle updated successfully'
+        ]);
+    } else {
+        $stmt = $db->prepare("
+            INSERT INTO vehicles (
+                property_id, property, tag_number, plate_number, state, make, model, color, year,
+                apt_number, owner_name, owner_phone, owner_email, reserved_space, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        ");
+        
+        $stmt->execute([
+            $propertyId,
+            $property,
+            $input['tagNumber'] ?? null,
+            $input['plateNumber'] ?? null,
+            $input['state'] ?? null,
+            $input['make'] ?? null,
+            $input['model'] ?? null,
+            $input['color'] ?? null,
+            $input['year'] ?? null,
+            $input['aptNumber'] ?? null,
+            $input['ownerName'] ?? null,
+            $input['ownerPhone'] ?? null,
+            $input['ownerEmail'] ?? null,
+            $input['reservedSpace'] ?? null
+        ]);
+        
+        $newId = $db->lastInsertId();
+        
+        $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "ID $newId";
+        auditLog('create_vehicle', 'vehicles', $newId, "Created vehicle: $identifier");
+        
+        echo json_encode([
+            'success' => true,
+            'id' => $newId,
+            'message' => 'Vehicle created successfully'
+        ]);
+    }
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error']);
 }
-
-// Create vehicle
-$id = Database::uuid();
-$sql = "INSERT INTO vehicles (id, property, tag_number, plate_number, state, make, model, color, year, 
-        apt_number, owner_name, owner_phone, owner_email, reserved_space, created_at, updated_at) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-
-Database::execute($sql, [
-    $id,
-    $data['property'],
-    $data['tagNumber'] ?? null,
-    $data['plateNumber'] ?? null,
-    $data['state'] ?? null,
-    $data['make'] ?? null,
-    $data['model'] ?? null,
-    $data['color'] ?? null,
-    $data['year'] ?? null,
-    $data['aptNumber'] ?? null,
-    $data['ownerName'] ?? null,
-    $data['ownerPhone'] ?? null,
-    $data['ownerEmail'] ?? null,
-    $data['reservedSpace'] ?? null
-]);
-
-auditLog('create', 'vehicle', $id, ['property' => $data['property']]);
-
-$vehicle = Database::queryOne("SELECT * FROM vehicles WHERE id = ?", [$id]);
-
-jsonResponse(['vehicle' => $vehicle], 201);

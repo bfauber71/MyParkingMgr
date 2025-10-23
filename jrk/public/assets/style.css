@@ -119,10 +119,136 @@ body {
     text-align: center;
 }
 
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #334155;
+}
+
+.tab-btn {
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #e2e8f0;
+}
+
+.tab-btn.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Data Tables */
+.data-table {
+    width: 100%;
+    background: #1e293b;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.data-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: #0f172a;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #cbd5e1;
+    border-bottom: 1px solid #334155;
+}
+
+.data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #334155;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover {
+    background: #334155;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.role-admin {
+    background: #7c3aed;
+    color: white;
+}
+
+.role-user {
+    background: #3b82f6;
+    color: white;
+}
+
+.role-operator {
+    background: #64748b;
+    color: white;
+}
+
+.vehicle-actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #334155;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
 /* Navbar */
 .navbar {
     background: #1e293b;
     padding: 16px 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -3,27 +3,15 @@
 const API_BASE = '/jrk/api';
 let currentUser = null;
 let properties = [];
-let currentVehicleId = null;
+let currentSection = 'vehicles';
 
-// DOM Elements
+// DOM Elements - Common
 const loginPage = document.getElementById('loginPage');
 const dashboardPage = document.getElementById('dashboardPage');
 const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const logoutBtn = document.getElementById('logoutBtn');
 const userInfo = document.getElementById('userInfo');
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
-const propertyFilter = document.getElementById('propertyFilter');
-const results = document.getElementById('results');
-const addVehicleBtn = document.getElementById('addVehicleBtn');
-const exportBtn = document.getElementById('exportBtn');
-const vehicleModal = document.getElementById('vehicleModal');
-const vehicleForm = document.getElementById('vehicleForm');
-const modalTitle = document.getElementById('modalTitle');
-const vehicleProperty = document.getElementById('vehicleProperty');
-const closeModal = document.querySelector('.close');
-const cancelBtn = document.getElementById('cancelBtn');
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,20 +22,22 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
-    searchBtn.addEventListener('click', searchVehicles);
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') searchVehicles();
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
     });
-    propertyFilter.addEventListener('change', searchVehicles);
-    addVehicleBtn.addEventListener('click', () => openVehicleModal());
-    exportBtn.addEventListener('click', exportVehicles);
-    vehicleForm.addEventListener('submit', handleSaveVehicle);
-    closeModal.addEventListener('click', closeVehicleModal);
-    cancelBtn.addEventListener('click', closeVehicleModal);
+    
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+        btn.addEventListener('click', (e) => closeModalByName(e.target.dataset.modal));
+    });
+    
+    document.querySelectorAll('[data-cancel]').forEach(btn => {
+        btn.addEventListener('click', (e) => closeModalByName(e.target.dataset.cancel));
+    });
     
     window.addEventListener('click', (e) => {
-        if (e.target === vehicleModal) {
-            closeVehicleModal();
+        if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('show');
         }
     });
 }
@@ -127,13 +117,82 @@ async function showDashboard() {
     
     userInfo.textContent = `${currentUser.username} (${currentUser.role})`;
     
+    applyRolePermissions();
+    
     await loadProperties();
-    searchVehicles();
+    switchTab('vehicles');
 }
 
 function showError(message) {
     loginError.textContent = message;
     loginError.classList.add('show');
+}
+
+// Role-Based Permissions
+function applyRolePermissions() {
+    const propertiesTab = document.getElementById('propertiesTab');
+    const usersTab = document.getElementById('usersTab');
+    const addVehicleBtn = document.getElementById('addVehicleBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const addPropertyBtn = document.getElementById('addPropertyBtn');
+    const addUserBtn = document.getElementById('addUserBtn');
+    
+    if (currentUser.role === 'Admin') {
+        propertiesTab.style.display = 'block';
+        usersTab.style.display = 'block';
+        addVehicleBtn.style.display = 'inline-block';
+        exportBtn.style.display = 'inline-block';
+        addPropertyBtn.style.display = 'inline-block';
+        addUserBtn.style.display = 'inline-block';
+    } else if (currentUser.role === 'User') {
+        propertiesTab.style.display = 'none';
+        usersTab.style.display = 'none';
+        addVehicleBtn.style.display = 'inline-block';
+        exportBtn.style.display = 'inline-block';
+        addPropertyBtn.style.display = 'none';
+        addUserBtn.style.display = 'none';
+    } else {
+        propertiesTab.style.display = 'none';
+        usersTab.style.display = 'none';
+        addVehicleBtn.style.display = 'none';
+        exportBtn.style.display = 'inline-block';
+        addPropertyBtn.style.display = 'none';
+        addUserBtn.style.display = 'none';
+    }
+}
+
+function canEditVehicles() {
+    return currentUser.role === 'Admin' || currentUser.role === 'User';
+}
+
+function canDeleteVehicles() {
+    return currentUser.role === 'Admin' || currentUser.role === 'User';
+}
+
+// Tab Navigation
+function switchTab(tabName) {
+    currentSection = tabName;
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    const activeContent = document.getElementById(`${tabName}Section`);
+    
+    if (activeBtn) activeBtn.classList.add('active');
+    if (activeContent) activeContent.classList.add('active');
+    
+    if (tabName === 'vehicles') {
+        loadVehiclesSection();
+    } else if (tabName === 'properties') {
+        loadPropertiesSection();
+    } else if (tabName === 'users') {
+        loadUsersSection();
+    }
 }
 
 // Properties
@@ -154,7 +213,9 @@ async function loadProperties() {
 }
 
 function updatePropertyFilters() {
-    // Update search filter
+    const propertyFilter = document.getElementById('propertyFilter');
+    const vehicleProperty = document.getElementById('vehicleProperty');
+    
     propertyFilter.innerHTML = '<option value="">All Properties</option>';
     properties.forEach(prop => {
         const option = document.createElement('option');
@@ -163,7 +224,6 @@ function updatePropertyFilters() {
         propertyFilter.appendChild(option);
     });
     
-    // Update form filter
     vehicleProperty.innerHTML = '<option value="">Select Property</option>';
     properties.forEach(prop => {
         const option = document.createElement('option');
@@ -173,17 +233,274 @@ function updatePropertyFilters() {
     });
 }
 
+async function loadPropertiesSection() {
+    document.getElementById('addPropertyBtn').onclick = () => openPropertyModal();
+    
+    try {
+        const response = await fetch(`${API_BASE}/properties-list`, {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayPropertiesTable(data.properties);
+        }
+    } catch (error) {
+        console.error('Error loading properties:', error);
+    }
+}
+
+function displayPropertiesTable(properties) {
+    const container = document.getElementById('propertiesResults');
+    
+    if (properties.length === 0) {
+        container.innerHTML = '<div class="no-results">No properties found</div>';
+        return;
+    }
+    
+    const table = `
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${properties.map(prop => `
+                        <tr>
+                            <td>${escapeHtml(prop.name)}</td>
+                            <td>${escapeHtml(prop.address || 'N/A')}</td>
+                            <td>${formatDate(prop.created_at)}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn btn-small btn-danger" onclick="deleteProperty(${prop.id}, '${escapeHtml(prop.name)}')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    container.innerHTML = table;
+}
+
+function openPropertyModal() {
+    document.getElementById('propertyModalTitle').textContent = 'Add Property';
+    document.getElementById('propertyForm').reset();
+    document.getElementById('propertyId').value = '';
+    document.getElementById('propertyModal').classList.add('show');
+    
+    document.getElementById('propertyForm').onsubmit = handleSaveProperty;
+}
+
+async function handleSaveProperty(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = {
+        name: formData.get('name'),
+        address: formData.get('address')
+    };
+    
+    try {
+        const response = await fetch(`${API_BASE}/properties-create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            closeModalByName('property');
+            await loadProperties();
+            loadPropertiesSection();
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error saving property');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+}
+
+async function deleteProperty(id, name) {
+    if (!confirm(`Delete property "${name}"?\n\nThis will fail if any vehicles are assigned to this property.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/properties-delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            await loadProperties();
+            loadPropertiesSection();
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error deleting property');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+}
+
+// Users
+async function loadUsersSection() {
+    document.getElementById('addUserBtn').onclick = () => openUserModal();
+    
+    try {
+        const response = await fetch(`${API_BASE}/users-list`, {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayUsersTable(data.users);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
+
+function displayUsersTable(users) {
+    const container = document.getElementById('usersResults');
+    
+    if (users.length === 0) {
+        container.innerHTML = '<div class="no-results">No users found</div>';
+        return;
+    }
+    
+    const table = `
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(user => `
+                        <tr>
+                            <td>${escapeHtml(user.username)}</td>
+                            <td>${escapeHtml(user.email || 'N/A')}</td>
+                            <td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
+                            <td>${formatDate(user.created_at)}</td>
+                            <td>
+                                <div class="table-actions">
+                                    ${user.id !== currentUser.id ? `<button class="btn btn-small btn-danger" onclick="deleteUser(${user.id}, '${escapeHtml(user.username)}')">Delete</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    container.innerHTML = table;
+}
+
+function openUserModal() {
+    document.getElementById('userModalTitle').textContent = 'Add User';
+    document.getElementById('userForm').reset();
+    document.getElementById('userId').value = '';
+    document.getElementById('userModal').classList.add('show');
+    
+    document.getElementById('userForm').onsubmit = handleSaveUser;
+}
+
+async function handleSaveUser(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = {
+        username: formData.get('username'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        role: formData.get('role')
+    };
+    
+    try {
+        const response = await fetch(`${API_BASE}/users-create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            closeModalByName('user');
+            loadUsersSection();
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error saving user');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+}
+
+async function deleteUser(id, username) {
+    if (!confirm(`Delete user "${username}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/users-delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            loadUsersSection();
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error deleting user');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+}
+
 // Vehicles
+function loadVehiclesSection() {
+    document.getElementById('searchBtn').onclick = searchVehicles;
+    document.getElementById('searchInput').onkeypress = (e) => {
+        if (e.key === 'Enter') searchVehicles();
+    };
+    document.getElementById('propertyFilter').onchange = searchVehicles;
+    document.getElementById('addVehicleBtn').onclick = () => openVehicleModal();
+    document.getElementById('exportBtn').onclick = exportVehicles;
+    
+    searchVehicles();
+}
+
 async function searchVehicles() {
-    const query = searchInput.value;
-    const property = propertyFilter.value;
+    const query = document.getElementById('searchInput').value;
+    const property = document.getElementById('propertyFilter').value;
     
     const params = new URLSearchParams();
     if (query) params.append('q', query);
     if (property) params.append('property', property);
     
     try {
-        const response = await fetch(`${API_BASE}/vehicles/search?${params}`, {
+        const response = await fetch(`${API_BASE}/vehicles-search?${params}`, {
             credentials: 'include'
         });
         
@@ -191,16 +508,18 @@ async function searchVehicles() {
             const data = await response.json();
             displayVehicles(data.vehicles);
         } else {
-            results.innerHTML = '<div class="no-results">Error loading vehicles</div>';
+            document.getElementById('vehiclesResults').innerHTML = '<div class="no-results">Error loading vehicles</div>';
         }
     } catch (error) {
-        results.innerHTML = '<div class="no-results">Network error</div>';
+        document.getElementById('vehiclesResults').innerHTML = '<div class="no-results">Network error</div>';
     }
 }
 
 function displayVehicles(vehicles) {
+    const container = document.getElementById('vehiclesResults');
+    
     if (vehicles.length === 0) {
-        results.innerHTML = '<div class="no-results">No vehicles found</div>';
+        container.innerHTML = '<div class="no-results">No vehicles found</div>';
         return;
     }
     
@@ -212,8 +531,8 @@ function displayVehicles(vehicles) {
         grid.appendChild(card);
     });
     
-    results.innerHTML = '';
-    results.appendChild(grid);
+    container.innerHTML = '';
+    container.appendChild(grid);
 }
 
 function createVehicleCard(vehicle) {
@@ -221,6 +540,13 @@ function createVehicleCard(vehicle) {
     card.className = 'vehicle-card';
     
     const title = vehicle.plate_number || vehicle.tag_number || 'No Plate/Tag';
+    
+    const actionButtons = canEditVehicles() ? `
+        <div class="vehicle-actions">
+            <button class="btn btn-small btn-primary" onclick='editVehicle(${JSON.stringify(vehicle)})'>Edit</button>
+            ${canDeleteVehicles() ? `<button class="btn btn-small btn-danger" onclick="deleteVehicle(${vehicle.id}, '${escapeHtml(title)}')">Delete</button>` : ''}
+        </div>
+    ` : '';
     
     card.innerHTML = `
         <div class="vehicle-header">
@@ -240,6 +566,7 @@ function createVehicleCard(vehicle) {
             ${createDetailRow('Phone', vehicle.owner_phone)}
             ${createDetailRow('Email', vehicle.owner_email)}
         </div>
+        ${actionButtons}
     `;
     
     return card;
@@ -262,13 +589,12 @@ function formatMakeModel(vehicle) {
     return parts.join(' ') || null;
 }
 
-// Vehicle Modal
 function openVehicleModal(vehicle = null) {
-    currentVehicleId = vehicle ? vehicle.id : null;
-    modalTitle.textContent = vehicle ? 'Edit Vehicle' : 'Add Vehicle';
+    document.getElementById('vehicleModalTitle').textContent = vehicle ? 'Edit Vehicle' : 'Add Vehicle';
+    document.getElementById('vehicleForm').reset();
     
     if (vehicle) {
-        // Populate form with vehicle data
+        document.getElementById('vehicleId').value = vehicle.id || '';
         document.getElementById('vehicleProperty').value = vehicle.property || '';
         document.getElementById('vehicleTag').value = vehicle.tag_number || '';
         document.getElementById('vehiclePlate').value = vehicle.plate_number || '';
@@ -283,36 +609,33 @@ function openVehicleModal(vehicle = null) {
         document.getElementById('vehiclePhone').value = vehicle.owner_phone || '';
         document.getElementById('vehicleEmail').value = vehicle.owner_email || '';
     } else {
-        vehicleForm.reset();
+        document.getElementById('vehicleId').value = '';
     }
     
-    vehicleModal.classList.add('show');
+    document.getElementById('vehicleModal').classList.add('show');
+    document.getElementById('vehicleForm').onsubmit = handleSaveVehicle;
 }
 
-function closeVehicleModal() {
-    vehicleModal.classList.remove('show');
-    vehicleForm.reset();
-    currentVehicleId = null;
+function editVehicle(vehicle) {
+    openVehicleModal(vehicle);
 }
 
 async function handleSaveVehicle(e) {
     e.preventDefault();
     
-    const formData = new FormData(vehicleForm);
+    const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     
     try {
-        const response = await fetch(`${API_BASE}/vehicles`, {
+        const response = await fetch(`${API_BASE}/vehicles-create`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify(data)
         });
         
         if (response.ok) {
-            closeVehicleModal();
+            closeModalByName('vehicle');
             searchVehicles();
         } else {
             const error = await response.json();
@@ -323,14 +646,54 @@ async function handleSaveVehicle(e) {
     }
 }
 
-// Export
-async function exportVehicles() {
-    window.location.href = `${API_BASE}/vehicles/export`;
+async function deleteVehicle(id, title) {
+    if (!confirm(`Delete vehicle "${title}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/vehicles-delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            searchVehicles();
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error deleting vehicle');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
+    }
+}
+
+function exportVehicles() {
+    window.location.href = `${API_BASE}/vehicles-export`;
+}
+
+// Modal Management
+function closeModalByName(name) {
+    const modal = document.getElementById(`${name}Modal`);
+    if (modal) {
+        modal.classList.remove('show');
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+    }
 }
 
 // Utilities
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
 }
