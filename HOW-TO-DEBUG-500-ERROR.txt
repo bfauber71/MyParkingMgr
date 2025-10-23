@@ -1,0 +1,211 @@
+═══════════════════════════════════════════════════════════
+HOW TO DEBUG 500 INTERNAL SERVER ERROR
+═══════════════════════════════════════════════════════════
+
+You're getting this error:
+GET https://2clv.com/jrk/api/properties 500 (Internal Server Error)
+
+This is a PHP error on your production server.
+
+──────────────────────────────────────────────────────────
+STEP 1: RUN DIAGNOSTIC SCRIPT (DO THIS FIRST!)
+──────────────────────────────────────────────────────────
+
+I've created a diagnostic script to find the exact problem.
+
+1. Upload the file: jrk/diagnostic.php
+2. Open in browser: https://2clv.com/jrk/diagnostic.php
+3. Read the output - it will tell you exactly what's wrong
+
+The diagnostic checks:
+✓ PHP version (needs 7.4+)
+✓ Required PHP extensions
+✓ Config file exists
+✓ Database connection
+✓ Database tables
+✓ File permissions
+✓ Session working
+✓ Properties API test
+
+──────────────────────────────────────────────────────────
+STEP 2: CHECK PHP ERROR LOG
+──────────────────────────────────────────────────────────
+
+Your server writes errors to a log file.
+
+cPanel Method:
+1. Login to cPanel
+2. File Manager
+3. Navigate to: public_html/jrk/ (or wherever you uploaded)
+4. Look for file: error_log
+5. Right-click → View
+6. Look for recent errors (check timestamp)
+
+Common errors and fixes:
+
+❌ "Access denied for user"
+→ Wrong database username/password in config.php
+
+❌ "Unknown database 'managemyparking'"
+→ Database doesn't exist - create it in cPanel
+
+❌ "Table 'properties' doesn't exist"
+→ Didn't import install.sql - import it via phpMyAdmin
+
+❌ "Call to undefined function"
+→ Missing PHP extension - contact host to enable it
+
+❌ "syntax error"
+→ PHP version too old - need 7.4 or higher
+
+❌ "Class 'Database' not found"
+→ File permissions or path issue
+
+──────────────────────────────────────────────────────────
+STEP 3: TEST DATABASE CONNECTION MANUALLY
+──────────────────────────────────────────────────────────
+
+If diagnostic shows database error:
+
+1. Login to cPanel → phpMyAdmin
+2. Select your database
+3. Click "SQL" tab
+4. Run this query:
+
+SELECT COUNT(*) FROM properties;
+
+If it says "Table doesn't exist":
+→ Import jrk/sql/install.sql
+
+If it works (returns 3):
+→ Database is fine, problem is in PHP code or config
+
+──────────────────────────────────────────────────────────
+STEP 4: VERIFY CONFIG.PHP
+──────────────────────────────────────────────────────────
+
+Open jrk/config.php and check these lines:
+
+'db' => [
+    'host' => 'localhost',              ← Should be 'localhost'
+    'port' => '3306',                   ← Usually 3306
+    'database' => 'managemyparking',    ← Your actual DB name
+    'username' => 'your_db_username',   ← Your DB username
+    'password' => 'your_db_password',   ← Your DB password
+],
+
+Common mistakes:
+❌ Using Replit values instead of cPanel values
+❌ Wrong database name
+❌ Password has special characters that aren't escaped
+❌ Using wrong username (not your cPanel username)
+
+How to find correct values:
+1. cPanel → MySQL Databases
+2. Look at "Current Databases" section
+3. Database name is there
+4. Username is listed under "Current Users"
+5. If you forgot password, create new user
+
+──────────────────────────────────────────────────────────
+STEP 5: MOST LIKELY CAUSES (IN ORDER)
+──────────────────────────────────────────────────────────
+
+1. WRONG DATABASE CREDENTIALS (90% of cases)
+   → Fix: Update config.php with correct values
+
+2. DATABASE TABLES DON'T EXIST (5% of cases)
+   → Fix: Import install.sql via phpMyAdmin
+
+3. PHP VERSION TOO OLD (3% of cases)
+   → Fix: Change PHP version in cPanel to 7.4 or higher
+
+4. MISSING PHP EXTENSIONS (1% of cases)
+   → Fix: Contact host to enable PDO and pdo_mysql
+
+5. FILE PERMISSIONS WRONG (1% of cases)
+   → Fix: Set folders to 755, files to 644
+
+──────────────────────────────────────────────────────────
+QUICK CHECKLIST
+──────────────────────────────────────────────────────────
+
+Do these in order:
+
+[ ] Upload diagnostic.php
+[ ] Visit https://2clv.com/jrk/diagnostic.php
+[ ] Read all the ✅ and ❌ marks
+[ ] Fix anything marked ❌
+[ ] Check error_log file on server
+[ ] Verify config.php has correct database credentials
+[ ] Make sure install.sql was imported
+[ ] Test database connection in phpMyAdmin
+[ ] Try /jrk/api/properties again
+
+──────────────────────────────────────────────────────────
+WHAT TO TELL ME
+──────────────────────────────────────────────────────────
+
+After running diagnostic.php, tell me:
+
+1. What does the diagnostic page show?
+   - Copy/paste the output (especially ❌ lines)
+
+2. What errors are in error_log?
+   - Copy/paste the most recent error
+
+3. What happens when you run this SQL in phpMyAdmin:
+   SELECT COUNT(*) FROM properties;
+
+With this info, I can tell you exactly what to fix!
+
+──────────────────────────────────────────────────────────
+EXAMPLE: WHAT DIAGNOSTIC OUTPUT LOOKS LIKE
+──────────────────────────────────────────────────────────
+
+GOOD (Everything working):
+═══════════════════════════════════════════════
+=== PHP VERSION ===
+PHP Version: 8.1.2
+✅ OK
+
+=== PHP EXTENSIONS ===
+pdo: ✅ Loaded
+pdo_mysql: ✅ Loaded
+
+=== DATABASE CONNECTION ===
+Connection: ✅ SUCCESS
+
+=== DATABASE TABLES ===
+users: ✅ 1 rows
+properties: ✅ 3 rows
+vehicles: ✅ 3 rows
+═══════════════════════════════════════════════
+
+BAD (Database connection failed):
+═══════════════════════════════════════════════
+=== DATABASE CONNECTION ===
+Connection: ❌ FAILED
+Error: SQLSTATE[HY000] [1045] Access denied for user 'wrong_user'@'localhost'
+═══════════════════════════════════════════════
+→ This means config.php has wrong database credentials
+
+BAD (Table doesn't exist):
+═══════════════════════════════════════════════
+=== DATABASE TABLES ===
+properties: ❌ Table 'managemyparking.properties' doesn't exist
+═══════════════════════════════════════════════
+→ This means you didn't import install.sql
+
+──────────────────────────────────────────────────────────
+SUMMARY
+──────────────────────────────────────────────────────────
+
+The 500 error means PHP crashed on your server. The diagnostic
+script will show you exactly why. Upload it, run it, and tell
+me what it says!
+
+File to upload: jrk/diagnostic.php
+URL to visit: https://2clv.com/jrk/diagnostic.php
+
+═══════════════════════════════════════════════════════════
