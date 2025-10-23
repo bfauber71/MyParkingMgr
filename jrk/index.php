@@ -59,6 +59,7 @@ $router->post('/api/properties-delete', __DIR__ . '/api/properties-delete.php');
 // User routes (Admin only)
 $router->get('/api/users-list', __DIR__ . '/api/users-list.php');
 $router->post('/api/users-create', __DIR__ . '/api/users-create.php');
+$router->post('/api/users-update', __DIR__ . '/api/users-update.php');
 $router->post('/api/users-delete', __DIR__ . '/api/users-delete.php');
 
 // Violation routes
