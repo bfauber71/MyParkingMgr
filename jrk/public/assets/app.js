@@ -845,7 +845,8 @@ async function searchVehicles() {
                 reserved_space: 'A-15',
                 owner_name: 'John Smith',
                 owner_phone: '555-1234',
-                owner_email: 'john@example.com'
+                owner_email: 'john@example.com',
+                violation_count: 3
             },
             {
                 id: 2,
@@ -861,7 +862,8 @@ async function searchVehicles() {
                 reserved_space: 'B-22',
                 owner_name: 'Jane Doe',
                 owner_phone: '555-5678',
-                owner_email: 'jane@example.com'
+                owner_email: 'jane@example.com',
+                violation_count: 0
             },
             {
                 id: 3,
@@ -877,7 +879,8 @@ async function searchVehicles() {
                 reserved_space: 'C-5',
                 owner_name: 'Bob Wilson',
                 owner_phone: '555-9012',
-                owner_email: 'bob@example.com'
+                owner_email: 'bob@example.com',
+                violation_count: 1
             }
         ];
         
@@ -948,7 +951,8 @@ function createVehicleCard(vehicle) {
     
     const title = vehicle.plate_number || vehicle.tag_number || 'No Plate/Tag';
     
-    const violationCount = vehicle.violation_count || 0;
+    // Get violation count (default to 0 if not present)
+    const violationCount = parseInt(vehicle.violation_count) || 0;
     const violationsIndicator = violationCount > 0 ? `
         <button class="btn btn-small btn-violations" onclick='showViolationHistory("${vehicle.id}", event)'>
             *Violations Exist (${violationCount})
