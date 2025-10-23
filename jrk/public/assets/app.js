@@ -23,11 +23,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupEventListeners() {
+    console.log('Setting up event listeners...');
+    
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
     
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => switchTab(e.target.dataset.tab));
+    // Set up tab click handlers
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    console.log('Found tab buttons:', tabButtons.length);
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tabName = e.target.dataset.tab || e.target.closest('.tab-btn')?.dataset.tab;
+            console.log('Tab clicked:', tabName);
+            if (tabName) {
+                switchTab(tabName);
+            } else {
+                console.error('No tab name found for click');
+            }
+        });
     });
     
     document.querySelectorAll('[data-modal]').forEach(btn => {
@@ -43,6 +57,8 @@ function setupEventListeners() {
             e.target.classList.remove('show');
         }
     });
+    
+    console.log('Event listeners setup complete');
 }
 
 // Authentication
@@ -143,7 +159,10 @@ async function showDashboard() {
     
     applyRolePermissions();
     
-    await loadProperties();
+    // Load properties in background, don't wait for it
+    loadProperties().catch(err => console.error('Failed to load properties:', err));
+    
+    // Immediately show vehicles tab
     switchTab('vehicles');
 }
 
@@ -195,8 +214,10 @@ function canDeleteVehicles() {
 
 // Tab Navigation
 function switchTab(tabName) {
+    console.log('Switching to tab:', tabName);
     currentSection = tabName;
     
+    // Remove active class from all tabs and content
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -204,18 +225,35 @@ function switchTab(tabName) {
         content.classList.remove('active');
     });
     
+    // Add active class to selected tab and content
     const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
     const activeContent = document.getElementById(`${tabName}Section`);
     
-    if (activeBtn) activeBtn.classList.add('active');
-    if (activeContent) activeContent.classList.add('active');
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        console.log('Activated tab button:', tabName);
+    } else {
+        console.error('Tab button not found:', tabName);
+    }
     
-    if (tabName === 'vehicles') {
-        loadVehiclesSection();
-    } else if (tabName === 'properties') {
-        loadPropertiesSection();
-    } else if (tabName === 'users') {
-        loadUsersSection();
+    if (activeContent) {
+        activeContent.classList.add('active');
+        console.log('Activated tab content:', tabName);
+    } else {
+        console.error('Tab content not found:', tabName);
+    }
+    
+    // Load section-specific data
+    try {
+        if (tabName === 'vehicles') {
+            loadVehiclesSection();
+        } else if (tabName === 'properties') {
+            loadPropertiesSection();
+        } else if (tabName === 'users') {
+            loadUsersSection();
+        }
+    } catch (error) {
+        console.error('Error loading section:', tabName, error);
     }
 }
 
