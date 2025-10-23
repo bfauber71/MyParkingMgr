@@ -143,7 +143,16 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** Fixed property contacts and dropdown display
+**2025-10-23 (Latest):** Added CSV import and fixed all deployment issues
+- **NEW FEATURE:** CSV import functionality - Upload vehicles from CSV file with validation
+- **CRITICAL FIX:** Fixed CSV export endpoint - Now properly downloads vehicles.csv
+- **CRITICAL FIX:** Fixed properties API endpoints - Property dropdown now populated
+- **UI:** Added Import CSV button to vehicle management screen
+- **PERMISSIONS:** Import button shown for Admin and User roles only (Operator is read-only)
+- **VALIDATION:** Import validates property exists and user has permission
+- Tab navigation verified working with console logging
+
+**2025-10-23:** Fixed property contacts and dropdown display
 - **CRITICAL FIX:** Corrected properties API endpoint (properties.php) - was using non-existent helper functions
 - **FEATURE:** Added property contacts display in Properties tab (shows Primary Contact, Phone, Email)
 - **FIX:** Properties dropdown now properly populated (was showing blank due to broken API)
