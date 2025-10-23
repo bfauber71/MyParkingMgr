@@ -21,7 +21,12 @@ User required deployment to shared hosting without custom installations (no Comp
 ## System Architecture
 
 ### UI/UX Decisions
-The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build tools are required. It features a responsive dark theme and a tabbed navigation interface (Vehicles, Properties, Users). Role-based menu visibility and permissions are implemented directly in the frontend and enforced by the backend.
+The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build tools are required. It features a responsive dark theme and a tabbed navigation interface (Vehicles, Properties, Users, Violations). Role-based menu visibility and permissions are implemented directly in the frontend and enforced by the backend.
+
+**Recent UX Improvements (Oct 23, 2025):**
+- Violations tab added for admin users to manage violation types
+- Vehicle display defaults to empty state until search is performed
+- Clear button added to search bar for quick filter reset
 
 ### Technical Implementations
 - **Backend Language:** Plain PHP 7.4+ (no framework)
@@ -38,9 +43,10 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - **Environment:** Auto-detection for base paths (Replit vs. production) and HTTPS auto-detection for session cookies.
 
 ### Feature Specifications
-- **Vehicle Management:** 14 fields, search, edit, delete, export, CSV import with validation.
+- **Vehicle Management:** 14 fields, search with clear button, edit, delete, export, CSV import with validation. Empty state displayed until search is performed.
 - **Property Management:** Create, edit, delete with 1-3 contacts per property, with transactions for data integrity. Property name changes automatically update vehicle references.
 - **User Management:** Create, delete, role assignment (Admin only).
+- **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
 - **Audit Logging:** Comprehensive logging for all operations.
 
