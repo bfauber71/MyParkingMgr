@@ -45,6 +45,21 @@ try {
         exit;
     }
     
+    // Check if violation_tickets table exists
+    $tableCheck = $db->query("SHOW TABLES LIKE 'violation_tickets'");
+    $tableExists = $tableCheck->fetch() !== false;
+    
+    if (!$tableExists) {
+        // Table doesn't exist yet - return empty array with helpful message
+        echo json_encode([
+            'success' => true,
+            'count' => 0,
+            'tickets' => [],
+            'message' => 'Violation tracking not yet set up. Run migration script to enable.'
+        ]);
+        exit;
+    }
+    
     // Fetch violation tickets for this vehicle (limit to 100 most recent)
     $stmt = $db->prepare("
         SELECT 
@@ -77,6 +92,7 @@ try {
         
         $ticket['violations'] = $violations;
     }
+    unset($ticket); // Break reference
     
     echo json_encode([
         'success' => true,
@@ -86,5 +102,9 @@ try {
 } catch (PDOException $e) {
     error_log("Violation history error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode([
+        'error' => 'Database error',
+        'details' => $e->getMessage(),
+        'code' => $e->getCode()
+    ]);
 }
