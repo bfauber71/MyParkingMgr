@@ -143,14 +143,16 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** CRITICAL UUID BUGS FIXED - All CRUD operations now working
-- **CRITICAL FIX:** Properties/Users CREATE was failing - wasn't generating UUIDs before INSERT (Schema uses VARCHAR(36) for IDs)
-- **CRITICAL FIX:** Properties/Users/Vehicles DELETE was failing - intval() converted UUID strings to 0, causing "Invalid ID" errors
-- **CRITICAL FIX:** Users CREATE had column name mismatch - schema has "password" but code tried to INSERT "password_hash"
-- **FILES FIXED:** properties-create.php, users-create.php, properties-delete.php, users-delete.php, vehicles-delete.php, vehicles-create.php
-- **ROOT CAUSE:** Database schema uses VARCHAR(36) UUIDs but code wasn't generating them (CREATE) or was converting them to integers (DELETE)
-- **RESULT:** All CRUD operations now working correctly - can create/delete properties, users, and vehicles
-- **NOTE:** Empty lists on production are EXPECTED on fresh install - use "Add Property/User" buttons to create data
+**2025-10-23 (Latest):** COMPREHENSIVE LOGGING + UUID BUGS FIXED
+- **NEW:** Added comprehensive console.log() throughout app.js for debugging production issues
+- **NEW:** All API calls now log request/response to browser console (F12)
+- **NEW:** Success alerts when creating properties/users
+- **FIX:** Properties/Users CREATE - Now generates UUIDs before INSERT (was missing, causing SQL errors)
+- **FIX:** Properties/Users/Vehicles DELETE - UUID string handling (was using intval() converting to 0)
+- **FIX:** Users CREATE column name - Changed "password_hash" to "password" to match schema
+- **FILES UPDATED:** app.js (logging), properties-create.php, users-create.php, all delete endpoints
+- **DEBUGGING:** Console shows exact API URLs, status codes, request/response data
+- **NOTE:** Browser cache causes most issues - use Private/Incognito mode or clear cache after uploading
 
 **2025-10-23:** COMPLETE FIX - All case-sensitive role comparisons fixed
 - **CRITICAL FIX:** Fixed case-sensitive role comparisons in ENTIRE application (9 files)

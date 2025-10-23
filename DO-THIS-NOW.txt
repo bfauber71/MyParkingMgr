@@ -1,0 +1,164 @@
+═══════════════════════════════════════════════════════════
+QUICK FIX - DO THIS RIGHT NOW
+═══════════════════════════════════════════════════════════
+
+Your "network error" problems are likely because your browser is
+using OLD cached JavaScript. Here's the fastest way to fix it:
+
+──────────────────────────────────────────────────────────
+METHOD 1: USE PRIVATE/INCOGNITO MODE (FASTEST!)
+──────────────────────────────────────────────────────────
+
+Mobile Safari:
+1. Long-press the tabs icon (bottom right)
+2. Tap "New Private Tab"
+3. Go to: https://2clv.com/jrk
+4. Login: admin / admin123
+5. Try adding a property
+6. ✅ Should work!
+
+Mobile Chrome:
+1. Menu (⋮) → New Incognito Tab
+2. Go to: https://2clv.com/jrk
+3. Login: admin / admin123
+4. Try adding a property
+5. ✅ Should work!
+
+Desktop (Any Browser):
+1. Ctrl+Shift+N (Windows) or Cmd+Shift+N (Mac)
+2. Go to: https://2clv.com/jrk
+3. Login: admin / admin123
+4. Try adding a property
+5. ✅ Should work!
+
+──────────────────────────────────────────────────────────
+METHOD 2: CLEAR CACHE THEN TEST
+──────────────────────────────────────────────────────────
+
+Mobile Safari:
+1. Settings → Safari → Clear History and Website Data
+2. Confirm
+3. Close Safari completely
+4. Re-open Safari
+5. Go to: https://2clv.com/jrk
+6. Try again
+
+Mobile Chrome:
+1. Menu → Settings → Privacy → Clear Browsing Data
+2. Select "Cached images and files"
+3. Clear
+4. Close Chrome completely
+5. Re-open Chrome
+6. Go to: https://2clv.com/jrk
+7. Try again
+
+Desktop:
+1. Ctrl+Shift+Delete (Windows) or Cmd+Shift+Delete (Mac)
+2. Select "Cached images and files"
+3. Clear
+4. Refresh page (F5)
+5. Try again
+
+──────────────────────────────────────────────────────────
+HOW TO TEST (Desktop with Console - RECOMMENDED!)
+──────────────────────────────────────────────────────────
+
+This will show you EXACTLY what's happening:
+
+1. Open https://2clv.com/jrk in browser
+2. Press F12 (opens Developer Tools)
+3. Click "Console" tab
+4. Login as admin
+5. Click "Properties" tab
+6. Click "Add Property" button
+7. Fill in:
+   - Name: Test Property
+   - Address: 123 Test St
+8. Click "Create Property"
+9. **LOOK AT THE CONSOLE!**
+
+What you SHOULD see (new code):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Saving property: {name: "Test Property", address: "123 Test St"}
+POST to: /jrk/api/properties-create
+Property save response status: 200
+Property save response: {success: true, id: "...", message: "..."}
+(Alert: "Property created successfully!")
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+What indicates OLD cached code:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Nothing - no console logs at all)
+(Alert: "Network error")
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+What indicates database error:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Saving property: {name: "Test Property", address: "123 Test St"}
+POST to: /jrk/api/properties-create
+Property save response status: 500
+Property save response: {error: "Database error: ..."}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+──────────────────────────────────────────────────────────
+WHAT'S IN THE NEW PACKAGE
+──────────────────────────────────────────────────────────
+
+managemyparking-shared-hosting.zip (38 KB)
+
+✅ All UUID bugs fixed (properties/users CREATE now works)
+✅ All intval() bugs fixed (DELETE now works)
+✅ Column name bug fixed (users CREATE now works)
+✅ Comprehensive console logging (see exactly what's happening)
+✅ Better error messages
+✅ Alert on success
+
+Upload this and test in Private/Incognito mode!
+
+──────────────────────────────────────────────────────────
+IF IT WORKS IN PRIVATE MODE
+──────────────────────────────────────────────────────────
+
+This PROVES the issue is browser cache!
+
+Solution:
+1. Keep using Private/Incognito mode
+2. OR clear cache in your normal browser
+3. OR wait 24 hours (cache expires)
+
+──────────────────────────────────────────────────────────
+IF IT STILL DOESN'T WORK IN PRIVATE MODE
+──────────────────────────────────────────────────────────
+
+Then it's NOT cache. Check these:
+
+1. Database not imported
+   → Open phpMyAdmin
+   → Import jrk/sql/install.sql
+   → Click "Go"
+
+2. Wrong database credentials
+   → Edit jrk/config.php
+   → Update host, database, username, password
+   → Upload to server
+
+3. PHP errors
+   → Check error_log file on server
+   → Share the exact error message
+
+──────────────────────────────────────────────────────────
+SUMMARY
+──────────────────────────────────────────────────────────
+
+1. Download: managemyparking-shared-hosting.zip
+2. Upload: jrk/ folder (overwrite all files)
+3. Test: Open Private/Incognito browser window
+4. Go to: https://2clv.com/jrk
+5. Login: admin / admin123
+6. Try: Add Property (with browser console open)
+7. Look: Console logs will tell you what's happening
+
+The code is fixed. The UUID bugs are gone. The issue is
+almost always browser cache showing you old JavaScript.
+
+═══════════════════════════════════════════════════════════

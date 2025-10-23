@@ -295,18 +295,32 @@ function switchTab(tabName) {
 
 // Properties
 async function loadProperties() {
+    console.log('loadProperties() called, fetching from:', `${API_BASE}/properties`);
     try {
         const response = await fetch(`${API_BASE}/properties`, {
             credentials: 'include'
         });
         
+        console.log('Properties API response status:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
-            properties = data.properties;
+            console.log('Properties loaded:', data);
+            properties = data.properties || [];
+            console.log('Properties array now has', properties.length, 'items');
+            updatePropertyFilters();
+        } else {
+            const errorText = await response.text();
+            console.error('Properties API error:', response.status, errorText);
+            // Initialize empty array so dropdowns still work
+            properties = [];
             updatePropertyFilters();
         }
     } catch (error) {
-        console.error('Error loading properties:', error);
+        console.error('Error loading properties (network/parse):', error);
+        // Initialize empty array so dropdowns still work
+        properties = [];
+        updatePropertyFilters();
     }
 }
 
@@ -452,6 +466,9 @@ async function handleSaveProperty(e) {
         address: formData.get('address')
     };
     
+    console.log('Saving property:', data);
+    console.log('POST to:', `${API_BASE}/properties-create`);
+    
     try {
         const response = await fetch(`${API_BASE}/properties-create`, {
             method: 'POST',
@@ -460,15 +477,21 @@ async function handleSaveProperty(e) {
             body: JSON.stringify(data)
         });
         
+        console.log('Property save response status:', response.status);
+        const responseData = await response.json();
+        console.log('Property save response:', responseData);
+        
         if (response.ok) {
+            alert('Property created successfully!');
             closeModalByName('property');
             await loadProperties();
             loadPropertiesSection();
         } else {
-            const error = await response.json();
-            alert(error.error || 'Error saving property');
+            console.error('Property creation failed:', responseData);
+            alert(responseData.error || 'Error saving property');
         }
     } catch (error) {
+        console.error('Property save network error:', error);
         alert('Network error. Please try again.');
     }
 }
@@ -591,6 +614,9 @@ async function handleSaveUser(e) {
         role: formData.get('role')
     };
     
+    console.log('Saving user:', {username: data.username, email: data.email, role: data.role});
+    console.log('POST to:', `${API_BASE}/users-create`);
+    
     try {
         const response = await fetch(`${API_BASE}/users-create`, {
             method: 'POST',
@@ -599,14 +625,20 @@ async function handleSaveUser(e) {
             body: JSON.stringify(data)
         });
         
+        console.log('User save response status:', response.status);
+        const responseData = await response.json();
+        console.log('User save response:', responseData);
+        
         if (response.ok) {
+            alert('User created successfully!');
             closeModalByName('user');
             loadUsersSection();
         } else {
-            const error = await response.json();
-            alert(error.error || 'Error saving user');
+            console.error('User creation failed:', responseData);
+            alert(responseData.error || 'Error saving user');
         }
     } catch (error) {
+        console.error('User save network error:', error);
         alert('Network error. Please try again.');
     }
 }
