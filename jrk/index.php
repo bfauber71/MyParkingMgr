@@ -45,6 +45,7 @@ $router->get('/api/vehicles-export', __DIR__ . '/api/vehicles-export.php');
 $router->get('/api/vehicles/export', __DIR__ . '/api/vehicles-export.php');
 $router->post('/api/vehicles', __DIR__ . '/api/vehicles-create.php');
 $router->post('/api/vehicles-create', __DIR__ . '/api/vehicles-create.php');
+$router->post('/api/vehicles-import', __DIR__ . '/api/vehicles-import.php');
 $router->post('/api/vehicles-delete', __DIR__ . '/api/vehicles-delete.php');
 
 // Property routes

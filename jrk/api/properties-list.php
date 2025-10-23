@@ -12,14 +12,31 @@ if (!Session::isAuthenticated()) {
 }
 
 $db = Database::getInstance();
+$user = Session::user();
 
 try {
-    $stmt = $db->prepare("
-        SELECT id, name, address, created_at 
-        FROM properties 
-        ORDER BY name ASC
-    ");
-    $stmt->execute();
+    // Get accessible properties based on role (case-insensitive)
+    $role = strtolower($user['role']);
+    if ($role === 'admin' || $role === 'operator') {
+        // Admin and Operator can see all properties
+        $stmt = $db->prepare("
+            SELECT id, name, address, created_at 
+            FROM properties 
+            ORDER BY name ASC
+        ");
+        $stmt->execute();
+    } else {
+        // Regular users only see assigned properties
+        $stmt = $db->prepare("
+            SELECT p.id, p.name, p.address, p.created_at
+            FROM properties p
+            INNER JOIN user_assigned_properties uap ON p.id = uap.property_id
+            WHERE uap.user_id = ?
+            ORDER BY p.name ASC
+        ");
+        $stmt->execute([$user['id']]);
+    }
+    
     $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Get contacts for each property
