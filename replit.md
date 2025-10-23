@@ -143,7 +143,13 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** COMPLETE PROPERTY MANAGEMENT - Full CRUD with Contact Management
+**2025-10-23 (Latest):** ROUTING FIX - Property Edit Now Works
+- **CRITICAL FIX:** Added missing route for /api/properties-update in index.php
+- **ROOT CAUSE:** properties-update.php file existed but router had no route registered (404 error)
+- **RESULT:** Property edit functionality now fully operational
+- **FILE CHANGED:** index.php (added line 58: properties-update route)
+
+**2025-10-23:** COMPLETE PROPERTY MANAGEMENT - Full CRUD with Contact Management
 - **NEW FEATURE:** Property Edit functionality - Properties can now be fully edited within the interface
 - **NEW FEATURE:** Contact Management - Each property now has 1-3 editable contacts (name, phone, email)
 - **REQUIREMENT:** First contact is mandatory, contacts 2-3 are optional

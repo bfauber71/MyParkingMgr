@@ -52,6 +52,7 @@ $router->post('/api/vehicles-delete', __DIR__ . '/api/vehicles-delete.php');
 $router->get('/api/properties', __DIR__ . '/api/properties.php');
 $router->get('/api/properties-list', __DIR__ . '/api/properties-list.php');
 $router->post('/api/properties-create', __DIR__ . '/api/properties-create.php');
+$router->post('/api/properties-update', __DIR__ . '/api/properties-update.php');
 $router->post('/api/properties-delete', __DIR__ . '/api/properties-delete.php');
 
 // User routes (Admin only)
