@@ -3,20 +3,18 @@ require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
+header('Content-Type: application/json');
+
 Session::start();
 
 if (!Session::isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    jsonResponse(['error' => 'Unauthorized'], 401);
 }
 
 $user = Session::user();
 
 if (strcasecmp($user['role'], 'admin') !== 0) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Access denied. Admin only.']);
-    exit;
+    jsonResponse(['error' => 'Access denied. Admin only.'], 403);
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -28,15 +26,11 @@ $password = $input['password'] ?? '';
 $role = strtolower($input['role'] ?? 'user');
 
 if (empty($id) || empty($username)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'User ID and username are required']);
-    exit;
+    jsonResponse(['error' => 'User ID and username are required'], 400);
 }
 
 if (!in_array($role, ['admin', 'user', 'operator'])) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid role']);
-    exit;
+    jsonResponse(['error' => 'Invalid role'], 400);
 }
 
 $db = Database::getInstance();
@@ -45,17 +39,13 @@ try {
     $stmt = $db->prepare("SELECT id FROM users WHERE id = ?");
     $stmt->execute([$id]);
     if (!$stmt->fetch()) {
-        http_response_code(404);
-        echo json_encode(['error' => 'User not found']);
-        exit;
+        jsonResponse(['error' => 'User not found'], 404);
     }
     
     $stmt = $db->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
     $stmt->execute([$username, $id]);
     if ($stmt->fetch()) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Username already exists']);
-        exit;
+        jsonResponse(['error' => 'Username already exists'], 400);
     }
     
     if (!empty($password)) {
@@ -79,12 +69,11 @@ try {
     
     auditLog('update_user', 'users', $id, "Updated user: $username ($role)");
     
-    echo json_encode([
+    jsonResponse([
         'success' => true,
         'message' => 'User updated successfully'
     ]);
 } catch (PDOException $e) {
     error_log("User Update Error: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+    jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
 }
