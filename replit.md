@@ -24,6 +24,8 @@ User required deployment to shared hosting without custom installations (no Comp
 The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build tools are required. It features a responsive dark theme and a tabbed navigation interface (Vehicles, Properties, Users, Violations). Role-based menu visibility and permissions are implemented directly in the frontend and enforced by the backend.
 
 **Recent UX Improvements (Oct 23, 2025):**
+- **Mobile-First Responsive Design:** Complete CSS refactor with mobile-first approach (320px base), tablet optimization (768px+), and desktop enhancements (1024px+). All touch targets meet 44px minimum for optimal mobile usability.
+- **Toast Notification System:** Custom notification system replaces browser alerts with styled toasts featuring success/error/warning/info types, 2-second auto-close (except violation ticket verification which persists), manual dismissal, and stacking support.
 - Violations tab added for admin users to manage violation types
 - Vehicle display defaults to empty state until search is performed
 - Clear button added to search bar for quick filter reset
@@ -35,7 +37,7 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - **Database:** MySQL 5.7+ with PDO for secure database interactions.
 - **Authentication:** PHP sessions combined with `password_hash`/`password_verify` for secure user authentication.
 - **Routing:** A custom front controller pattern handles URL routing.
-- **Frontend:** Vanilla HTML/CSS/JavaScript with no external dependencies or build processes.
+- **Frontend:** Vanilla HTML/CSS/JavaScript with no external dependencies or build processes. Mobile-first responsive design with 44px minimum touch targets, 16px input font sizes (prevents iOS zoom), and progressive enhancement at 768px and 1024px breakpoints. Custom toast notification system with type-based styling and configurable auto-close.
 - **Security Features:** PDO prepared statements, bcrypt password hashing, HTTP-only session cookies, XSS prevention via `htmlspecialchars`, role-based access control, comprehensive audit logging, and Apache security headers.
 - **Role-Based System:**
     - **Admin:** Full CRUD access to vehicles, properties, users, and violations.
