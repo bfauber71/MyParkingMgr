@@ -19,6 +19,7 @@ $username = trim($input['username'] ?? '');
 $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 $role = strtolower($input['role'] ?? 'user');
+$permissions = $input['permissions'] ?? [];
 
 if (empty($id) || empty($username)) {
     jsonResponse(['error' => 'User ID and username are required'], 400);
@@ -61,6 +62,9 @@ try {
         ");
         $stmt->execute([$username, $email, $role, $id]);
     }
+    
+    // Save user permissions
+    saveUserPermissions($id, $permissions);
     
     auditLog('update_user', 'users', $id, "Updated user: $username ($role)");
     

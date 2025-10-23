@@ -16,6 +16,7 @@ $username = trim($input['username'] ?? '');
 $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 $role = strtolower($input['role'] ?? 'user');
+$permissions = $input['permissions'] ?? [];
 
 if (empty($username) || empty($password)) {
     http_response_code(400);
@@ -51,6 +52,9 @@ try {
         VALUES (?, ?, ?, ?, ?, NOW(), NOW())
     ");
     $stmt->execute([$userId, $username, $email, $passwordHash, $role]);
+    
+    // Save user permissions
+    saveUserPermissions($userId, $permissions);
     
     auditLog('create_user', 'users', $userId, "Created user: $username ($role)");
     

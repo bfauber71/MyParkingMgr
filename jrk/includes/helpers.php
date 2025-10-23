@@ -86,6 +86,54 @@ function auditLog($action, $entityType, $entityId = null, $details = null) {
 }
 
 /**
+ * Save user permissions
+ * @param string $userId User ID
+ * @param array $permissions Permissions array [module => [can_view, can_edit, can_create_delete]]
+ */
+function saveUserPermissions($userId, $permissions) {
+    if (empty($permissions) || !is_array($permissions)) {
+        return;
+    }
+    
+    $db = Database::getInstance();
+    
+    try {
+        // Check if permissions table exists
+        $tableExists = $db->query("SHOW TABLES LIKE 'user_permissions'")->fetch();
+        if (!$tableExists) {
+            return; // Silently skip if table doesn't exist (backward compatibility)
+        }
+        
+        // Delete existing permissions for this user
+        $stmt = $db->prepare("DELETE FROM user_permissions WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        
+        // Insert new permissions
+        $stmt = $db->prepare("
+            INSERT INTO user_permissions (id, user_id, module, can_view, can_edit, can_create_delete, created_at, updated_at)
+            VALUES (UUID(), ?, ?, ?, ?, ?, NOW(), NOW())
+        ");
+        
+        foreach ($permissions as $module => $perms) {
+            if (!in_array($module, [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS])) {
+                continue;
+            }
+            
+            $stmt->execute([
+                $userId,
+                $module,
+                !empty($perms['can_view']) ? 1 : 0,
+                !empty($perms['can_edit']) ? 1 : 0,
+                !empty($perms['can_create_delete']) ? 1 : 0
+            ]);
+        }
+    } catch (PDOException $e) {
+        error_log("Save User Permissions Error: " . $e->getMessage());
+        // Don't throw - allow operation to continue even if permissions save fails
+    }
+}
+
+/**
  * Check if user has role (case-insensitive)
  */
 function hasRole($role) {

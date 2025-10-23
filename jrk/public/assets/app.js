@@ -779,6 +779,102 @@ function displayUsersTable(users) {
     container.innerHTML = table;
 }
 
+// Permission Matrix Functions
+function setPermissionPreset(preset) {
+    const modules = ['vehicles', 'users', 'properties', 'violations'];
+    const checkboxes = document.querySelectorAll('.perm-check');
+    
+    checkboxes.forEach(cb => {
+        const module = cb.dataset.module;
+        const action = cb.dataset.action;
+        
+        if (preset === 'admin') {
+            cb.checked = true;
+        } else if (preset === 'view') {
+            cb.checked = action === 'view';
+        } else {
+            cb.checked = false;
+        }
+    });
+}
+
+function setupPermissionDependencies() {
+    const checkboxes = document.querySelectorAll('.perm-check');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', handlePermissionChange);
+    });
+}
+
+function handlePermissionChange(e) {
+    const checkbox = e.target;
+    const module = checkbox.dataset.module;
+    const action = checkbox.dataset.action;
+    
+    const viewCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="view"]`);
+    const editCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="edit"]`);
+    const createCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="create_delete"]`);
+    
+    if (checkbox.checked) {
+        if (action === 'create_delete') {
+            editCb.checked = true;
+            viewCb.checked = true;
+        } else if (action === 'edit') {
+            viewCb.checked = true;
+        }
+    } else {
+        if (action === 'view') {
+            editCb.checked = false;
+            createCb.checked = false;
+        } else if (action === 'edit') {
+            createCb.checked = false;
+        }
+    }
+}
+
+function loadUserPermissions(user) {
+    const checkboxes = document.querySelectorAll('.perm-check');
+    checkboxes.forEach(cb => cb.checked = false);
+    
+    if (user && user.permissions) {
+        Object.keys(user.permissions).forEach(module => {
+            const perms = user.permissions[module];
+            const viewCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="view"]`);
+            const editCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="edit"]`);
+            const createCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="create_delete"]`);
+            
+            if (viewCb) viewCb.checked = perms.can_view;
+            if (editCb) editCb.checked = perms.can_edit;
+            if (createCb) createCb.checked = perms.can_create_delete;
+        });
+    } else if (user) {
+        const role = (user.role || '').toLowerCase();
+        if (role === 'admin') {
+            setPermissionPreset('admin');
+        } else {
+            setPermissionPreset('view');
+        }
+    }
+}
+
+function getSelectedPermissions() {
+    const permissions = {};
+    const modules = ['vehicles', 'users', 'properties', 'violations'];
+    
+    modules.forEach(module => {
+        const viewCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="view"]`);
+        const editCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="edit"]`);
+        const createCb = document.querySelector(`.perm-check[data-module="${module}"][data-action="create_delete"]`);
+        
+        permissions[module] = {
+            can_view: viewCb?.checked || false,
+            can_edit: editCb?.checked || false,
+            can_create_delete: createCb?.checked || false
+        };
+    });
+    
+    return permissions;
+}
+
 function openUserModal(user = null) {
     if (user) {
         document.getElementById('userModalTitle').textContent = 'Edit User';
@@ -789,14 +885,17 @@ function openUserModal(user = null) {
         document.getElementById('userPassword').value = '';
         document.getElementById('userPassword').placeholder = 'Leave blank to keep current password';
         document.getElementById('userPassword').required = false;
+        loadUserPermissions(user);
     } else {
         document.getElementById('userModalTitle').textContent = 'Add User';
         document.getElementById('userForm').reset();
         document.getElementById('userId').value = '';
         document.getElementById('userPassword').placeholder = '';
         document.getElementById('userPassword').required = true;
+        setPermissionPreset('view');
     }
     
+    setupPermissionDependencies();
     document.getElementById('userModal').classList.add('show');
     document.getElementById('userForm').onsubmit = handleSaveUser;
 }
@@ -848,7 +947,8 @@ async function handleSaveUser(e) {
         username: formData.get('username'),
         email: formData.get('email'),
         password: formData.get('password'),
-        role: formData.get('role')
+        role: formData.get('role'),
+        permissions: getSelectedPermissions()
     };
     
     if (isEdit) {
@@ -857,7 +957,7 @@ async function handleSaveUser(e) {
     
     const endpoint = isEdit ? `${API_BASE}/users-update` : `${API_BASE}/users-create`;
     
-    console.log(isEdit ? 'Updating user:' : 'Creating user:', {username: data.username, email: data.email, role: data.role});
+    console.log(isEdit ? 'Updating user:' : 'Creating user:', {username: data.username, email: data.email, role: data.role, permissions: data.permissions});
     console.log('POST to:', endpoint);
     
     try {

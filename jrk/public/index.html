@@ -322,6 +322,77 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Permissions</label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPermissionPreset('admin')">Admin (All)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPermissionPreset('view')">View Only</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPermissionPreset('custom')">Custom</button>
+                    </div>
+                    <div class="permission-matrix">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #2a2a2a;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #444;">Module</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #444;">View</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #444;">Edit</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #444;">Create/Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Vehicles</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="vehicles" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="vehicles" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="vehicles" data-action="create_delete">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Users</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="users" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="users" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="users" data-action="create_delete">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Properties</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="properties" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="properties" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="properties" data-action="create_delete">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Violations</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="violations" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="violations" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="violations" data-action="create_delete">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-cancel="user">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save User</button>
