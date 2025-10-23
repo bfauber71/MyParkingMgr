@@ -236,6 +236,17 @@ body {
     background: #d97706;
 }
 
+.btn-violations {
+    background: #dc2626;
+    color: white;
+    font-weight: 600;
+    margin: 0 10px;
+}
+
+.btn-violations:hover {
+    background: #b91c1c;
+}
+
 .role-badge, .badge {
     display: inline-block;
     padding: 4px 8px;
@@ -362,8 +373,10 @@ body {
 .vehicle-header {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
 .vehicle-title {
@@ -520,6 +533,63 @@ body {
     height: 18px;
     margin-right: 10px;
     cursor: pointer;
+}
+
+/* Violation History Styles */
+.violation-history-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.violation-history-item {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.violation-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #334155;
+}
+
+.violation-history-header strong {
+    color: #3b82f6;
+    font-size: 16px;
+}
+
+.violation-date {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.violation-history-details p {
+    margin-bottom: 8px;
+    color: #cbd5e1;
+}
+
+.violation-history-details strong {
+    color: #e2e8f0;
+}
+
+.violation-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 8px 0;
+}
+
+.violation-list li {
+    background: #0f172a;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    border-left: 3px solid #ef4444;
+    color: #e2e8f0;
 }
 
 @media (max-width: 768px) {

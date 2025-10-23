@@ -43,6 +43,7 @@ $router->get('/api/vehicles-search', __DIR__ . '/api/vehicles-search.php');
 $router->get('/api/vehicles/search', __DIR__ . '/api/vehicles-search.php');
 $router->get('/api/vehicles-export', __DIR__ . '/api/vehicles-export.php');
 $router->get('/api/vehicles/export', __DIR__ . '/api/vehicles-export.php');
+$router->get('/api/vehicles-violations-history', __DIR__ . '/api/vehicles-violations-history.php');
 $router->post('/api/vehicles', __DIR__ . '/api/vehicles-create.php');
 $router->post('/api/vehicles-create', __DIR__ . '/api/vehicles-create.php');
 $router->post('/api/vehicles-import', __DIR__ . '/api/vehicles-import.php');

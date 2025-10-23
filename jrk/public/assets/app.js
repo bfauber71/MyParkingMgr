@@ -948,6 +948,13 @@ function createVehicleCard(vehicle) {
     
     const title = vehicle.plate_number || vehicle.tag_number || 'No Plate/Tag';
     
+    const violationCount = vehicle.violation_count || 0;
+    const violationsIndicator = violationCount > 0 ? `
+        <button class="btn btn-small btn-violations" onclick='showViolationHistory("${vehicle.id}", event)'>
+            *Violations Exist (${violationCount})
+        </button>
+    ` : '';
+    
     const actionButtons = canEditVehicles() ? `
         <div class="vehicle-actions">
             <button class="btn btn-small btn-warning" onclick='openViolationModal(${JSON.stringify(vehicle)})'>Violation</button>
@@ -959,6 +966,7 @@ function createVehicleCard(vehicle) {
     card.innerHTML = `
         <div class="vehicle-header">
             <div class="vehicle-title">${escapeHtml(title)}</div>
+            ${violationsIndicator}
             <div class="property-badge">${escapeHtml(vehicle.property)}</div>
         </div>
         <div class="vehicle-details">
@@ -1460,6 +1468,72 @@ async function deleteViolationType(id, name) {
         console.error('Error deleting violation:', error);
         alert('Network error. Please try again.');
     }
+}
+
+// Violation History
+async function showViolationHistory(vehicleId, event) {
+    if (event) event.stopPropagation();
+    
+    const modal = document.getElementById('violationHistoryModal');
+    const content = document.getElementById('violationHistoryContent');
+    
+    // Show loading state
+    content.innerHTML = '<p style="text-align: center; color: #888;">Loading violation history...</p>';
+    modal.classList.add('show');
+    
+    try {
+        const response = await fetch(`${API_BASE}/vehicles-violations-history?vehicleId=${vehicleId}`, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to load violation history');
+        }
+        
+        const data = await response.json();
+        displayViolationHistory(data.tickets);
+    } catch (error) {
+        console.error('Error loading violation history:', error);
+        content.innerHTML = '<p style="color: red; text-align: center;">Error loading violation history. Please try again.</p>';
+    }
+}
+
+function displayViolationHistory(tickets) {
+    const content = document.getElementById('violationHistoryContent');
+    
+    if (!tickets || tickets.length === 0) {
+        content.innerHTML = '<p style="text-align: center; color: #888;">No violations found for this vehicle.</p>';
+        return;
+    }
+    
+    let html = '<div class="violation-history-list">';
+    
+    tickets.forEach((ticket, index) => {
+        const date = new Date(ticket.issued_at);
+        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        const vehicleInfo = `${ticket.vehicle_year || ''} ${ticket.vehicle_color || ''} ${ticket.vehicle_make || ''} ${ticket.vehicle_model || ''}`.trim();
+        
+        html += `
+            <div class="violation-history-item">
+                <div class="violation-history-header">
+                    <strong>Violation #${tickets.length - index}</strong>
+                    <span class="violation-date">${formattedDate}</span>
+                </div>
+                <div class="violation-history-details">
+                    <p><strong>Vehicle:</strong> ${escapeHtml(vehicleInfo)}</p>
+                    <p><strong>Issued by:</strong> ${escapeHtml(ticket.issued_by_username)}</p>
+                    <p><strong>Violations:</strong></p>
+                    <ul class="violation-list">
+                        ${ticket.violations.map(v => `<li>${escapeHtml(v)}</li>`).join('')}
+                    </ul>
+                    ${ticket.custom_note ? `<p><em>Note: ${escapeHtml(ticket.custom_note)}</em></p>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    content.innerHTML = html;
 }
 
 // Modal Management

@@ -50,4 +50,12 @@ $sql .= " ORDER BY created_at DESC LIMIT 1000";
 
 $vehicles = Database::query($sql, $params);
 
+// Add violation count to each vehicle
+$db = Database::getInstance();
+foreach ($vehicles as &$vehicle) {
+    $stmt = $db->prepare("SELECT COUNT(*) FROM violation_tickets WHERE vehicle_id = ?");
+    $stmt->execute([$vehicle['id']]);
+    $vehicle['violation_count'] = (int)$stmt->fetchColumn();
+}
+
 jsonResponse(['vehicles' => $vehicles]);
