@@ -143,14 +143,14 @@ A PHP test server is running on port 5000 with **DEMO MODE** enabled.
 
 ## Recent Changes
 
-**2025-10-23 (Latest):** PRODUCTION DEPLOYMENT FIXES - Empty lists and CRUD issues resolved
-- **FIX:** Changed user role dropdown to use lowercase values ('user', 'operator', 'admin')
-- **FIX:** Added role-based filtering to properties-list.php (was returning all properties for everyone)
-- **FIX:** Added CSV import route to index.php (route was missing)
-- **CLARIFICATION:** Empty properties/users lists on production are EXPECTED on first install
-- **DOCUMENTATION:** Properties start empty - use "Add Property" button to create first property
-- **DOCUMENTATION:** Users start with only admin - use "Add User" button to create more users
-- **RESULT:** All CRUD operations working (Create/Read/Delete for Properties and Users)
+**2025-10-23 (Latest):** CRITICAL UUID BUGS FIXED - All CRUD operations now working
+- **CRITICAL FIX:** Properties/Users CREATE was failing - wasn't generating UUIDs before INSERT (Schema uses VARCHAR(36) for IDs)
+- **CRITICAL FIX:** Properties/Users/Vehicles DELETE was failing - intval() converted UUID strings to 0, causing "Invalid ID" errors
+- **CRITICAL FIX:** Users CREATE had column name mismatch - schema has "password" but code tried to INSERT "password_hash"
+- **FILES FIXED:** properties-create.php, users-create.php, properties-delete.php, users-delete.php, vehicles-delete.php, vehicles-create.php
+- **ROOT CAUSE:** Database schema uses VARCHAR(36) UUIDs but code wasn't generating them (CREATE) or was converting them to integers (DELETE)
+- **RESULT:** All CRUD operations now working correctly - can create/delete properties, users, and vehicles
+- **NOTE:** Empty lists on production are EXPECTED on fresh install - use "Add Property/User" buttons to create data
 
 **2025-10-23:** COMPLETE FIX - All case-sensitive role comparisons fixed
 - **CRITICAL FIX:** Fixed case-sensitive role comparisons in ENTIRE application (9 files)

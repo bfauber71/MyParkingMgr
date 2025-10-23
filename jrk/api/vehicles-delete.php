@@ -20,9 +20,9 @@ if (strcasecmp($user['role'], 'operator') === 0) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-$vehicleId = intval($input['id'] ?? 0);
+$vehicleId = trim($input['id'] ?? '');
 
-if ($vehicleId <= 0) {
+if (empty($vehicleId)) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid vehicle ID']);
     exit;

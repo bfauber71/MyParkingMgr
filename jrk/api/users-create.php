@@ -52,13 +52,14 @@ try {
     $config = require __DIR__ . '/../config.php';
     $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => $config['password_cost']]);
     
-    $stmt = $db->prepare("
-        INSERT INTO users (username, email, password_hash, role, created_at, updated_at)
-        VALUES (?, ?, ?, ?, NOW(), NOW())
-    ");
-    $stmt->execute([$username, $email, $passwordHash, $role]);
+    // Generate UUID for user ID
+    $userId = $db->query("SELECT UUID()")->fetchColumn();
     
-    $userId = $db->lastInsertId();
+    $stmt = $db->prepare("
+        INSERT INTO users (id, username, email, password, role, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+    ");
+    $stmt->execute([$userId, $username, $email, $passwordHash, $role]);
     
     auditLog('create_user', 'users', $userId, "Created user: $username ($role)");
     
@@ -68,6 +69,7 @@ try {
         'message' => 'User created successfully'
     ]);
 } catch (PDOException $e) {
+    error_log("User Create Error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }

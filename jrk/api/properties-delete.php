@@ -20,9 +20,9 @@ if (strcasecmp($user['role'], 'admin') !== 0) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-$propertyId = intval($input['id'] ?? 0);
+$propertyId = trim($input['id'] ?? '');
 
-if ($propertyId <= 0) {
+if (empty($propertyId)) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid property ID']);
     exit;

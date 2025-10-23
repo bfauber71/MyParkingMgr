@@ -41,13 +41,14 @@ try {
         exit;
     }
     
-    $stmt = $db->prepare("
-        INSERT INTO properties (name, address, created_at, updated_at)
-        VALUES (?, ?, NOW(), NOW())
-    ");
-    $stmt->execute([$name, $address]);
+    // Generate UUID for property ID
+    $propertyId = $db->query("SELECT UUID()")->fetchColumn();
     
-    $propertyId = $db->lastInsertId();
+    $stmt = $db->prepare("
+        INSERT INTO properties (id, name, address, created_at, updated_at)
+        VALUES (?, ?, ?, NOW(), NOW())
+    ");
+    $stmt->execute([$propertyId, $name, $address]);
     
     auditLog('create_property', 'properties', $propertyId, "Created property: $name");
     
@@ -57,6 +58,7 @@ try {
         'message' => 'Property created successfully'
     ]);
 } catch (PDOException $e) {
+    error_log("Property Create Error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }

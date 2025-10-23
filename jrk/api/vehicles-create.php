@@ -22,7 +22,7 @@ if (strcasecmp($user['role'], 'operator') === 0) {
 $input = json_decode(file_get_contents('php://input'), true);
 
 $property = trim($input['property'] ?? '');
-$vehicleId = isset($input['id']) && $input['id'] !== '' ? intval($input['id']) : null;
+$vehicleId = isset($input['id']) && $input['id'] !== '' ? trim($input['id']) : null;
 
 if (empty($property)) {
     http_response_code(400);
