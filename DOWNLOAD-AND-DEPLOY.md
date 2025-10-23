@@ -7,7 +7,7 @@
 3. Right-click → **Download**
 4. Save to your computer
 
-**Package Size:** 24 KB  
+**Package Size:** 32 KB  
 **Package Contents:** Complete application ready for FTP upload
 
 ## 🚀 Deploy to Your Server
@@ -77,14 +77,16 @@ Open `jrk/INSTALLATION-GUIDE.md` for:
 
 ## 🎯 What's Included
 
-- ✅ Vehicle management system
-- ✅ Multi-property support
-- ✅ Role-based access control
-- ✅ Search functionality
-- ✅ CSV export
-- ✅ 3 sample properties
-- ✅ 3 sample vehicles
-- ✅ Complete documentation
+- ✅ **3-Tab Interface:** Vehicles, Properties, Users (role-based visibility)
+- ✅ **Role-Based Access:**
+  - Admin: Full CRUD on all sections
+  - User: CRUD vehicles for assigned properties only
+  - Operator: Read-only vehicle access
+- ✅ **Vehicle Management:** Search, add, edit, delete, CSV export
+- ✅ **Property Management:** Add and delete properties (Admin only)
+- ✅ **User Management:** Create and delete users with role assignment (Admin only)
+- ✅ **Sample Data:** 1 admin user, 3 properties, 3 vehicles
+- ✅ **Complete Documentation:** Installation guide and troubleshooting
 
 ---
 
