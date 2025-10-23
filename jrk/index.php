@@ -60,6 +60,11 @@ $router->get('/api/users-list', __DIR__ . '/api/users-list.php');
 $router->post('/api/users-create', __DIR__ . '/api/users-create.php');
 $router->post('/api/users-delete', __DIR__ . '/api/users-delete.php');
 
+// Violation routes
+$router->get('/api/violations', __DIR__ . '/api/violations.php');
+$router->post('/api/violations-create', __DIR__ . '/api/violations-create.php');
+$router->get('/api/violations-ticket', __DIR__ . '/api/violations-ticket.php');
+
 // Serve frontend for all other routes
 $router->get('/.*', function() use ($config) {
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

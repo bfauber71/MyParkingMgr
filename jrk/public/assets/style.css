@@ -227,6 +227,15 @@ body {
     background: #dc2626;
 }
 
+.btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
 .role-badge {
     display: inline-block;
     padding: 4px 8px;
@@ -455,6 +464,52 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+}
+
+/* Violation Modal Styles */
+.modal-large {
+    max-width: 600px;
+}
+
+.violation-vehicle-info {
+    background: #1e293b;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.violation-checkboxes {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 12px;
+    background: #1e293b;
+}
+
+.checkbox-item {
+    margin-bottom: 10px;
+}
+
+.checkbox-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.checkbox-item label:hover {
+    background: #0f172a;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {

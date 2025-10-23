@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violation Ticket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .ticket-container {
+            width: 2.5in;
+            height: 6in;
+            background: white;
+            margin: 0 auto;
+            padding: 0.1in;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .ticket-header {
+            text-align: center;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+        }
+
+        .ticket-header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .vehicle-info {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            min-height: 28px;
+        }
+
+        .violation-intro {
+            font-size: 10px;
+            margin-bottom: 8px;
+        }
+
+        .violations-list {
+            font-size: 10px;
+            margin-bottom: 10px;
+            padding-left: 15px;
+        }
+
+        .violations-list li {
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .ticket-details {
+            font-size: 9px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .tow-warning {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .property-info {
+            font-size: 9px;
+            line-height: 1.3;
+            border-top: 1px solid #ccc;
+            padding-top: 6px;
+        }
+
+        .property-info strong {
+            font-weight: bold;
+        }
+
+        .no-print {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .no-print button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .no-print button:hover {
+            background: #357abd;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .ticket-container {
+                width: 2.5in;
+                height: 6in;
+                margin: 0;
+                box-shadow: none;
+                page-break-after: avoid;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            @page {
+                size: 2.5in 6in;
+                margin: 0;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()">Print Ticket</button>
+    </div>
+
+    <div id="ticketContent" class="loading">Loading ticket...</div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
+            ? '/api'
+            : '/jrk/api';
+
+        async function loadTicket() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticketId = urlParams.get('id');
+
+            if (!ticketId) {
+                document.getElementById('ticketContent').innerHTML = '<div class="loading">Error: No ticket ID provided</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/violations-ticket?id=${ticketId}`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load ticket');
+                }
+
+                const data = await response.json();
+                renderTicket(data.ticket);
+            } catch (error) {
+                console.error('Error loading ticket:', error);
+                document.getElementById('ticketContent').innerHTML = '<div class="loading">Error loading ticket</div>';
+            }
+        }
+
+        function renderTicket(ticket) {
+            const vehicleInfo = [ticket.vehicle_year, ticket.vehicle_color, ticket.vehicle_make, ticket.vehicle_model]
+                .filter(v => v)
+                .join(' ');
+
+            const violationItems = ticket.violations.map(v => `<li>${escapeHtml(v.description)}</li>`).join('');
+
+            const issuedDate = new Date(ticket.issued_at);
+            const formattedDate = issuedDate.toLocaleDateString() + ' ' + issuedDate.toLocaleTimeString();
+
+            const html = `
+                <div class="ticket-container">
+                    <div class="ticket-header">
+                        <h1>VIOLATION</h1>
+                    </div>
+
+                    <div class="vehicle-info">
+                        ${escapeHtml(vehicleInfo) || 'Unknown Vehicle'}
+                    </div>
+
+                    <div class="violation-intro">
+                        has been found to have the following violation(s):
+                    </div>
+
+                    <ul class="violations-list">
+                        ${violationItems}
+                    </ul>
+
+                    <div class="ticket-details">
+                        <strong>Date/Time:</strong> ${formattedDate}<br>
+                        <strong>Issued By:</strong> ${escapeHtml(ticket.issued_by_username)}
+                    </div>
+
+                    <div class="tow-warning">
+                        and is subject to TOW within 24hrs.
+                    </div>
+
+                    <div class="property-info">
+                        <strong>${escapeHtml(ticket.property_name)}</strong><br>
+                        ${escapeHtml(ticket.property_address || '')}<br>
+                        ${ticket.property_contact_name ? 'Contact: ' + escapeHtml(ticket.property_contact_name) + '<br>' : ''}
+                        ${ticket.property_contact_phone ? 'Phone: ' + escapeHtml(ticket.property_contact_phone) + '<br>' : ''}
+                        ${ticket.property_contact_email ? 'Email: ' + escapeHtml(ticket.property_contact_email) : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('ticketContent').innerHTML = html;
+
+            // Auto-open print dialog after a short delay
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load ticket on page load
+        loadTicket();
+    </script>
+</body>
+</html>

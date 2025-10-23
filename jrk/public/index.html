@@ -316,6 +316,38 @@
         </div>
     </div>
 
+    <!-- Violation Modal -->
+    <div id="violationModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Create Violation Ticket</h3>
+                <span class="close" data-modal="violation">&times;</span>
+            </div>
+            <form id="violationForm" onsubmit="handleCreateViolation(event)">
+                <input type="hidden" id="violationVehicleId" name="vehicleId">
+                
+                <div class="violation-vehicle-info">
+                    <strong>Vehicle:</strong> <span id="violationVehicleInfo"></span>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Select Violation(s) *</label>
+                    <div id="violationCheckboxes" class="violation-checkboxes"></div>
+                </div>
+
+                <div id="customNoteContainer" class="form-group" style="display: none;">
+                    <label for="customNoteText">Specify Other Violation</label>
+                    <textarea id="customNoteText" name="customNote" rows="3" placeholder="Enter custom violation details..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="violation">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Create Violation Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="assets/app.js"></script>
 </body>
 </html>

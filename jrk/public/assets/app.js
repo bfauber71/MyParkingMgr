@@ -931,8 +931,9 @@ function createVehicleCard(vehicle) {
     
     const actionButtons = canEditVehicles() ? `
         <div class="vehicle-actions">
+            <button class="btn btn-small btn-warning" onclick='openViolationModal(${JSON.stringify(vehicle)})'>Violation</button>
             <button class="btn btn-small btn-primary" onclick='editVehicle(${JSON.stringify(vehicle)})'>Edit</button>
-            ${canDeleteVehicles() ? `<button class="btn btn-small btn-danger" onclick="deleteVehicle(${vehicle.id}, '${escapeHtml(title)}')">Delete</button>` : ''}
+            ${canDeleteVehicles() ? `<button class="btn btn-small btn-danger" onclick="deleteVehicle('${vehicle.id}', '${escapeHtml(title)}')">Delete</button>` : ''}
         </div>
     ` : '';
     
@@ -1113,6 +1114,165 @@ function exportVehicles() {
     console.log('Export CSV clicked - navigating to:', `${API_BASE}/vehicles-export`);
     // Use window.open with _self to force navigation while keeping session
     window.open(`${API_BASE}/vehicles-export`, '_self');
+}
+
+// ============================================
+// VIOLATION MANAGEMENT
+// ============================================
+
+let currentVehicleForViolation = null;
+let availableViolations = [];
+
+async function openViolationModal(vehicle) {
+    currentVehicleForViolation = vehicle;
+    console.log('Opening violation modal for vehicle:', vehicle);
+    
+    // Set vehicle info in modal
+    const vehicleInfo = `${vehicle.year || ''} ${vehicle.color || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim();
+    document.getElementById('violationVehicleInfo').textContent = vehicleInfo || 'Unknown Vehicle';
+    document.getElementById('violationVehicleId').value = vehicle.id;
+    
+    // Load violations
+    await loadViolations();
+    
+    // Reset form
+    document.getElementById('violationForm').reset();
+    document.getElementById('violationVehicleId').value = vehicle.id;
+    document.getElementById('customNoteContainer').style.display = 'none';
+    
+    // Show modal
+    document.getElementById('violationModal').classList.add('show');
+}
+
+async function loadViolations() {
+    try {
+        const response = await fetch(`${API_BASE}/violations`, {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            availableViolations = data.violations;
+            renderViolationCheckboxes();
+        } else {
+            console.error('Failed to load violations');
+            alert('Failed to load violation options');
+        }
+    } catch (error) {
+        console.error('Error loading violations:', error);
+        alert('Error loading violation options');
+    }
+}
+
+function renderViolationCheckboxes() {
+    const container = document.getElementById('violationCheckboxes');
+    container.innerHTML = '';
+    
+    availableViolations.forEach(violation => {
+        const div = document.createElement('div');
+        div.className = 'checkbox-item';
+        div.innerHTML = `
+            <label>
+                <input type="checkbox" name="violations" value="${violation.id}">
+                ${escapeHtml(violation.name)}
+            </label>
+        `;
+        container.appendChild(div);
+    });
+    
+    // Add "Other" option
+    const otherDiv = document.createElement('div');
+    otherDiv.className = 'checkbox-item';
+    otherDiv.innerHTML = `
+        <label>
+            <input type="checkbox" id="otherViolationCheckbox" onchange="toggleCustomNote()">
+            Other (specify below)
+        </label>
+    `;
+    container.appendChild(otherDiv);
+}
+
+function toggleCustomNote() {
+    const checkbox = document.getElementById('otherViolationCheckbox');
+    const container = document.getElementById('customNoteContainer');
+    container.style.display = checkbox.checked ? 'block' : 'none';
+    
+    if (!checkbox.checked) {
+        document.getElementById('customNoteText').value = '';
+    }
+}
+
+async function handleCreateViolation(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const selectedViolations = Array.from(formData.getAll('violations'));
+    const customNote = formData.get('customNote') || '';
+    
+    // Validate at least one violation
+    if (selectedViolations.length === 0 && !customNote.trim()) {
+        alert('Please select at least one violation or enter a custom note');
+        return;
+    }
+    
+    // Build violation summary for confirmation
+    const violationList = selectedViolations.map(id => {
+        const v = availableViolations.find(violation => violation.id === id);
+        return v ? v.name : '';
+    }).filter(name => name);
+    
+    if (customNote.trim()) {
+        violationList.push(`Other: ${customNote.trim()}`);
+    }
+    
+    const vehicleInfo = `${currentVehicleForViolation.year || ''} ${currentVehicleForViolation.color || ''} ${currentVehicleForViolation.make || ''} ${currentVehicleForViolation.model || ''}`.trim();
+    
+    const confirmMessage = `Are you sure you want to create a violation ticket for:\n\n${vehicleInfo}\n\nViolations:\n${violationList.map((v, i) => `${i + 1}. ${v}`).join('\n')}`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    console.log('Creating violation ticket:', {
+        vehicleId: currentVehicleForViolation.id,
+        violations: selectedViolations,
+        customNote
+    });
+    
+    try {
+        const response = await fetch(`${API_BASE}/violations-create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                vehicleId: currentVehicleForViolation.id,
+                violations: selectedViolations,
+                customNote: customNote.trim()
+            })
+        });
+        
+        const data = await response.json();
+        console.log('Violation creation response:', data);
+        
+        if (response.ok && data.success) {
+            closeModalByName('violation');
+            alert('Violation ticket created successfully!');
+            
+            // Open print window
+            printViolationTicket(data.ticketId);
+        } else {
+            alert(data.error || 'Failed to create violation ticket');
+        }
+    } catch (error) {
+        console.error('Error creating violation:', error);
+        alert('Network error. Please try again.');
+    }
+}
+
+function printViolationTicket(ticketId) {
+    // Open ticket in new window for printing
+    const printUrl = `violations-print.html?id=${ticketId}`;
+    window.open(printUrl, '_blank', 'width=600,height=800');
 }
 
 // Modal Management
