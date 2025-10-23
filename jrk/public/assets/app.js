@@ -834,7 +834,7 @@ async function handleSaveUser(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
-    const userId = formData.get('userId');
+    const userId = formData.get('id');
     const isEdit = !!userId;
     
     const data = {
