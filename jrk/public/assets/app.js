@@ -940,7 +940,9 @@ function importVehicles() {
 }
 
 function exportVehicles() {
-    window.location.href = `${API_BASE}/vehicles-export`;
+    console.log('Export CSV clicked - navigating to:', `${API_BASE}/vehicles-export`);
+    // Use window.open with _self to force navigation while keeping session
+    window.open(`${API_BASE}/vehicles-export`, '_self');
 }
 
 // Modal Management
