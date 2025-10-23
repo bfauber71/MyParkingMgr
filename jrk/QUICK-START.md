@@ -46,8 +46,9 @@
 
 3. **Run Migration**
    - phpMyAdmin → Select database → SQL tab
-   - Copy contents of `jrk/sql/migrate.sql`
+   - Copy contents of `jrk/sql/migrate-simple.sql`
    - Paste and click "Go"
+   - *(Use migrate-simple.sql - works with limited hosting permissions)*
 
 4. **Verify Update**
    - Log in to your application

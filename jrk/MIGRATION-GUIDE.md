@@ -28,15 +28,24 @@ In phpMyAdmin:
 1. Log in to phpMyAdmin via cPanel
 2. Select your database (e.g., `managemyparking`)
 3. Click the "SQL" tab at the top
-4. Open the file `jrk/sql/migrate.sql`
+4. Open the file `jrk/sql/migrate-simple.sql`
 5. Copy the entire contents
 6. Paste into the SQL query box
 7. Click "Go" to execute
 
+**Note:** Use `migrate-simple.sql` instead of `migrate.sql` - it's designed for shared hosting with limited permissions.
+
 #### Option B: Using MySQL Command Line
 ```bash
-mysql -u your_username -p managemyparking < jrk/sql/migrate.sql
+mysql -u your_username -p managemyparking < jrk/sql/migrate-simple.sql
 ```
+
+### Step 2b: Add Foreign Keys (Optional)
+Foreign keys provide extra data protection but aren't required. If your hosting supports them:
+1. In phpMyAdmin SQL tab
+2. Copy contents of `jrk/sql/migrate-add-foreign-keys.sql`
+3. Paste and click "Go"
+4. **If this fails, it's okay!** The app works fine without foreign keys.
 
 ### Step 3: Verify Migration Success
 
@@ -93,15 +102,19 @@ This may happen if you have orphaned data. Options:
 1. Clean up orphaned records manually
 2. Temporarily disable foreign key checks (advanced users only)
 
-### Error: "Access denied"
-Your database user needs these permissions:
-- CREATE
-- ALTER
-- INSERT
-- SELECT
-- DROP (for stored procedures)
+### Error: "Access denied" or Error #1044
+This usually means limited database permissions. **Solution:**
 
-Contact your hosting provider to grant these permissions.
+1. Use `migrate-simple.sql` instead of `migrate.sql`
+2. The simple version only needs basic permissions:
+   - CREATE (for tables)
+   - INSERT (for default data)
+   - SELECT (for verification)
+   - INDEX (for performance)
+
+3. If still getting errors, ask your hosting provider to grant these permissions to your database user
+
+4. As a last resort, you can create the tables manually using the SQL from `install.sql` and just copy the violation-related CREATE TABLE statements
 
 ## Safe to Run Multiple Times
 This migration script is **idempotent**, meaning you can run it multiple times safely. It will:
