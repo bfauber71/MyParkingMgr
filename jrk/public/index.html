@@ -52,6 +52,7 @@
                     <button class="tab-btn active" data-tab="vehicles">Vehicles</button>
                     <button class="tab-btn" data-tab="properties" id="propertiesTab">Properties</button>
                     <button class="tab-btn" data-tab="users" id="usersTab">Users</button>
+                    <button class="tab-btn" data-tab="violations" id="violationsTab">Violations</button>
                 </div>
 
                 <!-- Vehicles Section -->
@@ -72,6 +73,7 @@
                             <option value="">All Properties</option>
                         </select>
                         <button id="searchBtn" class="btn btn-primary">Search</button>
+                        <button id="clearSearchBtn" class="btn btn-secondary">Clear</button>
                     </div>
 
                     <div id="vehiclesResults"></div>
@@ -99,6 +101,18 @@
                     </header>
 
                     <div id="usersResults"></div>
+                </div>
+
+                <!-- Violations Section (Admin Only) -->
+                <div id="violationsSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Violations Management</h2>
+                        <div class="header-actions">
+                            <button id="addViolationBtn" class="btn btn-primary">Add Violation</button>
+                        </div>
+                    </header>
+
+                    <div id="violationsResults"></div>
                 </div>
             </div>
         </div>
@@ -316,7 +330,7 @@
         </div>
     </div>
 
-    <!-- Violation Modal -->
+    <!-- Violation Ticket Modal -->
     <div id="violationModal" class="modal">
         <div class="modal-content modal-large">
             <div class="modal-header">
@@ -343,6 +357,40 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-cancel="violation">Cancel</button>
                     <button type="submit" class="btn btn-warning">Create Violation Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Violation Type Modal (Admin Only) -->
+    <div id="violationTypeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="violationTypeModalTitle">Add Violation</h3>
+                <span class="close" data-modal="violationType">&times;</span>
+            </div>
+            <form id="violationTypeForm">
+                <input type="hidden" id="violationTypeId" name="id">
+                <div class="form-group">
+                    <label for="violationTypeName">Violation Name *</label>
+                    <input type="text" id="violationTypeName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="violationTypeDisplayOrder">Display Order</label>
+                    <input type="number" id="violationTypeDisplayOrder" name="display_order" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="violationTypeIsActive" name="is_active" checked>
+                        Active (shown in violation selection)
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="violationType">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Violation</button>
                 </div>
             </form>
         </div>

@@ -64,6 +64,10 @@ $router->post('/api/users-delete', __DIR__ . '/api/users-delete.php');
 $router->get('/api/violations', __DIR__ . '/api/violations.php');
 $router->post('/api/violations-create', __DIR__ . '/api/violations-create.php');
 $router->get('/api/violations-ticket', __DIR__ . '/api/violations-ticket.php');
+$router->get('/api/violations-list', __DIR__ . '/api/violations-list.php');
+$router->post('/api/violations-add', __DIR__ . '/api/violations-add.php');
+$router->post('/api/violations-update', __DIR__ . '/api/violations-update.php');
+$router->post('/api/violations-delete', __DIR__ . '/api/violations-delete.php');
 
 // Serve frontend for all other routes
 $router->get('/.*', function() use ($config) {

@@ -236,12 +236,22 @@ body {
     background: #d97706;
 }
 
-.role-badge {
+.role-badge, .badge {
     display: inline-block;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
+}
+
+.badge-success {
+    background: #10b981;
+    color: white;
+}
+
+.badge-inactive {
+    background: #6b7280;
+    color: white;
 }
 
 .role-admin {

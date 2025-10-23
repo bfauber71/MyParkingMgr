@@ -196,6 +196,7 @@ function showError(message) {
 function applyRolePermissions() {
     const propertiesTab = document.getElementById('propertiesTab');
     const usersTab = document.getElementById('usersTab');
+    const violationsTab = document.getElementById('violationsTab');
     const addVehicleBtn = document.getElementById('addVehicleBtn');
     const importBtn = document.getElementById('importBtn');
     const exportBtn = document.getElementById('exportBtn');
@@ -210,6 +211,7 @@ function applyRolePermissions() {
     if (role === 'admin') {
         propertiesTab.style.display = 'block';
         usersTab.style.display = 'block';
+        violationsTab.style.display = 'block';
         addVehicleBtn.style.display = 'inline-block';
         importBtn.style.display = 'inline-block';
         exportBtn.style.display = 'inline-block';
@@ -219,6 +221,7 @@ function applyRolePermissions() {
     } else if (role === 'user') {
         propertiesTab.style.display = 'none';
         usersTab.style.display = 'none';
+        violationsTab.style.display = 'none';
         addVehicleBtn.style.display = 'inline-block';
         importBtn.style.display = 'inline-block';
         exportBtn.style.display = 'inline-block';
@@ -229,6 +232,7 @@ function applyRolePermissions() {
         // Operator role
         propertiesTab.style.display = 'none';
         usersTab.style.display = 'none';
+        violationsTab.style.display = 'none';
         addVehicleBtn.style.display = 'none';
         importBtn.style.display = 'none';
         exportBtn.style.display = 'inline-block';
@@ -287,6 +291,8 @@ function switchTab(tabName) {
             loadPropertiesSection();
         } else if (tabName === 'users') {
             loadUsersSection();
+        } else if (tabName === 'violations') {
+            loadViolationsManagementSection();
         }
     } catch (error) {
         console.error('Error loading section:', tabName, error);
@@ -793,6 +799,7 @@ async function deleteUser(id, username) {
 // Vehicles
 function loadVehiclesSection() {
     document.getElementById('searchBtn').onclick = searchVehicles;
+    document.getElementById('clearSearchBtn').onclick = clearSearch;
     document.getElementById('searchInput').onkeypress = (e) => {
         if (e.key === 'Enter') searchVehicles();
     };
@@ -801,7 +808,19 @@ function loadVehiclesSection() {
     document.getElementById('importBtn').onclick = importVehicles;
     document.getElementById('exportBtn').onclick = exportVehicles;
     
-    searchVehicles();
+    // Show empty state initially (no auto-load)
+    showEmptyVehiclesState();
+}
+
+function showEmptyVehiclesState() {
+    const resultsDiv = document.getElementById('vehiclesResults');
+    resultsDiv.innerHTML = '<p style="text-align: center; padding: 40px; color: #888;">Use the search box above to find vehicles.</p>';
+}
+
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('propertyFilter').value = '';
+    showEmptyVehiclesState();
 }
 
 async function searchVehicles() {
@@ -1273,6 +1292,174 @@ function printViolationTicket(ticketId) {
     // Open ticket in new window for printing
     const printUrl = `violations-print.html?id=${ticketId}`;
     window.open(printUrl, '_blank', 'width=600,height=800');
+}
+
+// Violations Management (Admin Only)
+function loadViolationsManagementSection() {
+    document.getElementById('addViolationBtn').onclick = () => openViolationTypeModal();
+    document.getElementById('violationTypeForm').onsubmit = handleViolationTypeSave;
+    loadViolationTypesList();
+}
+
+async function loadViolationTypesList() {
+    try {
+        const response = await fetch(`${API_BASE}/violations-list`, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to load violations');
+        }
+        
+        const data = await response.json();
+        displayViolationTypesList(data.violations || []);
+    } catch (error) {
+        console.error('Error loading violations:', error);
+        document.getElementById('violationsResults').innerHTML = 
+            '<p style="color: red;">Error loading violations. Please try again.</p>';
+    }
+}
+
+function displayViolationTypesList(violations) {
+    const resultsDiv = document.getElementById('violationsResults');
+    
+    if (violations.length === 0) {
+        resultsDiv.innerHTML = '<p style="text-align: center; padding: 40px; color: #888;">No violations found. Click "Add Violation" to create one.</p>';
+        return;
+    }
+    
+    let html = '<div class="table-container"><table class="data-table">';
+    html += '<thead><tr><th>Name</th><th>Display Order</th><th>Status</th><th>Actions</th></tr></thead>';
+    html += '<tbody>';
+    
+    violations.forEach(violation => {
+        const statusBadge = violation.is_active 
+            ? '<span class="badge badge-success">Active</span>' 
+            : '<span class="badge badge-inactive">Inactive</span>';
+        
+        html += `<tr>
+            <td>${escapeHtml(violation.name)}</td>
+            <td>${violation.display_order}</td>
+            <td>${statusBadge}</td>
+            <td class="actions">
+                <button class="btn btn-small btn-secondary" onclick="editViolationType('${violation.id}')">Edit</button>
+                <button class="btn btn-small btn-danger" onclick="deleteViolationType('${violation.id}', '${escapeHtml(violation.name)}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    resultsDiv.innerHTML = html;
+}
+
+function openViolationTypeModal(violationData = null) {
+    const modal = document.getElementById('violationTypeModal');
+    const form = document.getElementById('violationTypeForm');
+    const title = document.getElementById('violationTypeModalTitle');
+    
+    form.reset();
+    
+    if (violationData) {
+        title.textContent = 'Edit Violation';
+        document.getElementById('violationTypeId').value = violationData.id;
+        document.getElementById('violationTypeName').value = violationData.name;
+        document.getElementById('violationTypeDisplayOrder').value = violationData.display_order;
+        document.getElementById('violationTypeIsActive').checked = violationData.is_active;
+    } else {
+        title.textContent = 'Add Violation';
+        document.getElementById('violationTypeId').value = '';
+    }
+    
+    modal.classList.add('show');
+}
+
+async function editViolationType(id) {
+    try {
+        const response = await fetch(`${API_BASE}/violations-list`, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to load violation');
+        }
+        
+        const data = await response.json();
+        const violation = data.violations.find(v => v.id === id);
+        
+        if (violation) {
+            openViolationTypeModal(violation);
+        } else {
+            alert('Violation not found');
+        }
+    } catch (error) {
+        console.error('Error loading violation:', error);
+        alert('Error loading violation. Please try again.');
+    }
+}
+
+async function handleViolationTypeSave(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('violationTypeId').value;
+    const name = document.getElementById('violationTypeName').value.trim();
+    const displayOrder = parseInt(document.getElementById('violationTypeDisplayOrder').value) || 0;
+    const isActive = document.getElementById('violationTypeIsActive').checked;
+    
+    if (!name) {
+        alert('Violation name is required');
+        return;
+    }
+    
+    try {
+        const endpoint = id ? '/violations-update' : '/violations-add';
+        const payload = { name, display_order: displayOrder, is_active: isActive };
+        if (id) payload.id = id;
+        
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            closeModalByName('violationType');
+            loadViolationTypesList();
+            alert(id ? 'Violation updated successfully!' : 'Violation added successfully!');
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error saving violation');
+        }
+    } catch (error) {
+        console.error('Error saving violation:', error);
+        alert('Network error. Please try again.');
+    }
+}
+
+async function deleteViolationType(id, name) {
+    if (!confirm(`Are you sure you want to delete "${name}"?\n\nThis will remove it from the violation options list. Existing tickets will not be affected.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/violations-delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            loadViolationTypesList();
+            alert('Violation deleted successfully!');
+        } else {
+            const error = await response.json();
+            alert(error.error || 'Error deleting violation');
+        }
+    } catch (error) {
+        console.error('Error deleting violation:', error);
+        alert('Network error. Please try again.');
+    }
 }
 
 // Modal Management
