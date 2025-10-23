@@ -59,10 +59,12 @@
                     <header class="page-header">
                         <h2>Vehicle Management</h2>
                         <div class="header-actions">
+                            <button id="importBtn" class="btn btn-secondary">Import CSV</button>
                             <button id="exportBtn" class="btn btn-secondary">Export CSV</button>
                             <button id="addVehicleBtn" class="btn btn-primary">Add Vehicle</button>
                         </div>
                     </header>
+                    <input type="file" id="importFileInput" accept=".csv" style="display: none;">
 
                     <div class="search-bar">
                         <input type="text" id="searchInput" placeholder="Search by tag, plate, owner, apartment...">
