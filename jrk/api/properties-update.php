@@ -21,9 +21,16 @@ if (strcasecmp($user['role'], 'admin') !== 0) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
+$propertyId = trim($input['id'] ?? '');
 $name = trim($input['name'] ?? '');
 $address = trim($input['address'] ?? '');
 $contacts = $input['contacts'] ?? [];
+
+if (empty($propertyId)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Property ID is required']);
+    exit;
+}
 
 if (empty($name)) {
     http_response_code(400);
@@ -57,22 +64,42 @@ $db = Database::getInstance();
 try {
     $db->beginTransaction();
     
-    $stmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
-    $stmt->execute([$name]);
-    if ($stmt->fetch()) {
+    $stmt = $db->prepare("SELECT name FROM properties WHERE id = ?");
+    $stmt->execute([$propertyId]);
+    $oldProperty = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$oldProperty) {
         $db->rollBack();
-        http_response_code(400);
-        echo json_encode(['error' => 'Property name already exists']);
+        http_response_code(404);
+        echo json_encode(['error' => 'Property not found']);
         exit;
     }
     
-    $propertyId = $db->query("SELECT UUID()")->fetchColumn();
+    if ($name !== $oldProperty['name']) {
+        $stmt = $db->prepare("SELECT id FROM properties WHERE name = ? AND id != ?");
+        $stmt->execute([$name, $propertyId]);
+        if ($stmt->fetch()) {
+            $db->rollBack();
+            http_response_code(400);
+            echo json_encode(['error' => 'Property name already exists']);
+            exit;
+        }
+    }
     
     $stmt = $db->prepare("
-        INSERT INTO properties (id, name, address, created_at, updated_at)
-        VALUES (?, ?, ?, NOW(), NOW())
+        UPDATE properties 
+        SET name = ?, address = ?, updated_at = NOW()
+        WHERE id = ?
     ");
-    $stmt->execute([$propertyId, $name, $address]);
+    $stmt->execute([$name, $address, $propertyId]);
+    
+    if ($name !== $oldProperty['name']) {
+        $stmt = $db->prepare("UPDATE vehicles SET property = ? WHERE property = ?");
+        $stmt->execute([$name, $oldProperty['name']]);
+    }
+    
+    $stmt = $db->prepare("DELETE FROM property_contacts WHERE property_id = ?");
+    $stmt->execute([$propertyId]);
     
     $contactStmt = $db->prepare("
         INSERT INTO property_contacts (property_id, name, phone, email, position, created_at, updated_at)
@@ -95,16 +122,15 @@ try {
     
     $db->commit();
     
-    auditLog('create_property', 'properties', $propertyId, "Created property: $name with " . count($contacts) . " contact(s)");
+    auditLog('update_property', 'properties', $propertyId, "Updated property: $name with " . count($contacts) . " contact(s)");
     
     echo json_encode([
         'success' => true,
-        'id' => $propertyId,
-        'message' => 'Property created successfully'
+        'message' => 'Property updated successfully'
     ]);
 } catch (PDOException $e) {
     $db->rollBack();
-    error_log("Property Create Error: " . $e->getMessage());
+    error_log("Property Update Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }

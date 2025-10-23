@@ -31,16 +31,6 @@ if (empty($propertyId)) {
 $db = Database::getInstance();
 
 try {
-    $stmt = $db->prepare("SELECT COUNT(*) as count FROM vehicles WHERE property_id = ?");
-    $stmt->execute([$propertyId]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($result['count'] > 0) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Cannot delete property with existing vehicles']);
-        exit;
-    }
-    
     $stmt = $db->prepare("SELECT name FROM properties WHERE id = ?");
     $stmt->execute([$propertyId]);
     $property = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -48,6 +38,16 @@ try {
     if (!$property) {
         http_response_code(404);
         echo json_encode(['error' => 'Property not found']);
+        exit;
+    }
+    
+    $stmt = $db->prepare("SELECT COUNT(*) as count FROM vehicles WHERE property = ?");
+    $stmt->execute([$property['name']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result['count'] > 0) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Cannot delete property with existing vehicles']);
         exit;
     }
     
@@ -61,6 +61,7 @@ try {
         'message' => 'Property deleted successfully'
     ]);
 } catch (PDOException $e) {
+    error_log("Property Delete Error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
 }
