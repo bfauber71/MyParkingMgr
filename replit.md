@@ -28,6 +28,7 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - Vehicle display defaults to empty state until search is performed
 - Clear button added to search bar for quick filter reset
 - Violation history tracking: "*Violations Exist" indicator on vehicle cards that displays count and opens history modal showing up to 100 past violations with details
+- Fixed API violation_count: Enhanced vehicles-search endpoint with robust error handling, table existence checks, and graceful degradation
 
 ### Technical Implementations
 - **Backend Language:** Plain PHP 7.4+ (no framework)
@@ -49,7 +50,7 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - **User Management:** Create, delete, role assignment (Admin only).
 - **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
-- **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing up to 100 violations in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Backend includes indexed queries for performance and property-based access control.
+- **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing up to 100 violations in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Backend includes indexed queries for performance and property-based access control. The vehicles-search API endpoint returns violation_count for each vehicle with robust error handling and graceful degradation if violation_tickets table doesn't exist.
 - **Audit Logging:** Comprehensive logging for all operations.
 
 ## External Dependencies

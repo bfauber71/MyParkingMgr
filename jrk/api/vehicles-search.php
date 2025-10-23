@@ -51,11 +51,35 @@ $sql .= " ORDER BY created_at DESC LIMIT 1000";
 $vehicles = Database::query($sql, $params);
 
 // Add violation count to each vehicle
-$db = Database::getInstance();
-foreach ($vehicles as &$vehicle) {
-    $stmt = $db->prepare("SELECT COUNT(*) FROM violation_tickets WHERE vehicle_id = ?");
-    $stmt->execute([$vehicle['id']]);
-    $vehicle['violation_count'] = (int)$stmt->fetchColumn();
+try {
+    $db = Database::getInstance();
+    
+    // Check if violation_tickets table exists
+    $tableCheck = $db->query("SHOW TABLES LIKE 'violation_tickets'");
+    $tableExists = $tableCheck->fetch() !== false;
+    
+    if ($tableExists) {
+        foreach ($vehicles as &$vehicle) {
+            $stmt = $db->prepare("SELECT COUNT(*) as count FROM violation_tickets WHERE vehicle_id = ?");
+            $stmt->execute([$vehicle['id']]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $vehicle['violation_count'] = (int)($result['count'] ?? 0);
+        }
+        unset($vehicle); // Break reference
+    } else {
+        // Table doesn't exist yet, set all counts to 0
+        foreach ($vehicles as &$vehicle) {
+            $vehicle['violation_count'] = 0;
+        }
+        unset($vehicle); // Break reference
+    }
+} catch (Exception $e) {
+    // If there's an error, set all counts to 0 and log it
+    error_log("Error fetching violation counts: " . $e->getMessage());
+    foreach ($vehicles as &$vehicle) {
+        $vehicle['violation_count'] = 0;
+    }
+    unset($vehicle); // Break reference
 }
 
 jsonResponse(['vehicles' => $vehicles]);
