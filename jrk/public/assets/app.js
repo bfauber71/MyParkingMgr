@@ -758,7 +758,8 @@ function displayUsersTable(users) {
                             <td>${formatDate(user.created_at)}</td>
                             <td>
                                 <div class="table-actions">
-                                    ${user.id !== currentUser.id ? `<button class="btn btn-small btn-danger" onclick="deleteUser(${user.id}, '${escapeHtml(user.username)}')">Delete</button>` : ''}
+                                    <button class="btn btn-small btn-secondary" onclick="editUser('${user.id}')">Edit</button>
+                                    ${user.id !== currentUser.id ? `<button class="btn btn-small btn-danger" onclick="deleteUser('${user.id}', '${escapeHtml(user.username)}')">Delete</button>` : ''}
                                 </div>
                             </td>
                         </tr>
@@ -771,19 +772,71 @@ function displayUsersTable(users) {
     container.innerHTML = table;
 }
 
-function openUserModal() {
-    document.getElementById('userModalTitle').textContent = 'Add User';
-    document.getElementById('userForm').reset();
-    document.getElementById('userId').value = '';
-    document.getElementById('userModal').classList.add('show');
+function openUserModal(user = null) {
+    if (user) {
+        document.getElementById('userModalTitle').textContent = 'Edit User';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userUsername').value = user.username;
+        document.getElementById('userEmail').value = user.email || '';
+        document.getElementById('userRole').value = user.role.toLowerCase();
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userPassword').placeholder = 'Leave blank to keep current password';
+        document.getElementById('userPassword').required = false;
+    } else {
+        document.getElementById('userModalTitle').textContent = 'Add User';
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('userPassword').placeholder = '';
+        document.getElementById('userPassword').required = true;
+    }
     
+    document.getElementById('userModal').classList.add('show');
     document.getElementById('userForm').onsubmit = handleSaveUser;
+}
+
+async function editUser(userId) {
+    const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+    
+    if (isDemo) {
+        const demoUsers = [
+            { id: 1, username: 'admin', email: 'admin@example.com', role: 'Admin', created_at: '2024-01-01' },
+            { id: 2, username: 'manager', email: 'manager@example.com', role: 'User', created_at: '2024-02-15' },
+            { id: 3, username: 'viewer', email: 'viewer@example.com', role: 'Operator', created_at: '2024-03-20' }
+        ];
+        const user = demoUsers.find(u => u.id == userId);
+        if (user) {
+            openUserModal(user);
+        }
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/users-list`, {
+            credentials: 'include'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const user = data.users.find(u => u.id === userId);
+            if (user) {
+                openUserModal(user);
+            } else {
+                showToast('User not found', 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading user:', error);
+        showToast('Error loading user', 'error');
+    }
 }
 
 async function handleSaveUser(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    const userId = formData.get('userId');
+    const isEdit = !!userId;
+    
     const data = {
         username: formData.get('username'),
         email: formData.get('email'),
@@ -791,11 +844,17 @@ async function handleSaveUser(e) {
         role: formData.get('role')
     };
     
-    console.log('Saving user:', {username: data.username, email: data.email, role: data.role});
-    console.log('POST to:', `${API_BASE}/users-create`);
+    if (isEdit) {
+        data.id = userId;
+    }
+    
+    const endpoint = isEdit ? `${API_BASE}/users-update` : `${API_BASE}/users-create`;
+    
+    console.log(isEdit ? 'Updating user:' : 'Creating user:', {username: data.username, email: data.email, role: data.role});
+    console.log('POST to:', endpoint);
     
     try {
-        const response = await fetch(`${API_BASE}/users-create`, {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -807,11 +866,11 @@ async function handleSaveUser(e) {
         console.log('User save response:', responseData);
         
         if (response.ok) {
-            showToast('User created successfully!', 'success');
+            showToast(isEdit ? 'User updated successfully!' : 'User created successfully!', 'success');
             closeModalByName('user');
             loadUsersSection();
         } else {
-            console.error('User creation failed:', responseData);
+            console.error('User save failed:', responseData);
             showToast(responseData.error || 'Error saving user', 'error');
         }
     } catch (error) {
@@ -820,7 +879,7 @@ async function handleSaveUser(e) {
     }
 }
 
-async function deleteUser(id, username) {
+async function deleteUser(userId, username) {
     if (!confirm(`Delete user "${username}"?`)) {
         return;
     }
@@ -830,7 +889,7 @@ async function deleteUser(id, username) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ id })
+            body: JSON.stringify({ id: userId })
         });
         
         if (response.ok) {

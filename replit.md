@@ -49,7 +49,7 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 ### Feature Specifications
 - **Vehicle Management:** 14 fields, search with clear button, edit, delete, export, CSV import with validation. Empty state displayed until search is performed. Violation count indicator appears on vehicle cards when violations exist.
 - **Property Management:** Create, edit, delete with 1-3 contacts per property, with transactions for data integrity. Property name changes automatically update vehicle references.
-- **User Management:** Create, delete, role assignment (Admin only).
+- **User Management:** Create, edit, delete, role assignment (Admin only). Password is optional when editing (leave blank to keep current password).
 - **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
 - **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing violations with pagination (5 per page, up to 100 total) in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Includes Previous/Next navigation and page counter. Backend includes indexed queries for performance and property-based access control. The vehicles-search API endpoint returns violation_count for each vehicle with robust error handling and graceful degradation if violation_tickets table doesn't exist.
