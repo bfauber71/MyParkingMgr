@@ -25,13 +25,16 @@ class Session {
         
         $secure = $session['secure'] === 'auto' ? $isHttps : (bool)$session['secure'];
         
+        // Use base_path for cookie path (important for subdirectory installs like /jrk)
+        $cookiePath = $config['base_path'] ? $config['base_path'] . '/' : '/';
+        
         // Configure session
         ini_set('session.use_cookies', 1);
         ini_set('session.use_only_cookies', 1);
         ini_set('session.cookie_httponly', $session['httponly'] ? 1 : 0);
         ini_set('session.cookie_secure', $secure ? 1 : 0);
         ini_set('session.cookie_samesite', 'Lax');
-        ini_set('session.cookie_path', '/');
+        ini_set('session.cookie_path', $cookiePath);
         ini_set('session.gc_maxlifetime', $session['lifetime'] * 60);
         
         session_name($session['name']);
