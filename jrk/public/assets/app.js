@@ -434,7 +434,8 @@ function displayPropertiesTable(properties) {
                             <td>${formatDate(prop.created_at)}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn btn-small btn-danger" onclick="deleteProperty(${prop.id}, '${escapeHtml(prop.name)}')">Delete</button>
+                                    <button class="btn btn-small" onclick='editProperty(${JSON.stringify(prop).replace(/'/g, "&#39;")})'>Edit</button>
+                                    <button class="btn btn-small btn-danger" onclick="deleteProperty('${prop.id}', '${escapeHtml(prop.name)}')">Delete</button>
                                 </div>
                             </td>
                         </tr>
@@ -457,16 +458,65 @@ function openPropertyModal() {
     document.getElementById('propertyForm').onsubmit = handleSaveProperty;
 }
 
+function editProperty(property) {
+    document.getElementById('propertyModalTitle').textContent = 'Edit Property';
+    document.getElementById('propertyId').value = property.id;
+    document.getElementById('propertyName').value = property.name;
+    document.getElementById('propertyAddress').value = property.address || '';
+    
+    document.getElementById('contact1Name').value = property.contacts[0]?.name || '';
+    document.getElementById('contact1Phone').value = property.contacts[0]?.phone || '';
+    document.getElementById('contact1Email').value = property.contacts[0]?.email || '';
+    
+    document.getElementById('contact2Name').value = property.contacts[1]?.name || '';
+    document.getElementById('contact2Phone').value = property.contacts[1]?.phone || '';
+    document.getElementById('contact2Email').value = property.contacts[1]?.email || '';
+    
+    document.getElementById('contact3Name').value = property.contacts[2]?.name || '';
+    document.getElementById('contact3Phone').value = property.contacts[2]?.phone || '';
+    document.getElementById('contact3Email').value = property.contacts[2]?.email || '';
+    
+    document.getElementById('propertyModal').classList.add('show');
+    document.getElementById('propertyForm').onsubmit = handleUpdateProperty;
+}
+
 async function handleSaveProperty(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    const contacts = [];
+    
+    if (formData.get('contact1Name')?.trim()) {
+        contacts.push({
+            name: formData.get('contact1Name').trim(),
+            phone: formData.get('contact1Phone')?.trim() || '',
+            email: formData.get('contact1Email')?.trim() || ''
+        });
+    }
+    
+    if (formData.get('contact2Name')?.trim()) {
+        contacts.push({
+            name: formData.get('contact2Name').trim(),
+            phone: formData.get('contact2Phone')?.trim() || '',
+            email: formData.get('contact2Email')?.trim() || ''
+        });
+    }
+    
+    if (formData.get('contact3Name')?.trim()) {
+        contacts.push({
+            name: formData.get('contact3Name').trim(),
+            phone: formData.get('contact3Phone')?.trim() || '',
+            email: formData.get('contact3Email')?.trim() || ''
+        });
+    }
+    
     const data = {
         name: formData.get('name'),
-        address: formData.get('address')
+        address: formData.get('address'),
+        contacts: contacts
     };
     
-    console.log('Saving property:', data);
+    console.log('Creating property:', data);
     console.log('POST to:', `${API_BASE}/properties-create`);
     
     try {
@@ -496,10 +546,79 @@ async function handleSaveProperty(e) {
     }
 }
 
+async function handleUpdateProperty(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const contacts = [];
+    
+    if (formData.get('contact1Name')?.trim()) {
+        contacts.push({
+            name: formData.get('contact1Name').trim(),
+            phone: formData.get('contact1Phone')?.trim() || '',
+            email: formData.get('contact1Email')?.trim() || ''
+        });
+    }
+    
+    if (formData.get('contact2Name')?.trim()) {
+        contacts.push({
+            name: formData.get('contact2Name').trim(),
+            phone: formData.get('contact2Phone')?.trim() || '',
+            email: formData.get('contact2Email')?.trim() || ''
+        });
+    }
+    
+    if (formData.get('contact3Name')?.trim()) {
+        contacts.push({
+            name: formData.get('contact3Name').trim(),
+            phone: formData.get('contact3Phone')?.trim() || '',
+            email: formData.get('contact3Email')?.trim() || ''
+        });
+    }
+    
+    const data = {
+        id: document.getElementById('propertyId').value,
+        name: formData.get('name'),
+        address: formData.get('address'),
+        contacts: contacts
+    };
+    
+    console.log('Updating property:', data);
+    console.log('POST to:', `${API_BASE}/properties-update`);
+    
+    try {
+        const response = await fetch(`${API_BASE}/properties-update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(data)
+        });
+        
+        console.log('Property update response status:', response.status);
+        const responseData = await response.json();
+        console.log('Property update response:', responseData);
+        
+        if (response.ok) {
+            alert('Property updated successfully!');
+            closeModalByName('property');
+            await loadProperties();
+            loadPropertiesSection();
+        } else {
+            console.error('Property update failed:', responseData);
+            alert(responseData.error || 'Error updating property');
+        }
+    } catch (error) {
+        console.error('Property update network error:', error);
+        alert('Network error. Please try again.');
+    }
+}
+
 async function deleteProperty(id, name) {
     if (!confirm(`Delete property "${name}"?\n\nThis will fail if any vehicles are assigned to this property.`)) {
         return;
     }
+    
+    console.log('Deleting property:', id);
     
     try {
         const response = await fetch(`${API_BASE}/properties-delete`, {
@@ -509,14 +628,18 @@ async function deleteProperty(id, name) {
             body: JSON.stringify({ id })
         });
         
+        const responseData = await response.json();
+        console.log('Delete property response:', responseData);
+        
         if (response.ok) {
+            alert('Property deleted successfully!');
             await loadProperties();
             loadPropertiesSection();
         } else {
-            const error = await response.json();
-            alert(error.error || 'Error deleting property');
+            alert(responseData.error || 'Error deleting property');
         }
     } catch (error) {
+        console.error('Property delete error:', error);
         alert('Network error. Please try again.');
     }
 }

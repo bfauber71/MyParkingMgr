@@ -72,6 +72,21 @@ body {
     border-color: #3b82f6;
 }
 
+.contact-section {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    border-left: 3px solid #4a90e2;
+}
+
+.contact-section h5 {
+    color: #94a3b8;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
 .btn {
     padding: 10px 20px;
     border: none;
