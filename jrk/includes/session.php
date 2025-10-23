@@ -31,6 +31,7 @@ class Session {
         ini_set('session.cookie_httponly', $session['httponly'] ? 1 : 0);
         ini_set('session.cookie_secure', $secure ? 1 : 0);
         ini_set('session.cookie_samesite', 'Lax');
+        ini_set('session.cookie_path', '/');
         ini_set('session.gc_maxlifetime', $session['lifetime'] * 60);
         
         session_name($session['name']);

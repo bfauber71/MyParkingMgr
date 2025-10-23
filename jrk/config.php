@@ -28,7 +28,7 @@ return [
     'session' => [
         'name' => 'managemyparking_session',
         'lifetime' => 1440, // 24 hours in minutes
-        'secure' => false, // Set to true after enabling HTTPS
+        'secure' => 'auto', // Auto-detect HTTPS (recommended for shared hosting)
         'httponly' => true,
     ],
     
