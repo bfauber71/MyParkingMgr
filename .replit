@@ -18,21 +18,21 @@ args = "PHP Test Server"
 name = "PHP Test Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd jrk && php -S 0.0.0.0:5000"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd jrk && php -S 0.0.0.0:5000 index.php"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 36745
-externalPort = 3000
+localPort = 43577
+externalPort = 3001
 
 [nix]
 channel = "stable-25_05"

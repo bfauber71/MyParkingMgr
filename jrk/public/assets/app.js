@@ -1,6 +1,9 @@
 // ManageMyParking - Frontend Application
 
-const API_BASE = '/jrk/api';
+// Auto-detect API base path (empty for Replit/dev, /jrk for production)
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname.includes('replit')) 
+    ? '/api' 
+    : '/jrk/api';
 let currentUser = null;
 let properties = [];
 let currentSection = 'vehicles';

@@ -4,11 +4,15 @@
  * Edit these settings for your hosting environment
  */
 
+// Auto-detect environment (Replit or development server)
+$isReplit = getenv('REPL_ID') !== false || PHP_SAPI === 'cli-server';
+$basePath = $isReplit ? '' : '/jrk';
+
 return [
     // Application Settings
     'app_name' => 'ManageMyParking',
-    'app_url' => 'https://2clv.com/jrk',
-    'base_path' => '/jrk',
+    'app_url' => $isReplit ? 'http://localhost:5000' : 'https://2clv.com/jrk',
+    'base_path' => $basePath,
     
     // Database Configuration
     'db' => [

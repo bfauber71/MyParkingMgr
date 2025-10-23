@@ -66,7 +66,23 @@ $router->get('/.*', function() use ($config) {
     if (preg_match('/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/', $uri)) {
         $file = __DIR__ . '/public' . str_replace($config['base_path'], '', $uri);
         if (file_exists($file)) {
-            $mime = mime_content_type($file);
+            // Proper MIME types for static assets
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            $mimeTypes = [
+                'css' => 'text/css',
+                'js' => 'application/javascript',
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'gif' => 'image/gif',
+                'svg' => 'image/svg+xml',
+                'ico' => 'image/x-icon',
+                'woff' => 'font/woff',
+                'woff2' => 'font/woff2',
+                'ttf' => 'font/ttf',
+                'eot' => 'application/vnd.ms-fontobject'
+            ];
+            $mime = $mimeTypes[$extension] ?? 'application/octet-stream';
             header('Content-Type: ' . $mime);
             readfile($file);
             exit;

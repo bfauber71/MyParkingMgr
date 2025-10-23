@@ -136,13 +136,15 @@ A PHP test server is running on port 5000 for preview purposes only. This is NOT
 
 ## Recent Changes
 
-**2025-10-23:** Added complete role-based menu system
+**2025-10-23:** Fixed routing and environment auto-detection
+- **CRITICAL FIX:** Added environment auto-detection for base paths (Replit vs production)
+- **SECURITY FIX:** Added property access control to prevent unauthorized vehicle creation
+- Fixed MIME type detection for CSS/JS files (proper browser rendering)
+- Fixed API base path auto-detection in JavaScript
 - Added tabbed navigation (Vehicles, Properties, Users)
 - Implemented role-based menu visibility and permissions
 - Created user management UI and API (Admin only)
 - Created property management UI and API (Admin only)
-- Added edit/delete buttons to vehicle cards with role checks
-- Enforced property access control on all vehicle operations
 - Fixed session cookie configuration for HTTP/HTTPS compatibility
 
 **2025-10-22:** Complete restructure for shared hosting
