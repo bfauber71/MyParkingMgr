@@ -197,6 +197,7 @@ function applyRolePermissions() {
     const propertiesTab = document.getElementById('propertiesTab');
     const usersTab = document.getElementById('usersTab');
     const addVehicleBtn = document.getElementById('addVehicleBtn');
+    const importBtn = document.getElementById('importBtn');
     const exportBtn = document.getElementById('exportBtn');
     const addPropertyBtn = document.getElementById('addPropertyBtn');
     const addUserBtn = document.getElementById('addUserBtn');
@@ -205,6 +206,7 @@ function applyRolePermissions() {
         propertiesTab.style.display = 'block';
         usersTab.style.display = 'block';
         addVehicleBtn.style.display = 'inline-block';
+        importBtn.style.display = 'inline-block';
         exportBtn.style.display = 'inline-block';
         addPropertyBtn.style.display = 'inline-block';
         addUserBtn.style.display = 'inline-block';
@@ -212,6 +214,7 @@ function applyRolePermissions() {
         propertiesTab.style.display = 'none';
         usersTab.style.display = 'none';
         addVehicleBtn.style.display = 'inline-block';
+        importBtn.style.display = 'inline-block';
         exportBtn.style.display = 'inline-block';
         addPropertyBtn.style.display = 'none';
         addUserBtn.style.display = 'none';
@@ -219,6 +222,7 @@ function applyRolePermissions() {
         propertiesTab.style.display = 'none';
         usersTab.style.display = 'none';
         addVehicleBtn.style.display = 'none';
+        importBtn.style.display = 'none';
         exportBtn.style.display = 'inline-block';
         addPropertyBtn.style.display = 'none';
         addUserBtn.style.display = 'none';
@@ -628,6 +632,7 @@ function loadVehiclesSection() {
     };
     document.getElementById('propertyFilter').onchange = searchVehicles;
     document.getElementById('addVehicleBtn').onclick = () => openVehicleModal();
+    document.getElementById('importBtn').onclick = importVehicles;
     document.getElementById('exportBtn').onclick = exportVehicles;
     
     searchVehicles();
@@ -885,6 +890,42 @@ async function deleteVehicle(id, title) {
     } catch (error) {
         alert('Network error. Please try again.');
     }
+}
+
+function importVehicles() {
+    const fileInput = document.getElementById('importFileInput');
+    fileInput.click();
+    
+    fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('csv', file);
+        
+        try {
+            const response = await fetch(`${API_BASE}/vehicles-import`, {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                alert(data.message + (data.errors.length > 0 ? '\n\nErrors:\n' + data.errors.join('\n') : ''));
+                searchVehicles(); // Refresh the list
+            } else {
+                alert('Import failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Import error:', error);
+            alert('Import failed. Please try again.');
+        }
+        
+        // Reset file input
+        fileInput.value = '';
+    };
 }
 
 function exportVehicles() {
