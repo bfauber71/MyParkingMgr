@@ -783,11 +783,21 @@ async function loadUsersSection() {
     document.getElementById('addUserBtn').onclick = () => openUserModal();
     
     // Setup search functionality
+    document.getElementById('userShowAllBtn').onclick = () => showAllUsers();
     document.getElementById('userSearchBtn').onclick = () => filterUsers();
     document.getElementById('userClearSearchBtn').onclick = () => clearUserSearch();
     document.getElementById('userSearchInput').onkeypress = (e) => {
         if (e.key === 'Enter') filterUsers();
     };
+    
+    // Show initial message
+    const container = document.getElementById('usersResults');
+    container.innerHTML = '<div class="no-results">Click "Show All" to display users or use the search bar to find specific users.</div>';
+}
+
+async function showAllUsers() {
+    const container = document.getElementById('usersResults');
+    container.innerHTML = '<div class="no-results">Loading users...</div>';
     
     // DEMO MODE: Show sample users without database
     const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
@@ -812,14 +822,23 @@ async function loadUsersSection() {
             const data = await response.json();
             allUsers = data.users;
             displayUsersTable(allUsers);
+        } else {
+            container.innerHTML = '<div class="no-results">Failed to load users. Please try again.</div>';
         }
     } catch (error) {
         console.error('Error loading users:', error);
+        container.innerHTML = '<div class="no-results">Network error. Please try again.</div>';
     }
 }
 
-function filterUsers() {
+async function filterUsers() {
     const searchQuery = document.getElementById('userSearchInput').value.toLowerCase().trim();
+    
+    // If no users loaded yet, load them first
+    if (!allUsers || allUsers.length === 0) {
+        await showAllUsers();
+        if (!searchQuery) return;
+    }
     
     if (!searchQuery) {
         displayUsersTable(allUsers);
@@ -840,7 +859,12 @@ function filterUsers() {
 
 function clearUserSearch() {
     document.getElementById('userSearchInput').value = '';
-    displayUsersTable(allUsers);
+    if (allUsers && allUsers.length > 0) {
+        displayUsersTable(allUsers);
+    } else {
+        const container = document.getElementById('usersResults');
+        container.innerHTML = '<div class="no-results">Click "Show All" to display users or use the search bar to find specific users.</div>';
+    }
 }
 
 function displayUsersTable(users) {
