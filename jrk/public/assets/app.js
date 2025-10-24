@@ -967,7 +967,7 @@ function displayUsersTable(users) {
                         <tr>
                             <td>${escapeHtml(user.username)}</td>
                             <td>${escapeHtml(user.email || 'N/A')}</td>
-                            <td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
+                            <td><span class="role-badge role-${escapeHtml(user.role.toLowerCase())}">${escapeHtml(user.role)}</span></td>
                             <td>${formatDate(user.created_at)}</td>
                             <td>
                                 <div class="table-actions">
