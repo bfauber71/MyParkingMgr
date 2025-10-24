@@ -1723,12 +1723,19 @@ function renderViolationCheckboxes() {
     availableViolations.forEach(violation => {
         const div = document.createElement('div');
         div.className = 'checkbox-item';
-        div.innerHTML = `
-            <label>
-                <input type="checkbox" name="violations" value="${violation.id}">
-                ${escapeHtml(violation.name)}
-            </label>
-        `;
+        
+        const label = document.createElement('label');
+        
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.name = 'violations';
+        input.value = violation.id;
+        
+        const text = document.createTextNode(' ' + violation.name);
+        
+        label.appendChild(input);
+        label.appendChild(text);
+        div.appendChild(label);
         container.appendChild(div);
     });
     
