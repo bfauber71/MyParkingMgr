@@ -6,6 +6,7 @@ const API_BASE = `${basePath}/api`;
 let currentUser = null;
 let properties = [];
 let currentSection = 'vehicles';
+let allUsers = [];
 
 // Toast Notification System
 function showToast(message, type = 'info', autoClose = true) {
@@ -781,6 +782,13 @@ async function deleteProperty(id, name) {
 async function loadUsersSection() {
     document.getElementById('addUserBtn').onclick = () => openUserModal();
     
+    // Setup search functionality
+    document.getElementById('userSearchBtn').onclick = () => filterUsers();
+    document.getElementById('userClearSearchBtn').onclick = () => clearUserSearch();
+    document.getElementById('userSearchInput').onkeypress = (e) => {
+        if (e.key === 'Enter') filterUsers();
+    };
+    
     // DEMO MODE: Show sample users without database
     const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
     if (isDemo) {
@@ -789,6 +797,7 @@ async function loadUsersSection() {
             { id: 2, username: 'manager', email: 'manager@example.com', role: 'User', created_at: '2024-02-15' },
             { id: 3, username: 'viewer', email: 'viewer@example.com', role: 'Operator', created_at: '2024-03-20' }
         ];
+        allUsers = demoUsers;
         displayUsersTable(demoUsers);
         return;
     }
@@ -801,11 +810,37 @@ async function loadUsersSection() {
         
         if (response.ok) {
             const data = await response.json();
-            displayUsersTable(data.users);
+            allUsers = data.users;
+            displayUsersTable(allUsers);
         }
     } catch (error) {
         console.error('Error loading users:', error);
     }
+}
+
+function filterUsers() {
+    const searchQuery = document.getElementById('userSearchInput').value.toLowerCase().trim();
+    
+    if (!searchQuery) {
+        displayUsersTable(allUsers);
+        return;
+    }
+    
+    const filtered = allUsers.filter(user => {
+        return (
+            user.username.toLowerCase().includes(searchQuery) ||
+            (user.email && user.email.toLowerCase().includes(searchQuery)) ||
+            user.role.toLowerCase().includes(searchQuery) ||
+            (user.full_name && user.full_name.toLowerCase().includes(searchQuery))
+        );
+    });
+    
+    displayUsersTable(filtered);
+}
+
+function clearUserSearch() {
+    document.getElementById('userSearchInput').value = '';
+    displayUsersTable(allUsers);
 }
 
 function displayUsersTable(users) {
