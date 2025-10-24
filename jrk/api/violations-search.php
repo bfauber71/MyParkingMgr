@@ -29,28 +29,29 @@ if (empty($propertyNames)) {
     jsonResponse(['violations' => [], 'total' => 0, 'debug' => 'No accessible properties']);
 }
 
-// Build SQL query
+// Build SQL query with violation items
 $sql = "SELECT 
     vt.id,
     vt.vehicle_id,
-    vt.violation_types,
     vt.custom_note,
     vt.created_at,
-    vt.created_by,
-    v.year,
-    v.make,
-    v.model,
-    v.color,
+    vt.issued_by_user_id,
+    vt.issued_by_username as issuing_user,
+    vt.vehicle_year as year,
+    vt.vehicle_make as make,
+    vt.vehicle_model as model,
+    vt.vehicle_color as color,
     v.plate_number,
     v.tag_number,
-    v.property,
-    u.username as issuing_user
+    COALESCE(v.property, vt.property_name) as property,
+    GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') as violation_list
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
-LEFT JOIN users u ON vt.created_by = u.id
-WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))";
+LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
+WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
+   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
 
-$params = $propertyNames;
+$params = array_merge($propertyNames, $propertyNames);
 
 // Date range filter
 if ($startDate) {
@@ -65,26 +66,42 @@ if ($endDate) {
 
 // Property filter
 if ($property) {
-    $sql .= " AND v.property = ?";
+    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+    $params[] = $property;
     $params[] = $property;
 }
 
-// Violation type filter
+// GROUP BY for aggregation
+$sql .= " GROUP BY vt.id";
+
+// Violation type filter (HAVING clause after GROUP BY)
 if ($violationType) {
-    $sql .= " AND vt.violation_types LIKE ?";
+    $sql .= " HAVING GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') LIKE ?";
     $params[] = '%' . $violationType . '%';
 }
 
 // Search query (vehicle info or notes)
 if ($searchQuery) {
-    $sql .= " AND (
-        v.plate_number LIKE ? OR
-        v.tag_number LIKE ? OR
-        v.make LIKE ? OR
-        v.model LIKE ? OR
-        vt.custom_note LIKE ?
-    )";
     $searchPattern = '%' . $searchQuery . '%';
+    if ($violationType) {
+        // Already have HAVING clause, add AND
+        $sql .= " AND (
+            v.plate_number LIKE ? OR
+            v.tag_number LIKE ? OR
+            vt.vehicle_make LIKE ? OR
+            vt.vehicle_model LIKE ? OR
+            vt.custom_note LIKE ?
+        )";
+    } else {
+        // Need to start HAVING clause
+        $sql .= " HAVING (
+            v.plate_number LIKE ? OR
+            v.tag_number LIKE ? OR
+            vt.vehicle_make LIKE ? OR
+            vt.vehicle_model LIKE ? OR
+            vt.custom_note LIKE ?
+        )";
+    }
     $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
 }
 
@@ -99,9 +116,11 @@ try {
     
     error_log("Violation Search - Found " . count($violations) . " violations");
     
-    // Parse violation types JSON for each record
+    // Parse violation list into array for each record
     foreach ($violations as &$violation) {
-        $violation['violation_types_array'] = json_decode($violation['violation_types'], true) ?? [];
+        $violation['violation_types_array'] = $violation['violation_list'] 
+            ? explode(', ', $violation['violation_list']) 
+            : [];
     }
     
     jsonResponse([
