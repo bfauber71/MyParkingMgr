@@ -6,12 +6,15 @@ MyParkingManager is a complete PHP and MySQL vehicle and property management sys
 
 Key capabilities include:
 - **Granular permission matrix system** replacing legacy role-based access control
-- Customizable per-user permissions for view, edit, and create/delete actions across all four modules (vehicles, users, properties, violations)
+- Customizable per-user permissions for view, edit, and create/delete actions across all five modules (vehicles, users, properties, violations, database)
+- **Login attempt limiting** with 5-try limit, 10-minute lockout, and countdown timer
+- **Database administration tab** consolidating user management, CSV import/export, and bulk operations
 - Comprehensive CRUD operations for vehicles, properties, and users
 - Violation ticketing system with printable tickets
-- CSV import/export for vehicle data
+- **Bulk vehicle operations** including delete by property and duplicate detection/removal
 - Audit logging for all major operations
 - Responsive, modern UI with a dark theme
+- HTTPS-first security with secure session cookies
 
 The business vision is to offer an accessible, easy-to-deploy parking management solution for small to medium-sized organizations or properties that utilize shared hosting.
 
@@ -22,7 +25,16 @@ User required deployment to shared hosting without custom installations (no Comp
 ## System Architecture
 
 ### UI/UX Decisions
-The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build tools are required. It features a responsive dark theme and a tabbed navigation interface (Vehicles, Properties, Users, Violations). Role-based menu visibility and permissions are implemented directly in the frontend and enforced by the backend.
+The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build tools are required. It features a responsive dark theme and a tabbed navigation interface (Vehicles, Properties, Database, Violations). Role-based menu visibility and permissions are implemented directly in the frontend and enforced by the backend.
+
+**v2.0 Major Update (Oct 24, 2025):**
+- **Rebranded:** ManageMyParking → MyParkingManager across all files
+- **Login Attempt Limiting:** 5-try limit with 10-minute lockout, countdown timer UI, automatic reset after successful login or 1 hour
+- **Database Module:** New 5th permission module for administrative functions (replaces Users tab)
+- **Database Tab UI:** Consolidates user management, CSV import/export, and new bulk operations in three subsections
+- **Bulk Operations:** Delete all vehicles by property, find/remove duplicate vehicles by plate or tag number
+- **Enhanced Security:** HTTPS-first configuration, secure session cookies by default, login protection system
+- **Migration Support:** Separate deployment packages for fresh installations and upgrades
 
 **Recent UX Improvements (Oct 23, 2025):**
 - **Mobile-First Responsive Design:** Complete CSS refactor with mobile-first approach (320px base), tablet optimization (768px+), and desktop enhancements (1024px+). All touch targets meet 44px minimum for optimal mobile usability.
@@ -40,27 +52,40 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
 - **Routing:** A custom front controller pattern handles URL routing.
 - **Frontend:** Vanilla HTML/CSS/JavaScript with no external dependencies or build processes. Mobile-first responsive design with 44px minimum touch targets, 16px input font sizes (prevents iOS zoom), and progressive enhancement at 768px and 1024px breakpoints. Custom toast notification system with type-based styling and configurable auto-close.
 - **Security Features:** PDO prepared statements, bcrypt password hashing, HTTP-only session cookies, XSS prevention via `htmlspecialchars`, granular permission-based access control, comprehensive audit logging, and Apache security headers.
-- **Permission Matrix System (Oct 23, 2025):**
-    - **Granular Permissions:** Each user has customizable permissions for all four modules (vehicles, users, properties, violations) across three action levels:
+- **Permission Matrix System (Oct 23, 2025 / Enhanced v2.0):**
+    - **Granular Permissions:** Each user has customizable permissions for all five modules (vehicles, users, properties, violations, database) across three action levels:
         - **View:** Read-only access to module data
         - **Edit:** Modify existing records (implies view permission)
         - **Create/Delete:** Add new records and delete existing ones (implies edit and view permissions)
+    - **Database Module Permissions:** Controls access to user management, CSV import/export, and bulk operations (admin-only by default)
     - **Permission Hierarchy:** Permissions follow a hierarchical model where create/delete implies edit and view, and edit implies view
     - **Backward Compatibility:** System falls back to legacy role-based permissions if user_permissions table doesn't exist
-    - **Legacy Role Mapping:** Admin gets all permissions; User/Operator default to view-only until customized
-    - **Database Schema:** `user_permissions` table with user_id FK, module enum, and boolean flags for can_view, can_edit, can_create_delete
-    - **Migration Support:** `migrate-permissions.sql` creates permissions table and seeds from existing roles
-- **Deployment:** Optimized for FTP-only deployment to shared hosting, compatible with cPanel/phpMyAdmin. Includes `install.sql` for fresh installations and `migrate-permissions.sql` for upgrading existing systems.
-- **Environment:** Auto-detection for base paths (Replit vs. production) and HTTPS auto-detection for session cookies.
+    - **Legacy Role Mapping:** Admin gets all permissions including database module; User/Operator default to view-only until customized
+    - **Database Schema:** `user_permissions` table with user_id FK, module enum (vehicles, users, properties, violations, database), and boolean flags for can_view, can_edit, can_create_delete
+    - **Migration Support:** `migrate-permissions.sql` creates permissions table and seeds from existing roles, `migrate-v2-database-module.sql` adds database module to existing installations
+- **Login Security (v2.0):**
+    - **Attempt Tracking:** `login_attempts` table tracks failed attempts by username and IP address
+    - **Lockout Logic:** 5 failed attempts trigger 10-minute lockout with countdown timer displayed on login page
+    - **Auto-Reset:** Successful login clears attempts; 1 hour timeout auto-resets lockout
+    - **UI Feedback:** Real-time countdown display prevents login attempts during lockout period
+- **Deployment:** Optimized for FTP-only deployment to shared hosting, compatible with cPanel/phpMyAdmin. Two deployment packages available:
+    - **Fresh Install:** Complete package with `install.sql`, HTTPS-first configuration, default admin account
+    - **Migration:** Upgrade package excluding config.php and .htaccess, includes `migrate-v2-database-module.sql`
+- **Environment:** Auto-detection for base paths (Replit vs. production), HTTPS-first session cookies (secure=true by default in v2.0).
 
 ### Feature Specifications
-- **Vehicle Management:** 14 fields, search with clear button, edit, delete, export, CSV import with validation. Empty state displayed until search is performed. Violation count indicator appears on vehicle cards when violations exist.
+- **Vehicle Management:** 14 fields, search with clear button, edit, delete, export. Empty state displayed until search is performed. Violation count indicator appears on vehicle cards when violations exist.
 - **Property Management:** Create, edit, delete with 1-3 contacts per property, with transactions for data integrity. Property name changes automatically update vehicle references.
-- **User Management:** Create, edit, delete, role assignment with granular permission matrix UI. Permission matrix displays all 12 possible permissions (4 modules × 3 actions) with preset buttons for Admin (all), View Only, and Custom configurations. Password is optional when editing (leave blank to keep current password). Frontend enforces permission dependencies (edit checkbox auto-checks view, create/delete auto-checks both edit and view).
+- **Database Administration (v2.0 - Admin Only):**
+    - **Users Section:** Create, edit, delete users with granular permission matrix UI. Permission matrix displays all 15 possible permissions (5 modules × 3 actions) with preset buttons for Admin (all), View Only, and Custom configurations. Password is optional when editing (leave blank to keep current password). Frontend enforces permission dependencies (edit checkbox auto-checks view, create/delete auto-checks both edit and view).
+    - **Import/Export Section:** CSV import with validation (max 10,000 rows), CSV export of all accessible vehicles. Moved from Vehicles tab in v2.0.
+    - **Bulk Operations Section:**
+        - **Delete by Property:** Select property from dropdown, delete all vehicles for that property with confirmation and audit logging
+        - **Find Duplicates:** Search by plate number or tag number, displays duplicate groups with vehicle details, delete individual duplicates with one-click removal
 - **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
 - **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing violations with pagination (5 per page, up to 100 total) in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Includes Previous/Next navigation and page counter. Backend includes indexed queries for performance and property-based access control. The vehicles-search API endpoint returns violation_count for each vehicle with robust error handling and graceful degradation if violation_tickets table doesn't exist.
-- **Audit Logging:** Comprehensive logging for all operations.
+- **Audit Logging:** Comprehensive logging for all operations including bulk deletions and login attempts.
 
 ## External Dependencies
 
