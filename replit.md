@@ -1,8 +1,8 @@
-# ManageMyParking - Shared Hosting Edition
+# MyParkingManager - Shared Hosting Edition
 
 ## Overview
 
-ManageMyParking is a complete PHP and MySQL vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide a robust, no-framework solution for managing vehicles, properties, users, and violations, specifically tailored for deployment via FTP without requiring command-line access, Composer, or Node.js. The project aims for broad compatibility with standard shared hosting setups, including cPanel and phpMyAdmin for database management.
+MyParkingManager is a complete PHP and MySQL vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide a robust, no-framework solution for managing vehicles, properties, users, and violations, specifically tailored for deployment via FTP without requiring command-line access, Composer, or Node.js. The project aims for broad compatibility with standard shared hosting setups, including cPanel and phpMyAdmin for database management.
 
 Key capabilities include:
 - **Granular permission matrix system** replacing legacy role-based access control

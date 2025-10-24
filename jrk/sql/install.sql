@@ -1,10 +1,10 @@
--- ManageMyParking Database Installation
+-- MyParkingManager Database Installation
 -- MySQL 8.0+ Required
 -- Run this file in phpMyAdmin or MySQL command line
 
 -- Create Database (if needed)
-CREATE DATABASE IF NOT EXISTS managemyparking CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE managemyparking;
+CREATE DATABASE IF NOT EXISTS myparkingmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE myparkingmanager;
 
 -- Drop existing tables (if reinstalling)
 DROP TABLE IF EXISTS audit_logs;
@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS vehicles;
 DROP TABLE IF EXISTS property_contacts;
 DROP TABLE IF EXISTS user_assigned_properties;
 DROP TABLE IF EXISTS user_permissions;
+DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS properties;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS sessions;
@@ -33,7 +34,7 @@ CREATE TABLE users (
 CREATE TABLE user_permissions (
     id VARCHAR(36) PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
-    module ENUM('vehicles', 'users', 'properties', 'violations') NOT NULL,
+    module ENUM('vehicles', 'users', 'properties', 'violations', 'database') NOT NULL,
     can_view BOOLEAN NOT NULL DEFAULT FALSE,
     can_edit BOOLEAN NOT NULL DEFAULT FALSE,
     can_create_delete BOOLEAN NOT NULL DEFAULT FALSE,
@@ -43,6 +44,21 @@ CREATE TABLE user_permissions (
     UNIQUE KEY unique_user_module (user_id, module),
     INDEX idx_user_id (user_id),
     INDEX idx_module (module)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Login Attempts Table (Security)
+CREATE TABLE login_attempts (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    attempt_count INT NOT NULL DEFAULT 1,
+    locked_until TIMESTAMP NULL DEFAULT NULL,
+    last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_username (username),
+    INDEX idx_ip_address (ip_address),
+    INDEX idx_locked_until (locked_until),
+    UNIQUE KEY unique_username_ip (username, ip_address)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Properties Table
@@ -207,7 +223,8 @@ INSERT INTO user_permissions (id, user_id, module, can_view, can_edit, can_creat
 ('990e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440000', 'vehicles', TRUE, TRUE, TRUE),
 ('990e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440000', 'users', TRUE, TRUE, TRUE),
 ('990e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440000', 'properties', TRUE, TRUE, TRUE),
-('990e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440000', 'violations', TRUE, TRUE, TRUE);
+('990e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440000', 'violations', TRUE, TRUE, TRUE),
+('990e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440000', 'database', TRUE, TRUE, TRUE);
 
 -- Insert Sample Properties
 INSERT INTO properties (id, name, address) VALUES

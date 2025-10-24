@@ -1,6 +1,6 @@
 <?php
 /**
- * ManageMyParking - Front Controller
+ * MyParkingManager - Front Controller
  * All requests are routed through this file
  */
 
@@ -48,6 +48,10 @@ $router->post('/api/vehicles', __DIR__ . '/api/vehicles-create.php');
 $router->post('/api/vehicles-create', __DIR__ . '/api/vehicles-create.php');
 $router->post('/api/vehicles-import', __DIR__ . '/api/vehicles-import.php');
 $router->post('/api/vehicles-delete', __DIR__ . '/api/vehicles-delete.php');
+
+// Database/Bulk Operation routes
+$router->delete('/api/vehicles-bulk-delete', __DIR__ . '/api/vehicles-bulk-delete.php');
+$router->post('/api/vehicles-duplicates', __DIR__ . '/api/vehicles-duplicates.php');
 
 // Property routes
 $router->get('/api/properties', __DIR__ . '/api/properties.php');

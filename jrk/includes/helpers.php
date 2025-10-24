@@ -115,7 +115,7 @@ function saveUserPermissions($userId, $permissions) {
         ");
         
         foreach ($permissions as $module => $perms) {
-            if (!in_array($module, [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS])) {
+            if (!in_array($module, [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS, MODULE_DATABASE])) {
                 continue;
             }
             
@@ -250,6 +250,7 @@ define('MODULE_VEHICLES', 'vehicles');
 define('MODULE_USERS', 'users');
 define('MODULE_PROPERTIES', 'properties');
 define('MODULE_VIOLATIONS', 'violations');
+define('MODULE_DATABASE', 'database');
 
 // Action constants
 define('ACTION_VIEW', 'view');
@@ -258,7 +259,7 @@ define('ACTION_CREATE_DELETE', 'create_delete');
 
 /**
  * Check if user has specific permission
- * @param string $module Module name (vehicles, users, properties, violations)
+ * @param string $module Module name (vehicles, users, properties, violations, database)
  * @param string $action Action (view, edit, create_delete)
  * @return bool True if user has permission
  */
@@ -301,8 +302,8 @@ function hasPermission($module, $action) {
 
 /**
  * Legacy role-based permission check (backward compatibility)
- * Matches original RBAC behavior:
- * - Admin: All permissions on all modules
+ * Matches original RBAC behavior plus database module:
+ * - Admin: All permissions on all modules (including database)
  * - User: All permissions on vehicles ONLY
  * - Operator: View-only on vehicles ONLY
  * 
@@ -314,7 +315,7 @@ function hasPermission($module, $action) {
 function hasPermissionByRole($module, $action, $role) {
     $role = strtolower($role);
     
-    // Admin has all permissions on all modules
+    // Admin has all permissions on all modules (vehicles, users, properties, violations, database)
     if ($role === 'admin') {
         return true;
     }
@@ -393,7 +394,7 @@ function loadUserPermissions($userId) {
     }
     
     // Ensure all modules exist with default false values
-    $modules = [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS];
+    $modules = [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS, MODULE_DATABASE];
     foreach ($modules as $module) {
         if (!isset($permissions[$module])) {
             $permissions[$module] = [

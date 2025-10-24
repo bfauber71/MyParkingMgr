@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ManageMyParking</title>
+    <title>MyParkingManager</title>
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
         <div id="loginPage" class="page">
             <div class="login-container">
                 <div class="login-card">
-                    <h1>ManageMyParking</h1>
+                    <h1>MyParkingManager</h1>
                     <p class="subtitle">Vehicle & Property Management</p>
                     
                     <form id="loginForm">
@@ -27,11 +27,12 @@
                         </div>
                         
                         <div id="loginError" class="error-message"></div>
+                        <div id="loginLockout" class="error-message" style="display: none;"></div>
                         
-                        <button type="submit" class="btn btn-primary">Sign In</button>
+                        <button type="submit" class="btn btn-primary" id="loginSubmitBtn">Sign In</button>
                     </form>
                     
-                    <p class="help-text">Default credentials: admin / admin123</p>
+                    <p class="help-text">Contact your administrator for access.</p>
                 </div>
             </div>
         </div>
@@ -39,7 +40,7 @@
         <!-- Dashboard Page -->
         <div id="dashboardPage" class="page" style="display: none;">
             <nav class="navbar">
-                <div class="nav-brand">ManageMyParking</div>
+                <div class="nav-brand">MyParkingManager</div>
                 <div class="nav-menu">
                     <span id="userInfo"></span>
                     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
@@ -51,7 +52,7 @@
                 <div class="tabs">
                     <button class="tab-btn active" data-tab="vehicles">Vehicles</button>
                     <button class="tab-btn" data-tab="properties" id="propertiesTab">Properties</button>
-                    <button class="tab-btn" data-tab="users" id="usersTab">Users</button>
+                    <button class="tab-btn" data-tab="database" id="databaseTab">Database</button>
                     <button class="tab-btn" data-tab="violations" id="violationsTab">Violations</button>
                 </div>
 
@@ -60,12 +61,9 @@
                     <header class="page-header">
                         <h2>Vehicle Management</h2>
                         <div class="header-actions">
-                            <button id="importBtn" class="btn btn-secondary">Import CSV</button>
-                            <button id="exportBtn" class="btn btn-secondary">Export CSV</button>
                             <button id="addVehicleBtn" class="btn btn-primary">Add Vehicle</button>
                         </div>
                     </header>
-                    <input type="file" id="importFileInput" accept=".csv" style="display: none;">
 
                     <div class="search-bar">
                         <input type="text" id="searchInput" placeholder="Search by tag, plate, owner, apartment...">
@@ -91,16 +89,66 @@
                     <div id="propertiesResults"></div>
                 </div>
 
-                <!-- Users Section -->
-                <div id="usersSection" class="tab-content">
+                <!-- Database Section -->
+                <div id="databaseSection" class="tab-content">
                     <header class="page-header">
-                        <h2>User Management</h2>
-                        <div class="header-actions">
-                            <button id="addUserBtn" class="btn btn-primary">Add User</button>
-                        </div>
+                        <h2>Database Operations</h2>
                     </header>
 
-                    <div id="usersResults"></div>
+                    <!-- User Management Subsection -->
+                    <div class="database-subsection">
+                        <div class="subsection-header">
+                            <h3>User Management</h3>
+                            <div class="header-actions">
+                                <button id="addUserBtn" class="btn btn-primary">Add User</button>
+                            </div>
+                        </div>
+                        <div id="usersResults"></div>
+                    </div>
+
+                    <!-- CSV Operations Subsection -->
+                    <div class="database-subsection">
+                        <div class="subsection-header">
+                            <h3>CSV Operations</h3>
+                            <div class="header-actions">
+                                <button id="importBtn" class="btn btn-secondary">Import Vehicles CSV</button>
+                                <button id="exportBtn" class="btn btn-secondary">Export Vehicles CSV</button>
+                            </div>
+                        </div>
+                        <input type="file" id="importFileInput" accept=".csv" style="display: none;">
+                        <p class="help-text">Import or export vehicle data in CSV format for bulk operations.</p>
+                    </div>
+
+                    <!-- Bulk Operations Subsection -->
+                    <div class="database-subsection">
+                        <div class="subsection-header">
+                            <h3>Bulk Operations</h3>
+                        </div>
+                        
+                        <div class="bulk-operation-card">
+                            <h4>Delete Vehicles by Property</h4>
+                            <p class="help-text">Remove all vehicles assigned to a specific property.</p>
+                            <div class="form-inline">
+                                <select id="bulkDeleteProperty" class="form-control">
+                                    <option value="">Select Property</option>
+                                </select>
+                                <button id="bulkDeleteBtn" class="btn btn-danger">Delete All Vehicles</button>
+                            </div>
+                        </div>
+
+                        <div class="bulk-operation-card">
+                            <h4>Find and Remove Duplicates</h4>
+                            <p class="help-text">Search for duplicate vehicles based on plate number or tag number.</p>
+                            <div class="form-inline">
+                                <select id="duplicateCriteria" class="form-control">
+                                    <option value="plate">Plate Number</option>
+                                    <option value="tag">Tag Number</option>
+                                </select>
+                                <button id="findDuplicatesBtn" class="btn btn-secondary">Find Duplicates</button>
+                            </div>
+                            <div id="duplicatesResults" style="margin-top: 15px;"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Violations Section (Admin Only) -->

@@ -1,6 +1,6 @@
 <?php
 /**
- * ManageMyParking Configuration
+ * MyParkingManager Configuration
  * Edit these settings for your hosting environment
  */
 
@@ -10,7 +10,7 @@ $basePath = $isReplit ? '' : '/jrk';
 
 return [
     // Application Settings
-    'app_name' => 'ManageMyParking',
+    'app_name' => 'MyParkingManager',
     'app_url' => $isReplit ? 'http://localhost:5000' : 'https://2clv.com/jrk',
     'base_path' => $basePath,
     
@@ -18,7 +18,7 @@ return [
     'db' => [
         'host' => 'localhost',
         'port' => '3306',
-        'database' => 'managemyparking',
+        'database' => 'myparkingmanager',
         'username' => 'your_db_username',
         'password' => 'your_db_password',
         'charset' => 'utf8mb4',
@@ -26,9 +26,9 @@ return [
     
     // Session Configuration
     'session' => [
-        'name' => 'managemyparking_session',
+        'name' => 'myparkingmanager_session',
         'lifetime' => 1440, // 24 hours in minutes
-        'secure' => 'auto', // Auto-detect HTTPS (recommended for shared hosting)
+        'secure' => true, // HTTPS required (recommended for production)
         'httponly' => true,
     ],
     

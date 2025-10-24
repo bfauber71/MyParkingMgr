@@ -1,4 +1,4 @@
-// ManageMyParking - Frontend Application
+// MyParkingManager - Frontend Application
 
 // Auto-detect API base path from current pathname
 const basePath = window.location.pathname.startsWith('/jrk') ? '/jrk' : '';
@@ -170,11 +170,15 @@ async function checkAuth() {
     }
 }
 
+let lockoutInterval = null;
+
 async function handleLogin(e) {
     e.preventDefault();
     
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const lockoutDiv = document.getElementById('loginLockout');
     
     try {
         const response = await fetch(`${API_BASE}/login`, {
@@ -190,13 +194,77 @@ async function handleLogin(e) {
         
         if (response.ok) {
             currentUser = data.user;
+            clearLoginLockout();
             showDashboard();
+        } else if (response.status === 429 && data.locked) {
+            // Account locked - show countdown
+            showError('');
+            startLockoutCountdown(data.remaining_seconds, data.message);
         } else {
             showError(data.error || 'Login failed');
+            clearLoginLockout();
         }
     } catch (error) {
         showError('Network error. Please try again.');
+        clearLoginLockout();
     }
+}
+
+function startLockoutCountdown(remainingSeconds, message) {
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const lockoutDiv = document.getElementById('loginLockout');
+    const loginError = document.getElementById('loginError');
+    
+    // Disable login button
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Account Locked';
+    
+    // Clear any existing interval
+    if (lockoutInterval) {
+        clearInterval(lockoutInterval);
+    }
+    
+    // Show lockout message
+    lockoutDiv.style.display = 'block';
+    loginError.classList.remove('show');
+    
+    function updateCountdown() {
+        if (remainingSeconds <= 0) {
+            clearLoginLockout();
+            showToast('You may now try logging in again', 'info');
+            return;
+        }
+        
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        lockoutDiv.textContent = `Too many failed login attempts. Try again in ${timeStr}`;
+        lockoutDiv.classList.add('show');
+        
+        remainingSeconds--;
+    }
+    
+    // Update immediately
+    updateCountdown();
+    
+    // Update every second
+    lockoutInterval = setInterval(updateCountdown, 1000);
+}
+
+function clearLoginLockout() {
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const lockoutDiv = document.getElementById('loginLockout');
+    
+    if (lockoutInterval) {
+        clearInterval(lockoutInterval);
+        lockoutInterval = null;
+    }
+    
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Sign In';
+    lockoutDiv.style.display = 'none';
+    lockoutDiv.classList.remove('show');
 }
 
 async function handleLogout() {
@@ -272,27 +340,33 @@ function hasPermission(module, action) {
 
 function applyPermissions() {
     const propertiesTab = document.getElementById('propertiesTab');
-    const usersTab = document.getElementById('usersTab');
+    const databaseTab = document.getElementById('databaseTab');
     const violationsTab = document.getElementById('violationsTab');
     const addVehicleBtn = document.getElementById('addVehicleBtn');
     const importBtn = document.getElementById('importBtn');
     const exportBtn = document.getElementById('exportBtn');
     const addPropertyBtn = document.getElementById('addPropertyBtn');
     const addUserBtn = document.getElementById('addUserBtn');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
     
     console.log('Applying permissions for user:', currentUser.username);
     
     // Show tabs based on view permission
     propertiesTab.style.display = hasPermission('properties', 'view') ? 'block' : 'none';
-    usersTab.style.display = hasPermission('users', 'view') ? 'block' : 'none';
+    databaseTab.style.display = hasPermission('database', 'view') ? 'block' : 'none';
     violationsTab.style.display = hasPermission('violations', 'view') ? 'block' : 'none';
     
-    // Show buttons based on create_delete permission
+    // Show buttons based on permissions
     addVehicleBtn.style.display = hasPermission('vehicles', 'create_delete') ? 'inline-block' : 'none';
-    importBtn.style.display = hasPermission('vehicles', 'create_delete') ? 'inline-block' : 'none';
-    exportBtn.style.display = hasPermission('vehicles', 'view') ? 'inline-block' : 'none';
     addPropertyBtn.style.display = hasPermission('properties', 'create_delete') ? 'inline-block' : 'none';
-    addUserBtn.style.display = hasPermission('users', 'create_delete') ? 'inline-block' : 'none';
+    
+    // Database tab buttons
+    if (addUserBtn) addUserBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
+    if (importBtn) importBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
+    if (exportBtn) exportBtn.style.display = hasPermission('database', 'view') ? 'inline-block' : 'none';
+    if (bulkDeleteBtn) bulkDeleteBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
+    if (findDuplicatesBtn) findDuplicatesBtn.style.display = hasPermission('database', 'view') ? 'inline-block' : 'none';
     
     console.log('Permissions applied successfully');
 }
@@ -1832,4 +1906,150 @@ function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString();
+}
+
+// ============================================================================
+// BULK OPERATIONS (DATABASE TAB)
+// ============================================================================
+
+// Populate bulk delete property dropdown when database tab is shown
+document.addEventListener('DOMContentLoaded', () => {
+    const bulkDeleteProperty = document.getElementById('bulkDeleteProperty');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', handleBulkDelete);
+    }
+    
+    if (findDuplicatesBtn) {
+        findDuplicatesBtn.addEventListener('click', handleFindDuplicates);
+    }
+    
+    // Populate property dropdown when database tab is opened
+    document.querySelector('[data-tab="database"]')?.addEventListener('click', async () => {
+        if (bulkDeleteProperty && properties.length > 0) {
+            bulkDeleteProperty.innerHTML = '<option value="">Select Property</option>' +
+                properties.map(p => `<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('');
+        }
+    });
+});
+
+async function handleBulkDelete() {
+    const propertySelect = document.getElementById('bulkDeleteProperty');
+    const property = propertySelect?.value;
+    
+    if (!property) {
+        showToast('Please select a property', 'error');
+        return;
+    }
+    
+    if (!confirm(`Are you sure you want to delete ALL vehicles from "${property}"? This action cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/vehicles-bulk-delete`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ property })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast(data.message, 'success');
+            propertySelect.value = '';
+        } else {
+            showToast(data.error || 'Bulk delete failed', 'error');
+        }
+    } catch (error) {
+        console.error('Bulk delete error:', error);
+        showToast('Network error during bulk delete', 'error');
+    }
+}
+
+async function handleFindDuplicates() {
+    const criteriaSelect = document.getElementById('duplicateCriteria');
+    const resultsDiv = document.getElementById('duplicatesResults');
+    const criteria = criteriaSelect?.value || 'plate';
+    
+    resultsDiv.innerHTML = '<p style="color: #888;">Searching for duplicates...</p>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/vehicles-duplicates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ action: 'find', criteria })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            if (data.duplicates.length === 0) {
+                resultsDiv.innerHTML = '<p style="color: #4ade80;">No duplicates found!</p>';
+                return;
+            }
+            
+            let html = `<p style="color: #60a5fa; margin-bottom: 15px;">Found ${data.total_groups} duplicate group(s):</p>`;
+            
+            data.duplicates.forEach((group, index) => {
+                html += `
+                    <div class="duplicate-group">
+                        <h5>Duplicate ${criteria === 'plate' ? 'Plate' : 'Tag'}: ${escapeHtml(group.value)} (${group.count} vehicles)</h5>
+                        ${group.items.map((item, i) => `
+                            <div class="duplicate-item">
+                                <div class="duplicate-info">
+                                    <strong>${escapeHtml(item.vehicle)}</strong><br>
+                                    <small>Property: ${escapeHtml(item.property)}</small>
+                                </div>
+                                <button class="btn btn-danger btn-sm" onclick="deleteDuplicate('${item.id}', ${index})">Delete</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+        } else {
+            resultsDiv.innerHTML = `<p style="color: #ef4444;">${data.error || 'Failed to find duplicates'}</p>`;
+        }
+    } catch (error) {
+        console.error('Find duplicates error:', error);
+        resultsDiv.innerHTML = '<p style="color: #ef4444;">Network error while searching for duplicates</p>';
+    }
+}
+
+async function deleteDuplicate(vehicleId, groupIndex) {
+    if (!confirm('Are you sure you want to delete this vehicle?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/vehicles-duplicates`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ 
+                action: 'delete', 
+                criteria: document.getElementById('duplicateCriteria').value,
+                vehicle_ids: [vehicleId]
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast(data.message, 'success');
+            // Re-run find duplicates to refresh the list
+            handleFindDuplicates();
+        } else {
+            showToast(data.error || 'Delete failed', 'error');
+        }
+    } catch (error) {
+        console.error('Delete duplicate error:', error);
+        showToast('Network error during delete', 'error');
+    }
 }

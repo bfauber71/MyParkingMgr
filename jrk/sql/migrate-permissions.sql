@@ -1,5 +1,5 @@
 -- ============================================================================
--- ManageMyParking: Permission Matrix Migration
+-- MyParkingManager: Permission Matrix Migration
 -- ============================================================================
 -- This script migrates from role-based to permission-matrix authorization
 -- 
