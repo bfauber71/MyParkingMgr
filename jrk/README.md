@@ -7,16 +7,17 @@ Complete PHP and MySQL vehicle and property management system designed for share
 ### New Installation (Recommended: Use Setup Wizard)
 1. Upload all files to your hosting via FTP
 2. Create a MySQL database using cPanel/phpMyAdmin
-3. **Navigate to `http://yoursite.com/path/setup.php`** in your browser
-4. Follow the setup wizard to configure your installation:
-   - Enter your application URL and base path
-   - Provide database credentials
-   - Test database connection
-   - Save configuration
-5. Import `sql/install.sql` via phpMyAdmin to create database tables
-6. **Delete or rename `setup.php`** for security (optional but recommended)
-7. Access your site and login with: `admin` / `admin123`
-8. **Important:** Change the admin password immediately!
+3. **Navigate to `http://yoursite.com/path/setup-wizard.php`** in your browser
+4. Follow the comprehensive setup wizard:
+   - Step 1: Configure database connection
+   - Step 2: Install database schema automatically
+   - Step 3: Create your first admin user
+   - Step 4: Complete setup
+5. **Delete or rename setup files** for security (recommended):
+   - `setup.php`
+   - `setup-wizard.php`
+   - `setup-test-db.php`
+6. Access your site and login with the admin credentials you created
 
 ### Alternative: Manual Installation
 1. Upload all files to your hosting via FTP
@@ -25,9 +26,9 @@ Complete PHP and MySQL vehicle and property management system designed for share
    - Set `app_url` to your full application URL
    - Set `base_path` to your subdirectory (e.g., `/jrk`) or empty for root
    - Configure database credentials
-4. Import `sql/install.sql` via phpMyAdmin
-5. Access your site and login with: `admin` / `admin123`
-6. **Important:** Change the admin password immediately!
+4. Import `sql/install.sql` via phpMyAdmin (now without default admin)
+5. Run `setup-wizard.php` to create your first admin user
+6. Login with the admin credentials you create during setup
 
 ### Migrating to Different Environment
 If you need to move your installation to a new server or change paths:

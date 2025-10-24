@@ -283,8 +283,8 @@ if ($configExists) {
                     <li>Delete or rename <strong>setup.php</strong> for security (optional but recommended)</li>
                     <li>Import the database schema using <strong>sql/install.sql</strong> via phpMyAdmin</li>
                     <li>Access your application at: <strong><?php echo htmlspecialchars($appUrl); ?></strong></li>
-                    <li>Login with default credentials: <strong>admin</strong> / <strong>admin123</strong></li>
-                    <li>Change the default admin password immediately!</li>
+                    <li>Run the <strong>setup-wizard.php</strong> to create your first admin user</li>
+                    <li>Login with the admin credentials you create during setup</li>
                 </ol>
             </div>
         <?php endif; ?>
