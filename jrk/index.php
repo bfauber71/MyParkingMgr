@@ -74,6 +74,8 @@ $router->get('/api/violations-list', __DIR__ . '/api/violations-list.php');
 $router->post('/api/violations-add', __DIR__ . '/api/violations-add.php');
 $router->post('/api/violations-update', __DIR__ . '/api/violations-update.php');
 $router->post('/api/violations-delete', __DIR__ . '/api/violations-delete.php');
+$router->post('/api/violations-search', __DIR__ . '/api/violations-search.php');
+$router->post('/api/violations-export', __DIR__ . '/api/violations-export.php');
 
 // Serve frontend for all other routes
 $router->get('/.*', function() use ($config) {

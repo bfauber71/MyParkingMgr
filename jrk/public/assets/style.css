@@ -1094,3 +1094,164 @@ body {
         width: 100%;
     }
 }
+
+/* ================================
+   VIOLATION SEARCH SECTION
+   ================================ */
+
+.violation-search-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.search-filters {
+    margin-bottom: 20px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-row .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-row .flex-grow {
+    flex: 2;
+}
+
+.search-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #1e293b;
+    border-radius: 6px;
+}
+
+.results-count {
+    color: #94a3b8;
+    font-size: 0.9em;
+    margin-left: auto;
+}
+
+.violation-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #1e293b;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.violation-results-table thead {
+    background: #0f172a;
+}
+
+.violation-results-table th,
+.violation-results-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #334155;
+}
+
+.violation-results-table th {
+    color: #60a5fa;
+    font-weight: 600;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.violation-results-table td {
+    color: #e2e8f0;
+}
+
+.violation-results-table tr:hover {
+    background: #0f172a;
+}
+
+.violation-types-cell {
+    font-size: 0.85em;
+    color: #94a3b8;
+}
+
+.violation-note {
+    font-style: italic;
+    color: #64748b;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    #violationSearchResults,
+    #violationSearchResults * {
+        visibility: visible;
+    }
+    
+    #violationSearchResults {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    
+    .search-actions,
+    .search-filters,
+    .sidebar,
+    .tabs,
+    .page-header,
+    .btn {
+        display: none !important;
+    }
+    
+    .violation-results-table {
+        page-break-inside: auto;
+    }
+    
+    .violation-results-table tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+    }
+    
+    .filter-row .form-group {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .search-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .results-count {
+        margin-left: 0;
+        text-align: center;
+    }
+    
+    .violation-results-table {
+        font-size: 0.85em;
+    }
+    
+    .violation-results-table th,
+    .violation-results-table td {
+        padding: 8px 6px;
+    }
+}

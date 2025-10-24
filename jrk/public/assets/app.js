@@ -2053,3 +2053,232 @@ async function deleteDuplicate(vehicleId, groupIndex) {
         showToast('Network error during delete', 'error');
     }
 }
+
+// ============================================================================
+// VIOLATION SEARCH (DATABASE TAB)
+// ============================================================================
+
+let violationSearchData = [];
+
+// Initialize violation search when database tab is opened
+document.addEventListener('DOMContentLoaded', () => {
+    const violationSearchBtn = document.getElementById('violationSearchBtn');
+    const violationPrintBtn = document.getElementById('violationPrintBtn');
+    const violationExportBtn = document.getElementById('violationExportBtn');
+    
+    if (violationSearchBtn) {
+        violationSearchBtn.addEventListener('click', handleViolationSearch);
+    }
+    
+    if (violationPrintBtn) {
+        violationPrintBtn.addEventListener('click', handleViolationPrint);
+    }
+    
+    if (violationExportBtn) {
+        violationExportBtn.addEventListener('click', handleViolationExport);
+    }
+    
+    // Populate dropdowns when database tab is opened
+    document.querySelector('[data-tab="database"]')?.addEventListener('click', async () => {
+        await populateViolationSearchFilters();
+    });
+});
+
+async function populateViolationSearchFilters() {
+    const propertyFilter = document.getElementById('violationPropertyFilter');
+    const violationTypeFilter = document.getElementById('violationTypeFilter');
+    
+    // Populate property dropdown
+    if (propertyFilter && properties.length > 0) {
+        const currentValue = propertyFilter.value;
+        propertyFilter.innerHTML = '<option value="">All Properties</option>' +
+            properties.map(p => `<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('');
+        if (currentValue) propertyFilter.value = currentValue;
+    }
+    
+    // Populate violation type dropdown
+    if (violationTypeFilter) {
+        try {
+            const response = await fetch(`${API_BASE}/violations-list`, {
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const activeViolations = data.violations.filter(v => v.is_active);
+                const currentValue = violationTypeFilter.value;
+                
+                violationTypeFilter.innerHTML = '<option value="">All Violations</option>' +
+                    activeViolations.map(v => 
+                        `<option value="${escapeHtml(v.violation_name)}">${escapeHtml(v.violation_name)}</option>`
+                    ).join('');
+                
+                if (currentValue) violationTypeFilter.value = currentValue;
+            }
+        } catch (error) {
+            console.error('Error loading violation types:', error);
+        }
+    }
+}
+
+async function handleViolationSearch() {
+    const startDate = document.getElementById('violationStartDate').value;
+    const endDate = document.getElementById('violationEndDate').value;
+    const property = document.getElementById('violationPropertyFilter').value;
+    const violationType = document.getElementById('violationTypeFilter').value;
+    const query = document.getElementById('violationSearchQuery').value;
+    const resultsDiv = document.getElementById('violationSearchResults');
+    const actionsDiv = document.querySelector('.search-actions');
+    
+    resultsDiv.innerHTML = '<p style="color: #888;">Searching violations...</p>';
+    actionsDiv.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_BASE}/violations-search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                start_date: startDate,
+                end_date: endDate,
+                property: property,
+                violation_type: violationType,
+                query: query
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            violationSearchData = data.violations;
+            displayViolationResults(data.violations, data.total, data.limit_reached);
+            
+            if (data.violations.length > 0) {
+                actionsDiv.style.display = 'flex';
+                const countSpan = document.getElementById('violationResultsCount');
+                countSpan.textContent = `${data.total} violation${data.total !== 1 ? 's' : ''} found` +
+                    (data.limit_reached ? ' (limit reached)' : '');
+            }
+        } else {
+            resultsDiv.innerHTML = `<p style="color: #ef4444;">${data.error || 'Search failed'}</p>`;
+            showToast(data.error || 'Search failed', 'error');
+        }
+    } catch (error) {
+        console.error('Violation search error:', error);
+        resultsDiv.innerHTML = '<p style="color: #ef4444;">Network error during search</p>';
+        showToast('Network error during search', 'error');
+    }
+}
+
+function displayViolationResults(violations, total, limitReached) {
+    const resultsDiv = document.getElementById('violationSearchResults');
+    
+    if (violations.length === 0) {
+        resultsDiv.innerHTML = '<p style="color: #94a3b8;">No violations found matching your search criteria.</p>';
+        return;
+    }
+    
+    let html = `
+        <table class="violation-results-table">
+            <thead>
+                <tr>
+                    <th>Date/Time</th>
+                    <th>Property</th>
+                    <th>Vehicle</th>
+                    <th>Plate/Tag</th>
+                    <th>Violations</th>
+                    <th>Notes</th>
+                    <th>Issued By</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    violations.forEach(violation => {
+        const vehicle = `${violation.year || ''} ${violation.make || ''} ${violation.model || ''} ${violation.color || ''}`.trim();
+        const plateTag = [violation.plate_number, violation.tag_number].filter(Boolean).join(' / ') || 'N/A';
+        const violationTypes = violation.violation_types_array.join(', ') || 'N/A';
+        const date = new Date(violation.created_at);
+        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        
+        html += `
+            <tr>
+                <td>${formattedDate}</td>
+                <td>${escapeHtml(violation.property)}</td>
+                <td>${escapeHtml(vehicle)}</td>
+                <td>${escapeHtml(plateTag)}</td>
+                <td class="violation-types-cell">${escapeHtml(violationTypes)}</td>
+                <td class="violation-note">${violation.custom_note ? escapeHtml(violation.custom_note) : '-'}</td>
+                <td>${escapeHtml(violation.issuing_user || 'Unknown')}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    if (limitReached) {
+        html += '<p style="color: #f59e0b; margin-top: 15px;"><strong>Note:</strong> Results limited to 500 violations. Please refine your search for more specific results.</p>';
+    }
+    
+    resultsDiv.innerHTML = html;
+}
+
+function handleViolationPrint() {
+    if (violationSearchData.length === 0) {
+        showToast('No results to print', 'warning');
+        return;
+    }
+    
+    window.print();
+}
+
+async function handleViolationExport() {
+    if (violationSearchData.length === 0) {
+        showToast('No results to export', 'warning');
+        return;
+    }
+    
+    const startDate = document.getElementById('violationStartDate').value;
+    const endDate = document.getElementById('violationEndDate').value;
+    const property = document.getElementById('violationPropertyFilter').value;
+    const violationType = document.getElementById('violationTypeFilter').value;
+    const query = document.getElementById('violationSearchQuery').value;
+    
+    try {
+        const response = await fetch(`${API_BASE}/violations-export`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                start_date: startDate,
+                end_date: endDate,
+                property: property,
+                violation_type: violationType,
+                query: query
+            })
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `violations_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            showToast('Violations exported successfully', 'success');
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Export failed', 'error');
+        }
+    } catch (error) {
+        console.error('Export error:', error);
+        showToast('Network error during export', 'error');
+    }
+}

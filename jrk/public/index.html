@@ -149,6 +149,58 @@
                             <div id="duplicatesResults" style="margin-top: 15px;"></div>
                         </div>
                     </div>
+
+                    <!-- Violation Search Subsection -->
+                    <div class="database-subsection">
+                        <div class="subsection-header">
+                            <h3>Violation Search & Reports</h3>
+                        </div>
+                        
+                        <div class="violation-search-card">
+                            <div class="search-filters">
+                                <div class="filter-row">
+                                    <div class="form-group">
+                                        <label for="violationStartDate">Start Date</label>
+                                        <input type="date" id="violationStartDate" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="violationEndDate">End Date</label>
+                                        <input type="date" id="violationEndDate" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="violationPropertyFilter">Property</label>
+                                        <select id="violationPropertyFilter" class="form-control">
+                                            <option value="">All Properties</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="violationTypeFilter">Violation Type</label>
+                                        <select id="violationTypeFilter" class="form-control">
+                                            <option value="">All Violations</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="filter-row">
+                                    <div class="form-group flex-grow">
+                                        <label for="violationSearchQuery">Search (Plate, Tag, Make, Model, Notes)</label>
+                                        <input type="text" id="violationSearchQuery" class="form-control" placeholder="Search violations...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>&nbsp;</label>
+                                        <button id="violationSearchBtn" class="btn btn-primary">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="search-actions" style="margin-top: 15px; display: none;">
+                                <button id="violationPrintBtn" class="btn btn-secondary">Print Results</button>
+                                <button id="violationExportBtn" class="btn btn-secondary">Export to CSV</button>
+                                <span id="violationResultsCount" class="results-count"></span>
+                            </div>
+
+                            <div id="violationSearchResults" style="margin-top: 20px;"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Violations Section (Admin Only) -->
