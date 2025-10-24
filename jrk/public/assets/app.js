@@ -865,11 +865,11 @@ async function showAllUsers() {
         } else {
             const errorText = await response.text();
             console.error('API Error Response:', response.status, errorText);
-            container.innerHTML = '<div class="no-results">Failed to load users (Status: ' + response.status + '). Check console for details.</div>';
+            container.innerHTML = `<div class="no-results">Failed to load users (Status: ${escapeHtml(response.status.toString())}). Check console for details.</div>`;
         }
     } catch (error) {
         console.error('Network error loading users:', error);
-        container.innerHTML = '<div class="no-results">Network error: ' + error.message + '</div>';
+        container.innerHTML = `<div class="no-results">Network error: ${escapeHtml(error.message)}</div>`;
     }
 }
 
@@ -971,8 +971,8 @@ function displayUsersTable(users) {
                             <td>${formatDate(user.created_at)}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn btn-small btn-secondary" onclick="editUser('${user.id}')">Edit</button>
-                                    ${user.id !== currentUser.id ? `<button class="btn btn-small btn-danger" onclick="deleteUser('${user.id}', '${escapeHtml(user.username)}')">Delete</button>` : ''}
+                                    <button class="btn btn-small btn-secondary user-edit-btn" data-user-id="${escapeHtml(user.id)}">Edit</button>
+                                    ${user.id !== currentUser.id ? `<button class="btn btn-small btn-danger user-delete-btn" data-user-id="${escapeHtml(user.id)}" data-username="${escapeHtml(user.username)}">Delete</button>` : ''}
                                 </div>
                             </td>
                         </tr>
@@ -984,6 +984,22 @@ function displayUsersTable(users) {
     
     container.innerHTML = table;
     console.log('Table HTML rendered successfully');
+    
+    // Add event delegation for user action buttons
+    container.querySelectorAll('.user-edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const userId = btn.getAttribute('data-user-id');
+            editUser(userId);
+        });
+    });
+    
+    container.querySelectorAll('.user-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const userId = btn.getAttribute('data-user-id');
+            const username = btn.getAttribute('data-username');
+            deleteUser(userId, username);
+        });
+    });
 }
 
 // Permission Matrix Functions
@@ -1364,6 +1380,42 @@ function displayVehicles(vehicles) {
     
     container.innerHTML = '';
     container.appendChild(grid);
+    
+    // Add event delegation for vehicle action buttons
+    container.querySelectorAll('.vehicle-violations-btn').forEach(btn => {
+        btn.addEventListener('click', (event) => {
+            const vehicleId = btn.getAttribute('data-vehicle-id');
+            showViolationHistory(vehicleId, event);
+        });
+    });
+    
+    container.querySelectorAll('.vehicle-violation-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const vehicleId = btn.getAttribute('data-vehicle-id');
+            const vehicle = vehicles.find(v => v.id === vehicleId);
+            if (vehicle) {
+                openViolationModal(vehicle);
+            }
+        });
+    });
+    
+    container.querySelectorAll('.vehicle-edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const vehicleId = btn.getAttribute('data-vehicle-id');
+            const vehicle = vehicles.find(v => v.id === vehicleId);
+            if (vehicle) {
+                editVehicle(vehicle);
+            }
+        });
+    });
+    
+    container.querySelectorAll('.vehicle-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const vehicleId = btn.getAttribute('data-vehicle-id');
+            const vehicleTitle = btn.getAttribute('data-vehicle-title');
+            deleteVehicle(vehicleId, vehicleTitle);
+        });
+    });
 }
 
 function createVehicleCard(vehicle) {
@@ -1375,16 +1427,16 @@ function createVehicleCard(vehicle) {
     // Get violation count (default to 0 if not present)
     const violationCount = parseInt(vehicle.violation_count) || 0;
     const violationsIndicator = violationCount > 0 ? `
-        <button class="btn btn-small btn-violations" onclick='showViolationHistory("${vehicle.id}", event)'>
+        <button class="btn btn-small btn-violations vehicle-violations-btn" data-vehicle-id="${escapeHtml(vehicle.id)}">
             *Violations Exist (${violationCount})
         </button>
     ` : '';
     
     const actionButtons = canEditVehicles() ? `
         <div class="vehicle-actions">
-            <button class="btn btn-small btn-warning" onclick='openViolationModal(${JSON.stringify(vehicle)})'>Violation</button>
-            <button class="btn btn-small btn-primary" onclick='editVehicle(${JSON.stringify(vehicle)})'>Edit</button>
-            ${canDeleteVehicles() ? `<button class="btn btn-small btn-danger" onclick="deleteVehicle('${vehicle.id}', '${escapeHtml(title)}')">Delete</button>` : ''}
+            <button class="btn btn-small btn-warning vehicle-violation-btn" data-vehicle-id="${escapeHtml(vehicle.id)}">Violation</button>
+            <button class="btn btn-small btn-primary vehicle-edit-btn" data-vehicle-id="${escapeHtml(vehicle.id)}">Edit</button>
+            ${canDeleteVehicles() ? `<button class="btn btn-small btn-danger vehicle-delete-btn" data-vehicle-id="${escapeHtml(vehicle.id)}" data-vehicle-title="${escapeHtml(title)}">Delete</button>` : ''}
         </div>
     ` : '';
     
@@ -1637,11 +1689,14 @@ function renderViolationCheckboxes() {
     otherDiv.className = 'checkbox-item';
     otherDiv.innerHTML = `
         <label>
-            <input type="checkbox" id="otherViolationCheckbox" onchange="toggleCustomNote()">
+            <input type="checkbox" id="otherViolationCheckbox">
             Other (specify below)
         </label>
     `;
     container.appendChild(otherDiv);
+    
+    // Add event listener for the "Other" checkbox
+    document.getElementById('otherViolationCheckbox').addEventListener('change', toggleCustomNote);
 }
 
 function toggleCustomNote() {
@@ -1775,14 +1830,30 @@ function displayViolationTypesList(violations) {
             <td>${violation.display_order}</td>
             <td>${statusBadge}</td>
             <td class="actions">
-                <button class="btn btn-small btn-secondary" onclick="editViolationType('${violation.id}')">Edit</button>
-                <button class="btn btn-small btn-danger" onclick="deleteViolationType('${violation.id}', '${escapeHtml(violation.name)}')">Delete</button>
+                <button class="btn btn-small btn-secondary violation-type-edit-btn" data-violation-id="${escapeHtml(violation.id)}">Edit</button>
+                <button class="btn btn-small btn-danger violation-type-delete-btn" data-violation-id="${escapeHtml(violation.id)}" data-violation-name="${escapeHtml(violation.name)}">Delete</button>
             </td>
         </tr>`;
     });
     
     html += '</tbody></table></div>';
     resultsDiv.innerHTML = html;
+    
+    // Add event delegation for violation type action buttons
+    resultsDiv.querySelectorAll('.violation-type-edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const violationId = btn.getAttribute('data-violation-id');
+            editViolationType(violationId);
+        });
+    });
+    
+    resultsDiv.querySelectorAll('.violation-type-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const violationId = btn.getAttribute('data-violation-id');
+            const violationName = btn.getAttribute('data-violation-name');
+            deleteViolationType(violationId, violationName);
+        });
+    });
 }
 
 function openViolationTypeModal(violationData = null) {
@@ -1986,8 +2057,8 @@ function displayViolationHistory() {
     if (totalPages > 1) {
         let paginationHtml = `
             <button 
-                class="btn btn-small" 
-                onclick="changeViolationPage(${currentViolationPage - 1})" 
+                class="btn btn-small violation-prev-btn" 
+                data-page="${currentViolationPage - 1}"
                 ${currentViolationPage === 1 ? 'disabled' : ''}
                 style="${currentViolationPage === 1 ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
             >
@@ -1997,8 +2068,8 @@ function displayViolationHistory() {
                 Page ${currentViolationPage} of ${totalPages} (${allViolationTickets.length} total violations)
             </span>
             <button 
-                class="btn btn-small" 
-                onclick="changeViolationPage(${currentViolationPage + 1})" 
+                class="btn btn-small violation-next-btn" 
+                data-page="${currentViolationPage + 1}"
                 ${currentViolationPage === totalPages ? 'disabled' : ''}
                 style="${currentViolationPage === totalPages ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
             >
@@ -2006,6 +2077,24 @@ function displayViolationHistory() {
             </button>
         `;
         pagination.innerHTML = paginationHtml;
+        
+        // Add event listeners for pagination buttons
+        const prevBtn = pagination.querySelector('.violation-prev-btn');
+        const nextBtn = pagination.querySelector('.violation-next-btn');
+        
+        if (prevBtn && !prevBtn.disabled) {
+            prevBtn.addEventListener('click', () => {
+                const page = parseInt(prevBtn.getAttribute('data-page'));
+                changeViolationPage(page);
+            });
+        }
+        
+        if (nextBtn && !nextBtn.disabled) {
+            nextBtn.addEventListener('click', () => {
+                const page = parseInt(nextBtn.getAttribute('data-page'));
+                changeViolationPage(page);
+            });
+        }
     } else {
         pagination.innerHTML = `<span style="color: #888; font-size: 14px;">${allViolationTickets.length} violation${allViolationTickets.length === 1 ? '' : 's'} found</span>`;
     }
@@ -2140,7 +2229,7 @@ async function handleFindDuplicates() {
                                     <strong>${escapeHtml(item.vehicle)}</strong><br>
                                     <small>Property: ${escapeHtml(item.property)}</small>
                                 </div>
-                                <button class="btn btn-danger btn-sm" onclick="deleteDuplicate('${item.id}', ${index})">Delete</button>
+                                <button class="btn btn-danger btn-sm duplicate-delete-btn" data-vehicle-id="${escapeHtml(item.id)}" data-group-index="${index}">Delete</button>
                             </div>
                         `).join('')}
                     </div>
@@ -2148,8 +2237,17 @@ async function handleFindDuplicates() {
             });
             
             resultsDiv.innerHTML = html;
+            
+            // Add event delegation for duplicate delete buttons
+            resultsDiv.querySelectorAll('.duplicate-delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const vehicleId = btn.getAttribute('data-vehicle-id');
+                    const groupIndex = parseInt(btn.getAttribute('data-group-index'));
+                    deleteDuplicate(vehicleId, groupIndex);
+                });
+            });
         } else {
-            resultsDiv.innerHTML = `<p style="color: #ef4444;">${data.error || 'Failed to find duplicates'}</p>`;
+            resultsDiv.innerHTML = `<p style="color: #ef4444;">${escapeHtml(data.error || 'Failed to find duplicates')}</p>`;
         }
     } catch (error) {
         console.error('Find duplicates error:', error);
@@ -2295,7 +2393,7 @@ async function handleViolationSearch() {
                     (data.limit_reached ? ' (limit reached)' : '');
             }
         } else {
-            resultsDiv.innerHTML = `<p style="color: #ef4444;">${data.error || 'Search failed'}</p>`;
+            resultsDiv.innerHTML = `<p style="color: #ef4444;">${escapeHtml(data.error || 'Search failed')}</p>`;
             showToast(data.error || 'Search failed', 'error');
         }
     } catch (error) {
