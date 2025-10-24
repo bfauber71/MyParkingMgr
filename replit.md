@@ -82,6 +82,14 @@ The frontend is built with vanilla HTML, CSS, and JavaScript, ensuring no build 
     - **Bulk Operations Section:**
         - **Delete by Property:** Select property from dropdown, delete all vehicles for that property with confirmation and audit logging
         - **Find Duplicates:** Search by plate number or tag number, displays duplicate groups with vehicle details, delete individual duplicates with one-click removal
+    - **Violation Search & Reports Section (NEW - Oct 24, 2025):**
+        - **Advanced Filtering:** Date range (start/end dates), property filter, violation type filter, keyword search (plate, tag, make, model, notes)
+        - **Results Display:** Table view showing date/time, property, vehicle details, plate/tag, violations, notes, and issuing user
+        - **Print Functionality:** Print-optimized CSS hides UI elements, displays only results table with proper page breaks
+        - **CSV Export:** Export search results to CSV with comprehensive headers (Ticket ID, Date/Time, Property, Vehicle Info, Violations, Notes, Issued By)
+        - **Result Limits:** 500 violation limit for search display, 10,000 limit for export with warning messages
+        - **Security:** Requires DATABASE VIEW permission, enforces property-based access control, audit logging for exports
+        - **Mobile Responsive:** Filter form adapts to mobile screens with vertical layout, touch-friendly controls
 - **Violations Management (Admin Only):** Add, edit, delete violation types; toggle active/inactive status; set display order for violation options.
 - **Violation Tickets:** Multi-select violations, printable 2.5" x 6" tickets, with associated database tables and API endpoints. Includes security for property access control.
 - **Violation History Tracking:** Each vehicle displays a "*Violations Exist" button (positioned between plate number and property name) when violations are recorded. Clicking opens a modal showing violations with pagination (5 per page, up to 100 total) in chronological order with date/time, issuing user, violation types, vehicle details, and custom notes. Includes Previous/Next navigation and page counter. Backend includes indexed queries for performance and property-based access control. The vehicles-search API endpoint returns violation_count for each vehicle with robust error handling and graceful degradation if violation_tickets table doesn't exist.
