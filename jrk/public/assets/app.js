@@ -1424,43 +1424,72 @@ function createVehicleCard(vehicle) {
     
     const title = vehicle.plate_number || vehicle.tag_number || 'No Plate/Tag';
     
-    // Get violation count (default to 0 if not present)
+    const header = document.createElement('div');
+    header.className = 'vehicle-header';
+    
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'vehicle-title';
+    titleDiv.textContent = title;
+    header.appendChild(titleDiv);
+    
     const violationCount = parseInt(vehicle.violation_count) || 0;
-    const violationsIndicator = violationCount > 0 ? `
-        <button class="btn btn-small btn-violations vehicle-violations-btn" data-vehicle-id="${escapeHtml(vehicle.id)}">
-            *Violations Exist (${violationCount})
-        </button>
-    ` : '';
+    if (violationCount > 0) {
+        const violationsBtn = document.createElement('button');
+        violationsBtn.className = 'btn btn-small btn-violations vehicle-violations-btn';
+        violationsBtn.setAttribute('data-vehicle-id', vehicle.id);
+        violationsBtn.textContent = `*Violations Exist (${violationCount})`;
+        header.appendChild(violationsBtn);
+    }
     
-    const actionButtons = canEditVehicles() ? `
-        <div class="vehicle-actions">
-            <button class="btn btn-small btn-warning vehicle-violation-btn" data-vehicle-id="${escapeHtml(vehicle.id)}">Violation</button>
-            <button class="btn btn-small btn-primary vehicle-edit-btn" data-vehicle-id="${escapeHtml(vehicle.id)}">Edit</button>
-            ${canDeleteVehicles() ? `<button class="btn btn-small btn-danger vehicle-delete-btn" data-vehicle-id="${escapeHtml(vehicle.id)}" data-vehicle-title="${escapeHtml(title)}">Delete</button>` : ''}
-        </div>
-    ` : '';
+    const propertyBadge = document.createElement('div');
+    propertyBadge.className = 'property-badge';
+    propertyBadge.textContent = vehicle.property;
+    header.appendChild(propertyBadge);
     
-    card.innerHTML = `
-        <div class="vehicle-header">
-            <div class="vehicle-title">${escapeHtml(title)}</div>
-            ${violationsIndicator}
-            <div class="property-badge">${escapeHtml(vehicle.property)}</div>
-        </div>
-        <div class="vehicle-details">
-            ${createDetailRow('Tag Number', vehicle.tag_number)}
-            ${createDetailRow('Plate Number', vehicle.plate_number)}
-            ${createDetailRow('State', vehicle.state)}
-            ${createDetailRow('Make/Model', formatMakeModel(vehicle))}
-            ${createDetailRow('Color', vehicle.color)}
-            ${createDetailRow('Year', vehicle.year)}
-            ${createDetailRow('Apartment', vehicle.apt_number)}
-            ${createDetailRow('Reserved Space', vehicle.reserved_space)}
-            ${createDetailRow('Owner', vehicle.owner_name)}
-            ${createDetailRow('Phone', vehicle.owner_phone)}
-            ${createDetailRow('Email', vehicle.owner_email)}
-        </div>
-        ${actionButtons}
-    `;
+    card.appendChild(header);
+    
+    const details = document.createElement('div');
+    details.className = 'vehicle-details';
+    appendDetailRow(details, 'Tag Number', vehicle.tag_number);
+    appendDetailRow(details, 'Plate Number', vehicle.plate_number);
+    appendDetailRow(details, 'State', vehicle.state);
+    appendDetailRow(details, 'Make/Model', formatMakeModel(vehicle));
+    appendDetailRow(details, 'Color', vehicle.color);
+    appendDetailRow(details, 'Year', vehicle.year);
+    appendDetailRow(details, 'Apartment', vehicle.apt_number);
+    appendDetailRow(details, 'Reserved Space', vehicle.reserved_space);
+    appendDetailRow(details, 'Owner', vehicle.owner_name);
+    appendDetailRow(details, 'Phone', vehicle.owner_phone);
+    appendDetailRow(details, 'Email', vehicle.owner_email);
+    card.appendChild(details);
+    
+    if (canEditVehicles()) {
+        const actions = document.createElement('div');
+        actions.className = 'vehicle-actions';
+        
+        const violationBtn = document.createElement('button');
+        violationBtn.className = 'btn btn-small btn-warning vehicle-violation-btn';
+        violationBtn.setAttribute('data-vehicle-id', vehicle.id);
+        violationBtn.textContent = 'Violation';
+        actions.appendChild(violationBtn);
+        
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-small btn-primary vehicle-edit-btn';
+        editBtn.setAttribute('data-vehicle-id', vehicle.id);
+        editBtn.textContent = 'Edit';
+        actions.appendChild(editBtn);
+        
+        if (canDeleteVehicles()) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-small btn-danger vehicle-delete-btn';
+            deleteBtn.setAttribute('data-vehicle-id', vehicle.id);
+            deleteBtn.setAttribute('data-vehicle-title', title);
+            deleteBtn.textContent = 'Delete';
+            actions.appendChild(deleteBtn);
+        }
+        
+        card.appendChild(actions);
+    }
     
     return card;
 }
@@ -1473,6 +1502,25 @@ function createDetailRow(label, value) {
             <div class="detail-value">${escapeHtml(value)}</div>
         </div>
     `;
+}
+
+function appendDetailRow(container, label, value) {
+    if (!value) return;
+    
+    const row = document.createElement('div');
+    row.className = 'detail-row';
+    
+    const labelDiv = document.createElement('div');
+    labelDiv.className = 'detail-label';
+    labelDiv.textContent = `${label}:`;
+    row.appendChild(labelDiv);
+    
+    const valueDiv = document.createElement('div');
+    valueDiv.className = 'detail-value';
+    valueDiv.textContent = value;
+    row.appendChild(valueDiv);
+    
+    container.appendChild(row);
 }
 
 function formatMakeModel(vehicle) {
