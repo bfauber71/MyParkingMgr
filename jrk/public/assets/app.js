@@ -1882,7 +1882,7 @@ function displayViolationTypesList(violations) {
         
         html += `<tr>
             <td>${escapeHtml(violation.name)}</td>
-            <td>${violation.display_order}</td>
+            <td>${escapeHtml(violation.display_order)}</td>
             <td>${statusBadge}</td>
             <td class="actions">
                 <button class="btn btn-small btn-secondary violation-type-edit-btn" data-violation-id="${escapeHtml(violation.id)}">Edit</button>
