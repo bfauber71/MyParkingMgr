@@ -579,8 +579,8 @@ function displayPropertiesTable(properties) {
                             <td>${formatDate(prop.created_at)}</td>
                             <td>
                                 <div class="table-actions">
-                                    <button class="btn btn-small" onclick='editProperty(${JSON.stringify(prop).replace(/'/g, "&#39;")})'>Edit</button>
-                                    <button class="btn btn-small btn-danger" onclick="deleteProperty('${prop.id}', '${escapeHtml(prop.name)}')">Delete</button>
+                                    <button class="btn btn-small property-edit-btn" data-property-id="${escapeHtml(prop.id)}">Edit</button>
+                                    <button class="btn btn-small btn-danger property-delete-btn" data-property-id="${escapeHtml(prop.id)}" data-property-name="${escapeHtml(prop.name)}">Delete</button>
                                 </div>
                             </td>
                         </tr>
@@ -592,6 +592,25 @@ function displayPropertiesTable(properties) {
     `;
     
     container.innerHTML = table;
+    
+    // Add event delegation for edit and delete buttons
+    container.querySelectorAll('.property-edit-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const propertyId = btn.getAttribute('data-property-id');
+            const property = properties.find(p => p.id === propertyId);
+            if (property) {
+                editProperty(property);
+            }
+        });
+    });
+    
+    container.querySelectorAll('.property-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const propertyId = btn.getAttribute('data-property-id');
+            const propertyName = btn.getAttribute('data-property-name');
+            deleteProperty(propertyId, propertyName);
+        });
+    });
 }
 
 function openPropertyModal() {
