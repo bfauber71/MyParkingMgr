@@ -893,16 +893,14 @@ function clearUserSearch() {
     console.log('=== CLEAR USER SEARCH DEBUG ===');
     document.getElementById('userSearchInput').value = '';
     console.log('Search input cleared');
-    console.log('allUsers state:', allUsers ? allUsers.length + ' users' : 'null/undefined');
+    console.log('Previous allUsers state:', allUsers ? allUsers.length + ' users' : 'null/undefined');
     
-    if (allUsers && allUsers.length > 0) {
-        console.log('Displaying all', allUsers.length, 'users');
-        displayUsersTable(allUsers);
-    } else {
-        console.log('No users loaded, showing initial message');
-        const container = document.getElementById('usersResults');
-        container.innerHTML = '<div class="no-results">Click "Show All" to display users or use the search bar to find specific users.</div>';
-    }
+    // Clear the loaded users and hide results
+    allUsers = [];
+    console.log('allUsers array cleared, results hidden');
+    
+    const container = document.getElementById('usersResults');
+    container.innerHTML = '<div class="no-results">Click "Show All" to display users or use the search bar to find specific users.</div>';
 }
 
 function displayUsersTable(users) {
