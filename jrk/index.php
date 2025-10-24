@@ -111,11 +111,25 @@ $router->get('/.*', function() use ($config) {
         exit;
     }
     
-    // Serve index.html for all other routes
+    // Serve index.html for all other routes with injected config
     $indexFile = __DIR__ . '/public/index.html';
     if (file_exists($indexFile)) {
         header('Content-Type: text/html');
-        readfile($indexFile);
+        $html = file_get_contents($indexFile);
+        
+        // Inject config into HTML as script variable
+        $configScript = sprintf(
+            '<script>window.APP_CONFIG = %s;</script>',
+            json_encode([
+                'basePath' => $config['base_path'],
+                'appName' => $config['app_name']
+            ])
+        );
+        
+        // Insert before closing </head> tag
+        $html = str_replace('</head>', $configScript . "\n</head>", $html);
+        
+        echo $html;
     } else {
         jsonResponse(['error' => 'Application not found. Please run frontend build.'], 404);
     }

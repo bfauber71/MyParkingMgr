@@ -1,21 +1,21 @@
 <?php
 /**
- * MyParkingManager Configuration
- * Edit these settings for your hosting environment
+ * MyParkingManager Configuration Sample
+ * Copy this file to config.php and update with your settings
  * OR use setup.php for guided configuration
  */
 
 return [
     // Application Settings
     'app_name' => 'MyParkingManager',
-    'app_url' => 'https://2clv.com/jrk',  // Full URL to your application
-    'base_path' => '/jrk',  // Subdirectory path or empty string for root
+    'app_url' => 'https://yourdomain.com/path',  // Full URL to your application
+    'base_path' => '/path',  // Subdirectory path (e.g., /jrk) or empty string for root
     
     // Database Configuration
     'db' => [
         'host' => 'localhost',
         'port' => '3306',
-        'database' => 'myparkingmanager',
+        'database' => 'your_database_name',
         'username' => 'your_db_username',
         'password' => 'your_db_password',
         'charset' => 'utf8mb4',

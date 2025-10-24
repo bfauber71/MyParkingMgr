@@ -1,12 +1,22 @@
 // MyParkingManager - Frontend Application
 
-// Auto-detect API base path from current pathname
-const basePath = window.location.pathname.startsWith('/jrk') ? '/jrk' : '';
+// Get base path from server-injected config (fallback to auto-detection for development)
+const basePath = (window.APP_CONFIG && window.APP_CONFIG.basePath) 
+    ? window.APP_CONFIG.basePath 
+    : (window.location.pathname.startsWith('/jrk') ? '/jrk' : '');
 const API_BASE = `${basePath}/api`;
 let currentUser = null;
 let properties = [];
 let currentSection = 'vehicles';
 let allUsers = [];
+
+// Log configuration for debugging
+console.log('App Configuration:', {
+    basePath: basePath,
+    apiBase: API_BASE,
+    appName: window.APP_CONFIG ? window.APP_CONFIG.appName : 'Unknown',
+    configSource: window.APP_CONFIG ? 'Server' : 'Auto-detected'
+});
 
 // Toast Notification System
 function showToast(message, type = 'info', autoClose = true) {
