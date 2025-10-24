@@ -837,14 +837,17 @@ async function filterUsers() {
     // If no users loaded yet, load them first
     if (!allUsers || allUsers.length === 0) {
         await showAllUsers();
-        if (!searchQuery) return;
     }
     
+    // If no search query after loading, show all users
     if (!searchQuery) {
-        displayUsersTable(allUsers);
+        if (allUsers && allUsers.length > 0) {
+            displayUsersTable(allUsers);
+        }
         return;
     }
     
+    // Filter users based on search query
     const filtered = allUsers.filter(user => {
         return (
             user.username.toLowerCase().includes(searchQuery) ||
