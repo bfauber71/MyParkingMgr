@@ -43,7 +43,7 @@ $sql = "SELECT
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN users u ON vt.created_by = u.id
-WHERE v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
+WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))";
 
 $params = $propertyNames;
 
