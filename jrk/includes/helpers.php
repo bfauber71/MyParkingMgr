@@ -14,11 +14,17 @@ function jsonResponse($data, $status = 200) {
 }
 
 /**
- * Get request input as JSON
+ * Get request input as JSON (with caching to prevent body consumption)
  */
 function getJsonInput() {
-    $input = file_get_contents('php://input');
-    return json_decode($input, true) ?: [];
+    static $cachedInput = null;
+    
+    if ($cachedInput === null) {
+        $input = file_get_contents('php://input');
+        $cachedInput = json_decode($input, true) ?: [];
+    }
+    
+    return $cachedInput;
 }
 
 /**
