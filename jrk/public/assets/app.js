@@ -417,7 +417,8 @@ function switchTab(tabName) {
             loadVehiclesSection();
         } else if (tabName === 'properties') {
             loadPropertiesSection();
-        } else if (tabName === 'users') {
+        } else if (tabName === 'database') {
+            console.log('Loading database tab - initializing user management');
             loadUsersSection();
         } else if (tabName === 'violations') {
             loadViolationsManagementSection();
