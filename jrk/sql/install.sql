@@ -214,17 +214,19 @@ CREATE TABLE sessions (
 -- SEED DATA
 -- ============================================
 
--- Insert Admin User (password: admin123)
-INSERT INTO users (id, username, password, role) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
-
--- Insert Admin User Permissions (All permissions enabled)
-INSERT INTO user_permissions (id, user_id, module, can_view, can_edit, can_create_delete) VALUES
-('990e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440000', 'vehicles', TRUE, TRUE, TRUE),
-('990e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440000', 'users', TRUE, TRUE, TRUE),
-('990e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440000', 'properties', TRUE, TRUE, TRUE),
-('990e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440000', 'violations', TRUE, TRUE, TRUE),
-('990e8400-e29b-41d4-a716-446655440005', '550e8400-e29b-41d4-a716-446655440000', 'database', TRUE, TRUE, TRUE);
+-- SECURITY NOTE: No default admin user is created for security reasons.
+-- Please create your first admin user through the application's setup process
+-- or use the following template with a STRONG, UNIQUE password:
+--
+-- INSERT INTO users (id, username, password, role) VALUES
+-- (UUID(), 'your_admin_username', '$2y$10$YourBcryptHashHere', 'admin');
+--
+-- INSERT INTO user_permissions (id, user_id, module, can_view, can_edit, can_create_delete) VALUES
+-- (UUID(), 'user_id_from_above', 'vehicles', TRUE, TRUE, TRUE),
+-- (UUID(), 'user_id_from_above', 'users', TRUE, TRUE, TRUE),
+-- (UUID(), 'user_id_from_above', 'properties', TRUE, TRUE, TRUE),
+-- (UUID(), 'user_id_from_above', 'violations', TRUE, TRUE, TRUE),
+-- (UUID(), 'user_id_from_above', 'database', TRUE, TRUE, TRUE);
 
 -- Insert Sample Properties
 INSERT INTO properties (id, name, address) VALUES
