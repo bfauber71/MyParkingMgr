@@ -796,11 +796,14 @@ async function loadUsersSection() {
 }
 
 async function showAllUsers() {
+    console.log('=== SHOW ALL USERS DEBUG ===');
     const container = document.getElementById('usersResults');
     container.innerHTML = '<div class="no-results">Loading users...</div>';
     
     // DEMO MODE: Show sample users without database
     const isDemo = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+    console.log('Demo mode:', isDemo, 'Hostname:', window.location.hostname);
+    
     if (isDemo) {
         const demoUsers = [
             { id: 1, username: 'admin', email: 'admin@example.com', role: 'Admin', created_at: '2024-01-01' },
@@ -808,78 +811,119 @@ async function showAllUsers() {
             { id: 3, username: 'viewer', email: 'viewer@example.com', role: 'Operator', created_at: '2024-03-20' }
         ];
         allUsers = demoUsers;
+        console.log('Demo users loaded:', allUsers.length, 'users');
         displayUsersTable(demoUsers);
         return;
     }
     
     // PRODUCTION MODE: Fetch from API
+    console.log('Production mode: Fetching from API:', `${API_BASE}/users-list`);
     try {
         const response = await fetch(`${API_BASE}/users-list`, {
             credentials: 'include'
         });
         
+        console.log('API Response status:', response.status, 'OK:', response.ok);
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('API Response data:', data);
             allUsers = data.users;
+            console.log('Users loaded into allUsers:', allUsers.length, 'users');
+            console.log('First user:', allUsers[0]);
             displayUsersTable(allUsers);
         } else {
-            container.innerHTML = '<div class="no-results">Failed to load users. Please try again.</div>';
+            const errorText = await response.text();
+            console.error('API Error Response:', response.status, errorText);
+            container.innerHTML = '<div class="no-results">Failed to load users (Status: ' + response.status + '). Check console for details.</div>';
         }
     } catch (error) {
-        console.error('Error loading users:', error);
-        container.innerHTML = '<div class="no-results">Network error. Please try again.</div>';
+        console.error('Network error loading users:', error);
+        container.innerHTML = '<div class="no-results">Network error: ' + error.message + '</div>';
     }
 }
 
 async function filterUsers() {
+    console.log('=== FILTER USERS DEBUG ===');
     const searchQuery = document.getElementById('userSearchInput').value.toLowerCase().trim();
+    console.log('Search query:', searchQuery);
+    console.log('allUsers state - exists:', !!allUsers, 'length:', allUsers ? allUsers.length : 0);
     
     // If no users loaded yet, load them first
     if (!allUsers || allUsers.length === 0) {
+        console.log('No users loaded, calling showAllUsers()...');
         await showAllUsers();
+        console.log('After showAllUsers - allUsers length:', allUsers ? allUsers.length : 0);
     }
     
     // If no search query after loading, show all users
     if (!searchQuery) {
+        console.log('No search query, showing all users');
         if (allUsers && allUsers.length > 0) {
+            console.log('Displaying all', allUsers.length, 'users');
             displayUsersTable(allUsers);
+        } else {
+            console.log('No users to display');
         }
         return;
     }
     
     // Filter users based on search query
+    console.log('Filtering users with query:', searchQuery);
     const filtered = allUsers.filter(user => {
-        return (
-            user.username.toLowerCase().includes(searchQuery) ||
-            (user.email && user.email.toLowerCase().includes(searchQuery)) ||
-            user.role.toLowerCase().includes(searchQuery) ||
-            (user.full_name && user.full_name.toLowerCase().includes(searchQuery))
-        );
+        const matchUsername = user.username.toLowerCase().includes(searchQuery);
+        const matchEmail = user.email && user.email.toLowerCase().includes(searchQuery);
+        const matchRole = user.role.toLowerCase().includes(searchQuery);
+        const matchFullName = user.full_name && user.full_name.toLowerCase().includes(searchQuery);
+        const matches = matchUsername || matchEmail || matchRole || matchFullName;
+        
+        if (matches) {
+            console.log('Match found:', user.username, '- username:', matchUsername, 'email:', matchEmail, 'role:', matchRole, 'fullname:', matchFullName);
+        }
+        
+        return matches;
     });
     
+    console.log('Filtered results:', filtered.length, 'out of', allUsers.length, 'users');
     displayUsersTable(filtered);
 }
 
 function clearUserSearch() {
+    console.log('=== CLEAR USER SEARCH DEBUG ===');
     document.getElementById('userSearchInput').value = '';
+    console.log('Search input cleared');
+    console.log('allUsers state:', allUsers ? allUsers.length + ' users' : 'null/undefined');
+    
     if (allUsers && allUsers.length > 0) {
+        console.log('Displaying all', allUsers.length, 'users');
         displayUsersTable(allUsers);
     } else {
+        console.log('No users loaded, showing initial message');
         const container = document.getElementById('usersResults');
         container.innerHTML = '<div class="no-results">Click "Show All" to display users or use the search bar to find specific users.</div>';
     }
 }
 
 function displayUsersTable(users) {
+    console.log('=== DISPLAY USERS TABLE DEBUG ===');
+    console.log('Displaying', users.length, 'users');
     const container = document.getElementById('usersResults');
     
     if (users.length === 0) {
+        console.log('No users to display');
         container.innerHTML = '<div class="no-results">No users found</div>';
         return;
     }
     
+    console.log('Sample user data:', users[0]);
+    
     const table = `
         <div class="data-table">
+            <div style="background: #2a2a2a; padding: 10px; margin-bottom: 10px; font-size: 12px; color: #4a90e2;">
+                <strong>DEBUG INFO:</strong> Displaying ${users.length} user(s) | 
+                Total loaded: ${allUsers ? allUsers.length : 0} | 
+                <span id="debugTimestamp">${new Date().toLocaleTimeString()}</span>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -911,6 +955,7 @@ function displayUsersTable(users) {
     `;
     
     container.innerHTML = table;
+    console.log('Table HTML rendered successfully');
 }
 
 // Permission Matrix Functions
