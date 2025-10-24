@@ -20,8 +20,13 @@ $searchQuery = $input['query'] ?? '';
 $accessibleProperties = getAccessibleProperties();
 $propertyNames = array_column($accessibleProperties, 'name');
 
+// Debug logging
+error_log("Violation Search - Accessible properties: " . json_encode($propertyNames));
+error_log("Violation Search - Filters: start_date=$startDate, end_date=$endDate, property=$property, violation_type=$violationType, query=$searchQuery");
+
 if (empty($propertyNames)) {
-    jsonResponse(['violations' => [], 'total' => 0]);
+    error_log("Violation Search - No accessible properties found, returning empty results");
+    jsonResponse(['violations' => [], 'total' => 0, 'debug' => 'No accessible properties']);
 }
 
 // Build SQL query
@@ -85,8 +90,14 @@ if ($searchQuery) {
 
 $sql .= " ORDER BY vt.created_at DESC LIMIT 500";
 
+// Debug logging
+error_log("Violation Search - SQL: " . $sql);
+error_log("Violation Search - Params: " . json_encode($params));
+
 try {
     $violations = Database::query($sql, $params);
+    
+    error_log("Violation Search - Found " . count($violations) . " violations");
     
     // Parse violation types JSON for each record
     foreach ($violations as &$violation) {
@@ -100,5 +111,6 @@ try {
     ]);
 } catch (Exception $e) {
     error_log("Violation search error: " . $e->getMessage());
-    jsonResponse(['error' => 'Failed to search violations'], 500);
+    error_log("Violation search SQL: " . $sql);
+    jsonResponse(['error' => 'Failed to search violations: ' . $e->getMessage()], 500);
 }

@@ -20,7 +20,11 @@ $searchQuery = $input['query'] ?? '';
 $accessibleProperties = getAccessibleProperties();
 $propertyNames = array_column($accessibleProperties, 'name');
 
+// Debug logging
+error_log("Violation Export - Accessible properties: " . json_encode($propertyNames));
+
 if (empty($propertyNames)) {
+    error_log("Violation Export - No accessible properties found");
     jsonResponse(['error' => 'No accessible properties'], 403);
 }
 
@@ -80,8 +84,14 @@ if ($searchQuery) {
 
 $sql .= " ORDER BY vt.created_at DESC LIMIT 10000";
 
+// Debug logging
+error_log("Violation Export - SQL: " . $sql);
+error_log("Violation Export - Params: " . json_encode($params));
+
 try {
     $violations = Database::query($sql, $params);
+    
+    error_log("Violation Export - Found " . count($violations) . " violations to export");
     
     // Generate CSV
     $filename = 'violations_' . date('Y-m-d_His') . '.csv';
