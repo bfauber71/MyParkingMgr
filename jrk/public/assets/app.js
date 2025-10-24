@@ -40,7 +40,7 @@ function showToast(message, type = 'info', autoClose = true) {
     
     toast.innerHTML = `
         <span class="toast-icon">${icons[type] || icons.info}</span>
-        <span class="toast-message">${message}</span>
+        <span class="toast-message">${escapeHtml(message)}</span>
         <button class="toast-close" aria-label="Close">×</button>
     `;
     
