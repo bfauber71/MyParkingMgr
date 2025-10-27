@@ -128,16 +128,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     // Test database connection
     if (empty($errors)) {
         try {
+            // Check if PDO MySQL extension is available
+            if (!extension_loaded('pdo_mysql')) {
+                throw new Exception('PDO MySQL extension is not installed. Please install php-mysql or php-pdo_mysql.');
+            }
+            
             $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
             $testPdo = new PDO($dsn, $dbUser, $dbPass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_TIMEOUT => 5
             ]);
             
             // Test a simple query
             $testPdo->query('SELECT 1');
             
-            // Connection successful, write config file
+            // Connection successful, now write config file
             $configContent = '<?php
 /**
  * MyParkingManager Configuration
@@ -187,7 +193,26 @@ return [
             }
             
         } catch (PDOException $e) {
-            $errors[] = 'Database connection failed: ' . $e->getMessage();
+            // Handle PDO-specific errors with user-friendly messages
+            $errorMsg = 'Database connection failed: ';
+            
+            if (strpos($e->getMessage(), 'Access denied') !== false) {
+                $errorMsg .= 'Invalid username or password';
+            } elseif (strpos($e->getMessage(), 'Unknown database') !== false) {
+                $errorMsg .= "Database '{$dbName}' does not exist. Please create it first.";
+            } elseif (strpos($e->getMessage(), 'Connection refused') !== false) {
+                $errorMsg .= "Cannot connect to MySQL server at {$dbHost}:{$dbPort}. Please check host and port.";
+            } elseif (strpos($e->getMessage(), 'No such host') !== false || strpos($e->getMessage(), 'getaddrinfo failed') !== false) {
+                $errorMsg .= "Unknown host: {$dbHost}. Please check the hostname.";
+            } elseif (strpos($e->getMessage(), 'driver not found') !== false) {
+                $errorMsg .= 'PDO MySQL driver not installed on server';
+            } else {
+                $errorMsg .= preg_replace('/\[.*?\]/', '', $e->getMessage());
+            }
+            
+            $errors[] = $errorMsg;
+        } catch (Exception $e) {
+            $errors[] = $e->getMessage();
         }
     }
 }
