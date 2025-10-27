@@ -8,6 +8,42 @@ The system is built to handle multiple properties, track vehicles and violations
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.2 Quick Ticket Creation & Reprint Features
+
+**Create Ticket from Vehicle Search:**
+- "Create Ticket" button added to all vehicle search results
+- Opens modal with vehicle information pre-filled
+- Loads active violation types with fine amounts and tow deadlines
+- Allows selecting multiple violations or entering custom notes
+- Creates ticket via violations-create API endpoint
+- Prompts to print ticket immediately after creation
+- Refreshes vehicle list automatically
+
+**Reprint Ticket from Violation Search:**
+- "Actions" column added to violation search results table
+- "Reprint Ticket" button appears for violations with ticket_id
+- Opens violations-print.html with ticket ID for reprinting
+- One-click access to existing violation tickets
+
+**New Functions (2):**
+- openCreateTicketModal(vehicle) - Displays violation selection modal
+- handleCreateViolation(event) - Processes ticket creation and printing
+
+**Bug Fix:**
+- Fixed handleViolationTypeSubmit() to use /violations-add (was using /violations-create)
+- Resolved API endpoint conflict between types and tickets
+
+**Enhanced Styling:**
+- Added .violation-checkboxes with scrollable list styling
+- Added .violation-checkbox-item with hover effects
+- Added .violation-vehicle-info highlight box
+
+**File Stats:**
+- app-secure.js: 2,129 lines, 66 functions (was 64)
+- index.html: 659 lines (unchanged, modal already existed)
+- style.css: 1,304 lines (added 46 lines for styling)
+- Total: 151 new lines of functionality
+
 ### October 27, 2025 - v2.3.1 Print Functionality & Settings Page
 
 **Print Functionality Implementation:**
