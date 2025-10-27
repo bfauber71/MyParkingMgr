@@ -8,37 +8,47 @@ The system is built to handle multiple properties, track vehicles and violations
 
 ## Recent Changes
 
-### October 27, 2025 - v2.3.0 Database & Violations Page Fixes
+### October 27, 2025 - v2.3.0 Complete Functionality Fixes
 
-**✅ VIOLATIONS PAGE NOW FULLY FUNCTIONAL**
-- Added complete violations display with table rendering
-- "Add Violation" button now opens modal correctly
-- Edit/Delete buttons functional with confirmation dialogs
-- Form submission handler saves violation types (create/update)
-- Empty state message when no violations exist
-- Success/error toast notifications
-- Automatic list refresh after changes
+**✅ ALL 7 REPORTED ISSUES RESOLVED**
 
-**✅ DATABASE PAGE - ALL 7 BUTTONS NOW WORKING**
-- Import/Export buttons functional (CSV upload/download)
-- Bulk Delete button deletes all vehicles for selected property
-- Find Duplicates button searches by plate/tag number
-- Violation Search button with advanced filters (date, property, type, query)
-- Violation Export button downloads CSV
-- Violation Print button (placeholder - coming soon)
-- All buttons properly wired with event handlers
+**Violation Modal Fixes:**
+- Added Fine Amount ($) input field with decimal support
+- Added Towing Deadline (hours) input field
+- Fields populate correctly when editing violations
+- Form submission includes both fields in API calls
 
-**NEW FUNCTIONS ADDED (15):**
-- loadViolations(), displayViolations(), openViolationTypeModal()
-- editViolationType(), deleteViolationType(), handleViolationTypeSubmit()
-- setupDatabasePageHandlers() - connects all database buttons
-- handleImportFile(), handleExportVehicles(), handleBulkDelete()
-- handleFindDuplicates(), handleViolationSearch(), displayViolationSearchResults()
-- handleViolationPrint(), handleViolationExport()
+**User Edit Button Fix:**
+- Fixed field ID mismatch (userName → userUsername)
+- Edit button now opens modal with populated user data
+- All user fields display correctly when editing
+
+**Database Page Dropdown Fixes:**
+- Bulk Delete property dropdown now populates with all properties
+- Violation Search property filter now populates automatically
+- Violation Search type filter now populates with violation types
+- All dropdowns loaded when Database page opens
+
+**Search UX Improvements:**
+- Added Clear button to Find Duplicates section
+- Added Clear button to Violation Search section
+- Clear buttons reset all filters and results
+- Toast notifications confirm actions
+
+**NEW FUNCTIONS ADDED (3):**
+- populateDatabaseDropdowns() - Fetches and populates all dropdowns
+- handleClearViolationSearch() - Clears all search filters and results
+- handleClearDuplicates() - Clears duplicate search results
+
+**UPDATED FUNCTIONS (3):**
+- openViolationTypeModal() - Now populates fine_amount and tow_deadline_hours
+- handleViolationTypeSubmit() - Includes fine/tow fields in form data
+- setupDatabasePageHandlers() - Now async, calls dropdown population
 
 **FILE STATS:**
-- app-secure.js: 1,702 lines (was 1,237) - 60 functions total
-- Added 465+ lines of new functionality
+- app-secure.js: 1,817 lines (was 1,702) - 63 functions total (was 60)
+- index.html: 610 lines (updated with new fields and buttons)
+- Added 115+ lines of new functionality
 - Update package: 20 KB (6 files)
 
 **Previous Updates:**
