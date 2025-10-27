@@ -12,7 +12,7 @@ $db = Database::getInstance();
 
 try {
     $stmt = $db->prepare("
-        SELECT id, name, is_active, display_order
+        SELECT id, name, fine_amount, tow_deadline_hours, is_active, display_order
         FROM violations
         ORDER BY display_order ASC, name ASC
     ");
@@ -21,6 +21,8 @@ try {
     
     foreach ($violations as &$violation) {
         $violation['is_active'] = (bool)$violation['is_active'];
+        $violation['fine_amount'] = $violation['fine_amount'] !== null ? (float)$violation['fine_amount'] : null;
+        $violation['tow_deadline_hours'] = $violation['tow_deadline_hours'] !== null ? (int)$violation['tow_deadline_hours'] : null;
     }
     
     echo json_encode(['violations' => $violations]);
