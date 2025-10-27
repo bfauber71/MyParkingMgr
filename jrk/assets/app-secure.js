@@ -917,7 +917,7 @@ async function populateDatabaseDropdowns() {
                 bulkDeleteProperty.innerHTML = '<option value="">Select Property</option>';
                 properties.forEach(property => {
                     const option = document.createElement('option');
-                    option.value = property.id;
+                    option.value = property.name;
                     option.textContent = property.name;
                     bulkDeleteProperty.appendChild(option);
                 });
