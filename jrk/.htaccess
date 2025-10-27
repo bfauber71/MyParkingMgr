@@ -1,9 +1,13 @@
 # ManageMyParking - Apache Configuration
 # This file enables URL rewriting for the application
+# 
+# IMPORTANT: If installing in a subdirectory (not root), change RewriteBase
+# Example: RewriteBase /myapp/  (for https://yourdomain.com/myapp/)
+# For root installation: RewriteBase /
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /jrk/
+    RewriteBase /
     
     # Redirect to HTTPS (uncomment after SSL is configured)
     # RewriteCond %{HTTPS} off

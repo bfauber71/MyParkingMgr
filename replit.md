@@ -48,8 +48,10 @@ The system is built to handle multiple properties, track vehicles and violations
 - All tabs and data loading functional
 
 **Additional Fixes:**
+- Fixed .htaccess RewriteBase path (was /jrk/, now / for root installation)
 - Fixed infinite redirect loop in .htaccess causing 500 errors
 - Added api/csrf-token.php endpoint for CSRF token generation
+- Added clear documentation in .htaccess for subdirectory installations
 - Endpoint whitelist in database.php for setup wizard compatibility
 - Complete path handling for any installation directory
 - Cleaned up all outdated deployment packages and temporary files
