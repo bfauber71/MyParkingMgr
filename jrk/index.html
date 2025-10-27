@@ -114,7 +114,7 @@
                     <!-- Settings Sub-tabs -->
                     <div class="settings-tabs">
                         <button class="settings-tab-btn active" data-settings-tab="users">👥 Users</button>
-                        <button class="settings-tab-btn" data-settings-tab="violations-types">🎫 Violation Types</button>
+                        <button class="settings-tab-btn" data-settings-tab="violations">🎫 Violations</button>
                         <button class="settings-tab-btn" data-settings-tab="database-ops">🗄️ Database Operations</button>
                         <button class="settings-tab-btn" data-settings-tab="printer">🖨️ Printer Settings</button>
                     </div>
@@ -140,8 +140,9 @@
                         </div>
                     </div>
 
-                    <!-- Violation Types Sub-section -->
-                    <div id="settingsViolationsTypesTab" class="settings-tab-content">
+                    <!-- Violations Sub-section -->
+                    <div id="settingsViolationsTab" class="settings-tab-content">
+                        <!-- Violation Types Management -->
                         <div class="database-subsection">
                             <div class="subsection-header">
                                 <h3>Violation Types</h3>
@@ -152,56 +153,8 @@
 
                             <div id="violationsResults"></div>
                         </div>
-                    </div>
 
-                    <!-- Database Operations Sub-section -->
-                    <div id="settingsDatabaseOpsTab" class="settings-tab-content">
-                        <!-- CSV Operations -->
-                        <div class="database-subsection">
-                            <div class="subsection-header">
-                                <h3>CSV Operations</h3>
-                                <div class="header-actions">
-                                    <button id="importBtn" class="btn btn-secondary">Import Vehicles CSV</button>
-                                    <button id="exportBtn" class="btn btn-secondary">Export Vehicles CSV</button>
-                                </div>
-                            </div>
-                            <input type="file" id="importFileInput" accept=".csv" style="display: none;">
-                            <p class="help-text">Import or export vehicle data in CSV format for bulk operations.</p>
-                        </div>
-
-                        <!-- Bulk Operations -->
-                        <div class="database-subsection">
-                            <div class="subsection-header">
-                                <h3>Bulk Operations</h3>
-                            </div>
-                            
-                            <div class="bulk-operation-card">
-                                <h4>Delete Vehicles by Property</h4>
-                                <p class="help-text">Remove all vehicles assigned to a specific property.</p>
-                                <div class="form-inline">
-                                    <select id="bulkDeleteProperty" class="form-control">
-                                        <option value="">Select Property</option>
-                                    </select>
-                                    <button id="bulkDeleteBtn" class="btn btn-danger">Delete All Vehicles</button>
-                                </div>
-                            </div>
-
-                            <div class="bulk-operation-card">
-                                <h4>Find and Remove Duplicates</h4>
-                                <p class="help-text">Search for duplicate vehicles based on plate number or tag number.</p>
-                                <div class="form-inline">
-                                    <select id="duplicateCriteria" class="form-control">
-                                        <option value="plate">Plate Number</option>
-                                        <option value="tag">Tag Number</option>
-                                    </select>
-                                    <button id="findDuplicatesBtn" class="btn btn-secondary">Find Duplicates</button>
-                                    <button id="clearDuplicatesBtn" class="btn btn-secondary">Clear</button>
-                                </div>
-                                <div id="duplicatesResults" style="margin-top: 15px;"></div>
-                            </div>
-                        </div>
-
-                        <!-- Violation Search -->
+                        <!-- Violation Search & Reports -->
                         <div class="database-subsection">
                             <div class="subsection-header">
                                 <h3>Violation Search & Reports</h3>
@@ -251,6 +204,54 @@
                                 </div>
 
                                 <div id="violationSearchResults" style="margin-top: 20px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Operations Sub-section -->
+                    <div id="settingsDatabaseOpsTab" class="settings-tab-content">
+                        <!-- CSV Operations -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>CSV Operations</h3>
+                                <div class="header-actions">
+                                    <button id="importBtn" class="btn btn-secondary">Import Vehicles CSV</button>
+                                    <button id="exportBtn" class="btn btn-secondary">Export Vehicles CSV</button>
+                                </div>
+                            </div>
+                            <input type="file" id="importFileInput" accept=".csv" style="display: none;">
+                            <p class="help-text">Import or export vehicle data in CSV format for bulk operations.</p>
+                        </div>
+
+                        <!-- Bulk Operations -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Bulk Operations</h3>
+                            </div>
+                            
+                            <div class="bulk-operation-card">
+                                <h4>Delete Vehicles by Property</h4>
+                                <p class="help-text">Remove all vehicles assigned to a specific property.</p>
+                                <div class="form-inline">
+                                    <select id="bulkDeleteProperty" class="form-control">
+                                        <option value="">Select Property</option>
+                                    </select>
+                                    <button id="bulkDeleteBtn" class="btn btn-danger">Delete All Vehicles</button>
+                                </div>
+                            </div>
+
+                            <div class="bulk-operation-card">
+                                <h4>Find and Remove Duplicates</h4>
+                                <p class="help-text">Search for duplicate vehicles based on plate number or tag number.</p>
+                                <div class="form-inline">
+                                    <select id="duplicateCriteria" class="form-control">
+                                        <option value="plate">Plate Number</option>
+                                        <option value="tag">Tag Number</option>
+                                    </select>
+                                    <button id="findDuplicatesBtn" class="btn btn-secondary">Find Duplicates</button>
+                                    <button id="clearDuplicatesBtn" class="btn btn-secondary">Clear</button>
+                                </div>
+                                <div id="duplicatesResults" style="margin-top: 15px;"></div>
                             </div>
                         </div>
                     </div>

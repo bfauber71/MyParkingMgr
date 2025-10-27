@@ -542,10 +542,10 @@ function switchTab(tabName) {
             switchTab('settings');
             switchSettingsTab('users');
         } else if (tabName === 'violations') {
-            // Redirect to settings > violation types
-            secureLog('Violations tab accessed - redirecting to settings > violations-types');
+            // Redirect to settings > violations
+            secureLog('Violations tab accessed - redirecting to settings > violations');
             switchTab('settings');
-            switchSettingsTab('violations-types');
+            switchSettingsTab('violations');
         } else if (tabName === 'settings') {
             loadSettingsSection();
         }
@@ -573,7 +573,7 @@ function switchSettingsTab(subTabName) {
     // Fix ID mapping for camelCase
     const contentMap = {
         'users': 'settingsUsersTab',
-        'violations-types': 'settingsViolationsTypesTab',
+        'violations': 'settingsViolationsTab',
         'database-ops': 'settingsDatabaseOpsTab',
         'printer': 'settingsPrinterTab'
     };
@@ -593,7 +593,7 @@ function switchSettingsTab(subTabName) {
     // Load sub-tab specific data
     if (subTabName === 'users') {
         loadUsersSection();
-    } else if (subTabName === 'violations-types') {
+    } else if (subTabName === 'violations') {
         loadViolationsManagementSection();
     }
 }
