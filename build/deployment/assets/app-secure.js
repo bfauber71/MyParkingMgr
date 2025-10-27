@@ -1847,18 +1847,26 @@ async function loadSettingsSection() {
 
 async function loadViolations() {
     try {
+        console.log('loadViolations: Starting to load violations...');
         const response = await secureApiCall(`${API_BASE}/violations-list`, {
             method: 'GET'
         });
         
+        console.log('loadViolations: Response status:', response.status, 'OK:', response.ok);
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('loadViolations: Received data:', data);
+            console.log('loadViolations: Violations count:', (data.violations || []).length);
             displayViolations(data.violations || []);
         } else {
+            console.error('loadViolations: Failed with status', response.status);
+            const errorText = await response.text();
+            console.error('loadViolations: Error response:', errorText);
             showToast('Failed to load violations', 'error');
         }
     } catch (error) {
-        console.error('Error loading violations:', error);
+        console.error('loadViolations: Exception caught:', error);
         showToast('Error loading violations', 'error');
     }
 }
