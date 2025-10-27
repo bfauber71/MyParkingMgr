@@ -5,6 +5,12 @@
  * Requires: database module with create_delete permission
  */
 
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+Session::start();
+
 requirePermission(MODULE_DATABASE, ACTION_CREATE_DELETE);
 
 $data = getJsonInput();
