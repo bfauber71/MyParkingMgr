@@ -1896,6 +1896,25 @@ async function handleCreateViolation(event) {
         return;
     }
     
+    // Build list of selected violations for confirmation
+    const violationNames = Array.from(checkboxes).map(cb => {
+        const label = cb.closest('label');
+        return label ? label.textContent.trim() : 'Unknown';
+    });
+    
+    let confirmMessage = 'Create violation ticket with the following violations?\n\n';
+    violationNames.forEach(name => {
+        confirmMessage += '• ' + name + '\n';
+    });
+    if (customNote.trim()) {
+        confirmMessage += '\nCustom Note: ' + customNote.trim();
+    }
+    
+    // Ask for confirmation before creating
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
     const requestData = {
         vehicleId: vehicleId,
         violations: violationIds,

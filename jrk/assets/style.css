@@ -722,42 +722,47 @@ body {
 /* Violation Modal Styles */
 .violation-vehicle-info {
     background: #1e293b;
-    padding: 12px;
-    border-radius: 4px;
+    padding: 14px;
+    border-radius: 6px;
     margin-bottom: 16px;
-    font-size: 15px;
-    color: #f1f5f9;
-    font-weight: 500;
-    border-left: 3px solid #3b82f6;
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    border: 2px solid #3b82f6;
+    line-height: 1.6;
 }
 
 .violation-checkboxes {
     max-height: 250px;
     overflow-y: auto;
-    border: 2px solid #475569;
-    border-radius: 4px;
-    padding: 12px;
-    background: #1e293b;
+    border: 2px solid #64748b;
+    border-radius: 6px;
+    padding: 16px;
+    background: #0f172a;
 }
 
 .checkbox-item {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .checkbox-item label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 4px;
+    padding: 10px 12px;
+    border-radius: 6px;
     transition: background 0.2s;
-    min-height: 28px;
-    color: #f1f5f9;
-    font-size: 14px;
+    min-height: 36px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    background: #1e293b;
+    border: 1px solid #334155;
 }
 
 .checkbox-item label:hover {
     background: #334155;
+    border-color: #475569;
 }
 
 .checkbox-item input[type="checkbox"] {
