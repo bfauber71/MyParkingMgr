@@ -1,0 +1,46 @@
+# MyParkingManager v2.3.3 - Security Configuration
+
+## HTTPS Enforcement
+
+### Production Deployment ✅
+The .htaccess file in the deployment package **ENFORCES HTTPS** for security:
+```apache
+# Redirect to HTTPS (REQUIRED for production security)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+```
+
+**This means:**
+- All HTTP requests are automatically redirected to HTTPS
+- Session cookies are sent over encrypted connections only
+- Protects user credentials and sensitive data
+- Meets security best practices for web applications
+
+### SSL Certificate Required
+Before deploying, ensure your hosting provider has:
+- ✅ Valid SSL/TLS certificate installed
+- ✅ HTTPS enabled on your domain
+- ✅ Port 443 (HTTPS) accessible
+
+Most shared hosting providers (cPanel, Plesk, etc.) offer free SSL certificates via Let's Encrypt.
+
+### Development Environment
+The development environment (Replit) has HTTPS redirect disabled to allow local testing over HTTP.
+
+## Security Headers
+
+The .htaccess also includes these security headers:
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN  
+- X-XSS-Protection: 1; mode=block
+
+## Protected Files
+
+These files are blocked from web access:
+- .htaccess (Apache config)
+- config.php (database credentials)
+- *.sql (database scripts)
+
+---
+
+**Ready for secure production deployment!** 🔒

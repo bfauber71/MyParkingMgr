@@ -14,7 +14,8 @@ mkdir -p "$BUILD_DIR"
 # Copy main application files (excluding dev config)
 echo "Copying application files..."
 cp -r jrk/* "$BUILD_DIR/"
-cp jrk/.htaccess "$BUILD_DIR/"
+# Use production .htaccess with HTTPS enabled
+cp jrk/.htaccess.production "$BUILD_DIR/.htaccess"
 
 # Replace dev config with production template
 echo "Creating production config file..."

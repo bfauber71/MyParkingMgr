@@ -4,6 +4,21 @@
 
 ManageMyParking is a PHP-based vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide comprehensive parking violation tracking, vehicle management, and property administration with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, and detailed audit logging. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations.
 
+## Recent Changes
+
+### October 27, 2025 - Production Security & Deployment Fixes
+- **HTTPS Enforcement:** Production deployment package enforces HTTPS redirect for security
+  - Development .htaccess: HTTPS redirect disabled (for local testing)
+  - Production .htaccess: HTTPS redirect enabled (required for security)
+- **Fixed API 500 Errors:** Violations and license status APIs now working correctly
+- **Deployment Package Fixes:**
+  - .htaccess file now included in deployment package
+  - Removed 14 /tmp debug writes from printer-settings.php (shared hosting incompatible)
+  - Production config.php uses template with placeholders (not hardcoded values)
+  - Trial badge display fixed (JavaScript error handling)
+  - Properties table rendering fixed (appendChild issue)
+  - Violations list loading with detailed error logging
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
