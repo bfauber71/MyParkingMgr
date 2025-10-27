@@ -8,6 +8,26 @@ The system is built to handle multiple properties, track vehicles and violations
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.3 Violation Search Results Fixes
+
+**Violation Search Display Improvements:**
+- Fixed vehicle column to show plate number/tag number with full vehicle description
+- Vehicle format: "ABC123 (2020 Blue Honda Civic)" instead of just tag number
+- Fixed violation column to show actual violation names (was showing "N/A")
+- Fixed property column to show actual property names (was showing "N/A")
+- Added "Reprint Ticket" button to ALL violation search results
+- Reprint button opens violations-print.html with ticket ID
+
+**Technical Fixes:**
+- Corrected field mapping: violation_type → violation_list
+- Corrected field mapping: property_name → property
+- Enhanced vehicle description builder with year, color, make, model
+- Simplified reprint button logic to always display
+
+**File Stats:**
+- app-secure.js: 2,150 lines, 66 functions (was 2,129 lines)
+- Added 21 lines for improved vehicle description display
+
 ### October 27, 2025 - v2.3.2 Quick Ticket Creation & Reprint Features
 
 **Create Ticket from Vehicle Search:**
