@@ -2330,15 +2330,19 @@ async function handleVehicleSubmit(e) {
     const isUpdate = vehicleId && vehicleId !== '';
     
     const formData = {
-        tag_number: form.querySelector('[name="tag_number"]').value,
-        state: form.querySelector('[name="state"]').value,
+        property: form.querySelector('[name="property"]')?.value || '',
+        tagNumber: form.querySelector('[name="tag_number"]')?.value || '',
+        plateNumber: form.querySelector('[name="plate_number"]')?.value || '',
+        state: form.querySelector('[name="state"]')?.value || '',
         make: form.querySelector('[name="make"]')?.value || '',
         model: form.querySelector('[name="model"]')?.value || '',
         color: form.querySelector('[name="color"]')?.value || '',
-        property_id: form.querySelector('[name="property_id"]')?.value || null,
-        resident_name: form.querySelector('[name="resident_name"]')?.value || '',
-        unit_number: form.querySelector('[name="unit_number"]')?.value || '',
-        notes: form.querySelector('[name="notes"]')?.value || ''
+        year: form.querySelector('[name="year"]')?.value || '',
+        aptNumber: form.querySelector('[name="apt_number"]')?.value || '',
+        ownerName: form.querySelector('[name="owner_name"]')?.value || '',
+        ownerPhone: form.querySelector('[name="owner_phone"]')?.value || '',
+        ownerEmail: form.querySelector('[name="owner_email"]')?.value || '',
+        reservedSpace: form.querySelector('[name="reserved_space"]')?.value || ''
     };
     
     if (isUpdate) {
