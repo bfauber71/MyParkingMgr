@@ -151,7 +151,7 @@ body {
 }
 
 .subtitle {
-    color: #94a3b8;
+    color: #cbd5e1;
     margin-bottom: 24px;
     font-size: 14px;
 }
@@ -203,7 +203,7 @@ body {
 }
 
 .contact-section h5 {
-    color: #94a3b8;
+    color: #e2e8f0;
     margin-bottom: 10px;
     font-size: 13px;
     font-weight: 600;
@@ -294,8 +294,28 @@ body {
 .help-text {
     margin-top: 16px;
     font-size: 13px;
-    color: #64748b;
+    color: #cbd5e1;
     text-align: center;
+}
+
+.settings-info {
+    background: #1e293b;
+    border: 2px solid #475569;
+    border-left: 4px solid #3b82f6;
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.settings-info .help-text {
+    color: #e2e8f0;
+    margin-top: 0;
+    text-align: left;
+}
+
+.settings-info strong {
+    color: #93c5fd;
+    font-weight: 600;
 }
 
 /* Navbar - Mobile First */
@@ -701,11 +721,13 @@ body {
 
 /* Violation Modal Styles */
 .violation-vehicle-info {
-    background: #0f172a;
+    background: #1e293b;
     padding: 12px;
     border-radius: 4px;
     margin-bottom: 16px;
     font-size: 14px;
+    color: #e2e8f0;
+    border-left: 3px solid #3b82f6;
 }
 
 .violation-checkboxes {
@@ -1064,6 +1086,7 @@ body {
 
 .database-subsection {
     background: #1e293b;
+    border: 2px solid #334155;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
@@ -1085,8 +1108,8 @@ body {
 }
 
 .bulk-operation-card {
-    background: #0f172a;
-    border: 1px solid #334155;
+    background: #1e293b;
+    border: 2px solid #475569;
     border-radius: 6px;
     padding: 20px;
     margin-bottom: 20px;
@@ -1129,24 +1152,26 @@ body {
 }
 
 .duplicate-group {
-    background: #0f172a;
-    border: 1px solid #ef4444;
+    background: #1e293b;
+    border: 2px solid #ef4444;
     border-radius: 6px;
     padding: 15px;
     margin-bottom: 15px;
 }
 
 .duplicate-group h5 {
-    color: #ef4444;
+    color: #fca5a5;
     margin: 0 0 10px 0;
     font-size: 1em;
+    font-weight: 600;
 }
 
 .duplicate-item {
-    background: #1e293b;
+    background: #0f172a;
     padding: 10px;
     margin: 8px 0;
     border-radius: 4px;
+    border: 1px solid #334155;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1155,6 +1180,7 @@ body {
 
 .duplicate-info {
     flex: 1;
+    color: #e2e8f0;
 }
 
 @media (max-width: 768px) {
