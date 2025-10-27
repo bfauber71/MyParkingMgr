@@ -12,6 +12,12 @@
  * }
  */
 
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+Session::start();
+
 $data = getJsonInput();
 
 $action = $data['action'] ?? 'find';
