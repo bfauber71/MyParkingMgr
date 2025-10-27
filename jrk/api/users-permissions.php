@@ -7,10 +7,8 @@ header('Content-Type: application/json');
 
 Session::start();
 
-// Require authentication
-if (!Session::isAuthenticated()) {
-    jsonResponse(['error' => 'Unauthorized'], 401);
-}
+// Require authentication and view permission for users
+requirePermission(MODULE_USERS, ACTION_VIEW);
 
 $userId = $_GET['user_id'] ?? '';
 

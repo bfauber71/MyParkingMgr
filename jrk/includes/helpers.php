@@ -92,9 +92,9 @@ function auditLog($action, $entityType, $entityId = null, $details = null) {
 }
 
 /**
- * Save user permissions
+ * Save user assigned properties
  * @param string $userId User ID
- * @param array $permissions Permissions array [module => [can_view, can_edit, can_create_delete]]
+ * @param array $propertyIds Array of property IDs to assign to the user
  */
 function saveUserAssignedProperties($userId, $propertyIds) {
     $db = Database::getInstance();
@@ -125,9 +125,15 @@ function saveUserAssignedProperties($userId, $propertyIds) {
         }
     } catch (PDOException $e) {
         error_log("Error saving user assigned properties: " . $e->getMessage());
-        throw $e;
+        // Don't throw - allow operation to continue even if property assignment save fails
     }
 }
+
+/**
+ * Save user permissions
+ * @param string $userId User ID
+ * @param array $permissions Permissions array [module => [can_view, can_edit, can_create_delete]]
+ */
 
 function saveUserPermissions($userId, $permissions) {
     if (empty($permissions) || !is_array($permissions)) {
