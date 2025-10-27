@@ -1,32 +1,27 @@
 # ManageMyParking - Apache Configuration
 # This file enables URL rewriting for the application
 # 
-# IMPORTANT: If installing in a subdirectory (not root), change RewriteBase
-# Example: RewriteBase /myapp/  (for https://yourdomain.com/myapp/)
-# For root installation: RewriteBase /
+# Works automatically for root or subdirectory installations
+# No RewriteBase needed - uses relative paths
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
     
     # Redirect to HTTPS (uncomment after SSL is configured)
     # RewriteCond %{HTTPS} off
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
-    # Don't rewrite if already requesting index.php
-    RewriteRule ^index\.php$ - [L]
+    # Don't rewrite existing files or directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
     
     # Route API calls to PHP files (add .php extension if missing)
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/(.+)\.php$ - [L]
     RewriteRule ^api/(.+)$ api/$1.php [L,QSA]
     
-    # Don't rewrite existing files or directories
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    
     # Route everything else through index.php (for SPA routing)
-    RewriteRule ^(.*)$ index.php [QSA,L]
+    RewriteRule ^ index.php [L]
 </IfModule>
 
 # Security Headers
