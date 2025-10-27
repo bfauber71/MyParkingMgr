@@ -72,7 +72,7 @@ class Security {
         // PRODUCTION SECURITY: Never skip CSRF validation
         // CSRF protection is ALWAYS enforced for all POST/PUT/DELETE requests
         
-        // Get CSRF token from headers or body
+        // Get CSRF token from headers first (preferred method)
         $headers = getallheaders();
         $csrfToken = null;
         
@@ -80,8 +80,11 @@ class Security {
             $csrfToken = $headers['X-CSRF-Token'];
         } elseif (isset($headers['x-csrf-token'])) {
             $csrfToken = $headers['x-csrf-token'];
-        } else {
-            // Use the cached JSON input
+        }
+        
+        // IMPORTANT: Only read body if token not in header (prevents double-consumption)
+        // Frontend sends token in X-CSRF-Token header, so this fallback is rarely used
+        if (!$csrfToken) {
             $data = getJsonInput();
             $csrfToken = $data['csrf_token'] ?? null;
         }

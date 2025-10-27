@@ -202,10 +202,17 @@ function isOperator() {
 
 /**
  * Require authentication
+ * PRODUCTION SECURITY: Also validates CSRF for state-changing requests
  */
 function requireAuth() {
     if (!Session::isAuthenticated()) {
         jsonResponse(['error' => 'Unauthorized'], 401);
+    }
+    
+    // PRODUCTION SECURITY: Validate CSRF for all state-changing operations
+    $method = $_SERVER['REQUEST_METHOD'];
+    if ($method === 'POST' || $method === 'PUT' || $method === 'DELETE' || $method === 'PATCH') {
+        Security::validateRequest([$method]);
     }
 }
 
