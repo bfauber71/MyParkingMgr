@@ -1,0 +1,4 @@
+3916cee43f62ecba5354dc4d7217213e93a36b137bceed0f3198f37e81bcc8f1  myparkingmanager-v2.3.0-docs.zip
+98dc85e5a17844c735ccba2079acffbf14e0fd83b6f10baa3881aca03f6722ef  myparkingmanager-v2.3.0-full.zip
+07d1ceb28df5b3770d49a16736fca4afb7634c3fe021e62d9b958ebe355a0f5d  myparkingmanager-v2.3.0-minimal.zip
+1d0a08a32def4a5f4b18cf7af6994d66cc6ca56b8f619a6fda56a4f259b11664  myparkingmanager-v2.3.0-update.zip
