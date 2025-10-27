@@ -8,8 +8,8 @@
     RewriteEngine On
     
     # Redirect to HTTPS (uncomment after SSL is configured)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
     # Don't rewrite existing files or directories
     RewriteCond %{REQUEST_FILENAME} -f [OR]
