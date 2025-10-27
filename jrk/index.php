@@ -57,8 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $config = ConfigLoader::load();
 $router = new Router(ConfigLoader::getBasePath());
 
-// Configuration route (for frontend)
+// Configuration routes (for frontend - no auth required)
 $router->get('/api/app-config', __DIR__ . '/api/app-config.php');
+$router->get('/api/csrf-token', __DIR__ . '/api/csrf-token.php');
 
 // API Routes
 $router->post('/api/login', __DIR__ . '/api/login.php');

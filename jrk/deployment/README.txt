@@ -50,6 +50,9 @@ WHAT'S NEW IN v2.3.0
 ================================================================================
 
 CRITICAL FIXES:
+✓ Fixed 500 errors on /api/app-config and /api/csrf-token endpoints
+✓ Added endpoint whitelist for setup wizard compatibility
+✓ Resolved database requirement blocking pre-setup API calls
 ✓ Flattened public directory - all assets now at installation root
 ✓ Fixed static asset routing (no more /public/* references)
 ✓ Resolved admin page asset loading issues  
@@ -126,9 +129,9 @@ SHA256 CHECKSUMS
 ================================================================================
 
 4d534f9bf28266170675d25f067fb1b5b87866c4fdc091a2cce7435f46321fa6  myparkingmanager-v2.3.0-docs.zip
-31d4d50686967dfc439401e82755232e15a848237b96ab2afb0662529056497a  myparkingmanager-v2.3.0-full.zip
-84da67e42f4bdc8e8925d656b1a636aa1820a0bee3c46f8448e3f560b6341ca4  myparkingmanager-v2.3.0-minimal.zip
-f0fb14aa406fe921e92f2425ca301ca9760bcf6c2953fabc85d5b7feb7d370a0  myparkingmanager-v2.3.0-update.zip
+c5d8f5b5ced85e431699406f4119bcd2ad2006c19be5d761f0bac94b6757e647  myparkingmanager-v2.3.0-full.zip
+e033290947c2e80b54b74a2429e527bddd597fa60992e6aae41d842ad45f68a1  myparkingmanager-v2.3.0-minimal.zip
+7c243f1428026b008ed2585249c74dca24687ecab32c8007ac797c2915f9d7b1  myparkingmanager-v2.3.0-update.zip
 
 Verify package integrity:
   sha256sum -c CHECKSUMS.txt

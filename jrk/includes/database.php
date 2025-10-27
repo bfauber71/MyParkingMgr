@@ -23,14 +23,34 @@ class Database {
         if ($db['username'] === 'your_db_username' || $db['password'] === 'your_db_password') {
             error_log("Database not configured - using placeholder credentials");
             
-            // If this is an API request, return JSON error
-            if (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false) {
+            // Whitelist endpoints that don't require database access
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+            $noDbRequired = [
+                '/api/app-config',
+                '/api/csrf-token',
+                '/api/path-config'
+            ];
+            
+            $isWhitelisted = false;
+            foreach ($noDbRequired as $endpoint) {
+                if (strpos($requestUri, $endpoint) !== false) {
+                    $isWhitelisted = true;
+                    break;
+                }
+            }
+            
+            // If this is an API request (not whitelisted), return JSON error
+            if (!$isWhitelisted && strpos($requestUri, '/api/') !== false) {
                 http_response_code(503);
                 die(json_encode(['error' => 'Database not configured. Please run setup wizard.']));
             }
             
+            // If whitelisted API endpoint, return null to allow it to proceed without database
+            if ($isWhitelisted) {
+                return null;
+            }
+            
             // Otherwise redirect to setup
-            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
             $basePath = ConfigLoader::getBasePath();
             $setupUrl = $basePath . '/setup.php';
             
