@@ -11,9 +11,15 @@ BUILD_DIR="build/deployment"
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
-# Copy main application files
+# Copy main application files (excluding dev config)
 echo "Copying application files..."
 cp -r jrk/* "$BUILD_DIR/"
+
+# Replace dev config with production template
+echo "Creating production config file..."
+rm -f "$BUILD_DIR/config.php"
+cp jrk/config-template.php "$BUILD_DIR/config.php"
+cp jrk/DEPLOYMENT-INSTRUCTIONS.md "$BUILD_DIR/README.txt"
 
 # Remove registration/license management files (keep these separate)
 echo "Removing registration files from deployment..."
