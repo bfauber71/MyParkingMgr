@@ -1838,13 +1838,7 @@ async function openCreateTicketModal(vehicle) {
             }
             
             activeViolations.forEach(violation => {
-                const checkboxDiv = createElement('div', { className: 'violation-checkbox-item' });
-                const checkbox = createElement('input', { 
-                    type: 'checkbox',
-                    name: 'violations[]',
-                    value: violation.id,
-                    id: `violation_${violation.id}`
-                });
+                const checkboxDiv = createElement('div', { className: 'checkbox-item' });
                 
                 let labelText = violation.name;
                 if (violation.fine_amount) {
@@ -1854,10 +1848,14 @@ async function openCreateTicketModal(vehicle) {
                     labelText += ` (Tow: ${violation.tow_deadline_hours}hrs)`;
                 }
                 
-                const label = createElement('label', { 
-                    htmlFor: `violation_${violation.id}`,
-                    style: 'margin-left: 8px; cursor: pointer;'
-                }, labelText);
+                const label = document.createElement('label');
+                
+                const checkbox = createElement('input', { 
+                    type: 'checkbox',
+                    name: 'violations[]',
+                    value: violation.id
+                });
+                checkbox.setAttribute('data-violation-name', violation.name);
                 
                 if (violation.id === 'other' || violation.name.toLowerCase().includes('other')) {
                     checkbox.addEventListener('change', () => {
@@ -1868,7 +1866,8 @@ async function openCreateTicketModal(vehicle) {
                     });
                 }
                 
-                checkboxDiv.appendChild(checkbox);
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(labelText));
                 checkboxDiv.appendChild(label);
                 checkboxesContainer.appendChild(checkboxDiv);
             });
@@ -1898,8 +1897,9 @@ async function handleCreateViolation(event) {
     
     // Build list of selected violations for confirmation
     const violationNames = Array.from(checkboxes).map(cb => {
-        const label = cb.closest('label');
-        return label ? label.textContent.trim() : 'Unknown';
+        // Get the violation name from the data attribute or adjacent text
+        const violationName = cb.getAttribute('data-violation-name') || cb.value;
+        return violationName;
     });
     
     let confirmMessage = 'Create violation ticket with the following violations?\n\n';

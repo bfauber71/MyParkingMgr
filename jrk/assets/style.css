@@ -753,15 +753,16 @@ body {
     border-radius: 6px;
     transition: background 0.2s;
     min-height: 36px;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 500;
-    background: #1e293b;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    background: #1e293b !important;
     border: 1px solid #334155;
+    margin-bottom: 0 !important;
 }
 
 .checkbox-item label:hover {
-    background: #334155;
+    background: #334155 !important;
     border-color: #475569;
 }
 
