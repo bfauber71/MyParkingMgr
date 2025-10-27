@@ -705,7 +705,11 @@ async function loadVehiclesSection() {
         clearSearchBtn.onclick = () => {
             searchInput.value = '';
             propertyFilter.value = '';
-            searchVehicles('', '');
+            // Hide search results
+            const container = document.getElementById('vehiclesResults');
+            if (container) {
+                container.innerHTML = '';
+            }
         };
     }
     
@@ -1948,7 +1952,16 @@ async function handleCreateViolation(event) {
                 }
             }
             
-            searchVehicles('', '');
+            // Hide search results after ticket creation
+            const container = document.getElementById('vehiclesResults');
+            if (container) {
+                container.innerHTML = '';
+            }
+            // Also clear search inputs
+            const searchInput = document.getElementById('searchInput');
+            const propertyFilter = document.getElementById('propertyFilter');
+            if (searchInput) searchInput.value = '';
+            if (propertyFilter) propertyFilter.value = '';
         } else {
             showToast(data.error || 'Failed to create violation ticket', 'error');
         }
