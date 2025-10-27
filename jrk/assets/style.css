@@ -506,6 +506,50 @@ body {
     display: block;
 }
 
+/* Settings Sub-tabs */
+.settings-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 12px;
+    background: #1e293b;
+    border-radius: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.settings-tab-btn {
+    background: transparent;
+    color: #94a3b8;
+    border: none;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.settings-tab-btn:hover {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+.settings-tab-btn.active {
+    background: #1e3a8a;
+    color: #3b82f6;
+}
+
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+}
+
 /* Search Bar - Mobile First */
 .search-bar {
     background: #1e293b;

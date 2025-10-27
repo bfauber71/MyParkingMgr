@@ -199,6 +199,18 @@ function setupEventListeners() {
         });
     });
     
+    // Set up settings sub-tab click handlers
+    const settingsTabButtons = document.querySelectorAll('.settings-tab-btn');
+    settingsTabButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const subTabName = e.target.dataset.settingsTab || e.target.closest('.settings-tab-btn')?.dataset.settingsTab;
+            if (subTabName) {
+                switchSettingsTab(subTabName);
+            }
+        });
+    });
+    
     // Form submissions
     const propertyForm = document.querySelector('#propertyModal form');
     if (propertyForm) propertyForm.addEventListener('submit', handlePropertySubmit);
@@ -525,15 +537,64 @@ function switchTab(tabName) {
         } else if (tabName === 'properties') {
             loadPropertiesSection();
         } else if (tabName === 'database') {
-            secureLog('Loading database tab - initializing user management');
-            loadUsersSection();
+            // Redirect to settings > users
+            secureLog('Database tab accessed - redirecting to settings > users');
+            switchTab('settings');
+            switchSettingsTab('users');
         } else if (tabName === 'violations') {
-            loadViolationsManagementSection();
+            // Redirect to settings > violation types
+            secureLog('Violations tab accessed - redirecting to settings > violations-types');
+            switchTab('settings');
+            switchSettingsTab('violations-types');
         } else if (tabName === 'settings') {
             loadSettingsSection();
         }
     } catch (error) {
         console.error('Error loading section:', tabName, error);
+    }
+}
+
+// Settings Sub-tab Navigation
+function switchSettingsTab(subTabName) {
+    secureLog('Switching to settings sub-tab:', subTabName);
+    
+    // Remove active class from all settings sub-tabs
+    document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelectorAll('.settings-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Add active class to selected sub-tab
+    const activeBtn = document.querySelector(`[data-settings-tab="${subTabName}"]`);
+    const activeContent = document.getElementById(`settings${subTabName.replace(/-/g, '').replace(/^./, str => str.toUpperCase())}Tab`);
+    
+    // Fix ID mapping for camelCase
+    const contentMap = {
+        'users': 'settingsUsersTab',
+        'violations-types': 'settingsViolationsTypesTab',
+        'database-ops': 'settingsDatabaseOpsTab',
+        'printer': 'settingsPrinterTab'
+    };
+    
+    const actualContent = document.getElementById(contentMap[subTabName]);
+    
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        secureLog('Activated settings sub-tab button:', subTabName);
+    }
+    
+    if (actualContent) {
+        actualContent.classList.add('active');
+        secureLog('Activated settings sub-tab content:', subTabName);
+    }
+    
+    // Load sub-tab specific data
+    if (subTabName === 'users') {
+        loadUsersSection();
+    } else if (subTabName === 'violations-types') {
+        loadViolationsManagementSection();
     }
 }
 
