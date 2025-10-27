@@ -8,6 +8,34 @@ The system is built to handle multiple properties, track vehicles and violations
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.1 Print Functionality & Settings Page
+
+**Print Functionality Implementation:**
+- Implemented handleViolationPrint() to create printable 8.5x11 letter-sized output
+- Print window opens with formatted table of search results
+- @page styling ensures proper letter size (8.5" x 11")
+- Table headers repeat on each printed page
+- Professional print layout with title, timestamp, and result count
+- Print/Close buttons for user convenience
+
+**Settings Tab Added:**
+- New "Settings" tab in main navigation
+- Settings section with printer configuration access
+- Button to open violations-print.html for ticket customization
+- Informational content explaining:
+  - Violation ticket printer settings (2.5" x 6" thermal tickets)
+  - Search results printing (8.5" x 11" letter paper)
+  - Difference between ticket and search result printing
+
+**New Functions:**
+- loadSettingsSection() - Handles settings page initialization
+- Enhanced handleViolationPrint() - Creates printable preview window
+
+**File Stats:**
+- app-secure.js: 1,978 lines, 64 functions (was 63)
+- index.html: 659 lines (was 612), added Settings section
+- Fully functional print workflow for search results
+
 ### October 27, 2025 - v2.3.0 Complete Functionality Fixes
 
 **✅ ALL 7 REPORTED ISSUES RESOLVED**

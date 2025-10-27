@@ -1,137 +1,114 @@
-================================================================================
-MyParkingManager v2.3.0 - DEPLOYMENT PACKAGES
-================================================================================
+MyParkingManager v2.3.1 - Deployment Packages
+==============================================
 
-**FULL CRUD FUNCTIONALITY NOW COMPLETE!**
+RELEASE DATE: October 27, 2025
 
-All properties, users, and vehicles features are fully working including:
-- Add new records via modal forms
-- Edit existing records with data pre-populated
-- Delete records with confirmation dialogs
-- Search and filter functionality
-- Role-based permissions
-- Real-time validation and error handling
+NEW IN v2.3.1:
+--------------
+* Violation Search Results Print on 8.5x11 letter paper
+* Settings tab with printer configuration access  
+* Professional print layout with auto-repeating headers
+* Informational guides for ticket vs. search result printing
 
-================================================================================
-AVAILABLE PACKAGES
-================================================================================
+AVAILABLE PACKAGES:
+------------------
 
-**1. UPDATE PACKAGE (RECOMMENDED FOR EXISTING INSTALLATIONS)**
-   File: myparkingmanager-v2.3.0-update.zip (17 KB)
+1. myparkingmanager-v2.3.1-full.zip (146 KB)
+   - Complete application with all files
+   - Includes setup wizard, diagnostic tools, license generators
+   - Best for new installations
    
-   What's included:
+2. myparkingmanager-v2.3.1-minimal.zip (136 KB)
+   - Production-ready deployment without test/diagnostic files
+   - Excludes: setup-wizard.php, diagnostic.php, README.md, test files
+   - Best for clean production deployments
+   
+3. myparkingmanager-v2.3.1-update.zip (17 KB)
+   - RECOMMENDED UPGRADE PACKAGE
+   - Contains only changed files:
+     * assets/app-secure.js (1,978 lines, 64 functions)
+     * index.html (659 lines, Settings tab added)
+   - Fastest way to upgrade from v2.3.0
+   
+4. myparkingmanager-v2.3.1-docs.zip (3.5 KB)
+   - Documentation only: README.md
+   - Reference material
+
+UPGRADE INSTRUCTIONS (v2.3.0 → v2.3.1):
+---------------------------------------
+
+OPTION A: Quick Update (Recommended - 2 minutes)
+1. Download myparkingmanager-v2.3.1-update.zip
+2. Extract the ZIP file
+3. Upload these 2 files to your server, overwriting existing:
+   - assets/app-secure.js
    - index.html
-   - assets/app-secure.js (COMPLETE - all handlers working!)
-   - api/vehicles-update.php (NEW endpoint)
-   - .htaccess
-   - includes/database.php
-   - api/csrf-token.php
-   
-   Installation:
-   1. Download and extract the ZIP
-   2. Upload all 6 files to your server (overwrite existing)
-   3. Clear browser cache (Ctrl+Shift+Delete)
-   4. Login and test features
+4. Clear browser cache (Ctrl+F5 or Cmd+Shift+R)
+5. Test the new Settings tab and print functionality
 
-**2. FULL PACKAGE (FOR NEW INSTALLATIONS)**
-   File: myparkingmanager-v2.3.0-full.zip (141 KB)
-   Complete application - extract and run setup-wizard.php
+OPTION B: Full Reinstall (5-10 minutes)
+1. Backup your config.php file
+2. Backup your database
+3. Download myparkingmanager-v2.3.1-full.zip or -minimal.zip
+4. Delete all files EXCEPT config.php and .htaccess
+5. Extract and upload new files
+6. Restore your config.php
+7. Clear browser cache
+8. Verify installation
 
-**3. MINIMAL PACKAGE (FOR PRODUCTION)**
-   File: myparkingmanager-v2.3.0-minimal.zip (135 KB)
-   Production-ready files only
+NEW FEATURES USAGE:
+------------------
 
-**4. DOCUMENTATION PACKAGE**
-   File: myparkingmanager-v2.3.0-docs.zip (8.6 KB)
-   Documentation and guides
+Settings Tab:
+- Click "Settings" in main navigation
+- Access printer configuration for violation tickets
+- Read guides for print functionality
 
-================================================================================
-WHAT'S NEW IN v2.3.0
-================================================================================
+Violation Search Results Print:
+- Go to Database tab
+- Use Violation Search section
+- Enter search criteria and click Search
+- Click "Print Results" button
+- Print window opens with 8.5x11 formatted table
+- Click Print or Close
 
-✅ Property Management - Add/Edit/Delete/Search FULLY WORKING
-✅ User Management - Add/Edit/Delete/Manage FULLY WORKING
-✅ Vehicle Management - Add/Edit/Delete/Search FULLY WORKING
-✅ Complete form submission system with validation
-✅ New API endpoint: api/vehicles-update.php
-✅ Enhanced permission checking
-✅ Improved error handling
+TECHNICAL DETAILS:
+-----------------
 
-Technical: app-secure.js now 1,237 lines with 45 functions
-
-================================================================================
-QUICK START
-================================================================================
-
-**For Updates:**
-1. Download myparkingmanager-v2.3.0-update.zip
-2. Extract and upload 6 files to server (overwrite)
-3. Clear browser cache
-4. Test all features
-
-**For New Installation:**
-1. Download myparkingmanager-v2.3.0-full.zip
-2. Create MySQL database
-3. Upload files and run setup-wizard.php
-4. Follow setup instructions
-
-================================================================================
-VERIFICATION CHECKLIST
-================================================================================
-
-After installation:
-[ ] Login works
-[ ] Properties: Add/Edit/Delete all working
-[ ] Users: Add/Edit/Delete all working
-[ ] Vehicles: Add/Edit/Delete all working
-[ ] Search and filters work
-[ ] Toast notifications appear
-[ ] No JavaScript console errors
-
-================================================================================
-FILE INTEGRITY
-================================================================================
-
-Verify checksums: See CHECKSUMS.txt
-  sha256sum -c CHECKSUMS.txt
-
-================================================================================
-TROUBLESHOOTING
-================================================================================
-
-**Forms don't save:**
-- Check browser console (F12) for errors
-- Verify all update files uploaded
-- Clear browser cache completely
-- Check network tab for API response
-
-**500 Server Error:**
-- Check file permissions (644 for files, 755 for dirs)
-- Verify .htaccess uploaded correctly
-- Check Apache mod_rewrite enabled
-
-**Permission Denied:**
-- Verify user role (Admin has all permissions)
-- Try logout/login to refresh session
-
-================================================================================
-SUPPORT
-================================================================================
-
-Documentation:
-- COMPLETE-FUNCTIONALITY-UPDATE.txt - Full feature list
-- QUICK-FIX-GUIDE.txt - Common solutions
-- LICENSE-SYSTEM-GUIDE.md - License information
+Changes in v2.3.1:
+- app-secure.js: Enhanced handleViolationPrint() function
+- app-secure.js: Added loadSettingsSection() function  
+- index.html: Added Settings tab navigation
+- index.html: Added Settings section content
+- Total: 64 functions, 1,978 lines JavaScript
+- Print: Letter size (8.5" x 11") with @page CSS
+- Print: Table headers repeat on each page
 
 System Requirements:
-- PHP 7.4+ (8.x recommended)
+- PHP 7.4+ (8.0+ recommended)
 - MySQL 5.7+ or MariaDB 10.2+
 - Apache with mod_rewrite OR Nginx
+- 10 MB disk space
+- Modern web browser
 
-================================================================================
+FILE VERIFICATION:
+-----------------
+Verify package integrity using SHA256 checksums in checksums.txt
 
-Version: 2.3.0 | Release: October 27, 2025 | Status: Production Ready
+SUPPORT:
+-------
+For installation issues or questions, contact your system administrator.
 
-The application is now fully functional with complete CRUD operations!
+LICENSE:
+-------
+MyParkingManager is proprietary software with a 30-day trial period.
+License activation required after trial. See LICENSE-SYSTEM-GUIDE.md
 
-================================================================================
+VERSION HISTORY:
+---------------
+v2.3.1 (Oct 27, 2025) - Print functionality & Settings tab
+v2.3.0 (Oct 27, 2025) - Complete functionality fixes, API method corrections
+v2.2.x - Database module improvements  
+v2.1.x - Violation management enhancements
+v2.0.x - License system implementation
+v1.x.x - Initial release
