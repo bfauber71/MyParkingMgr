@@ -51,6 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Update printer settings
     $data = json_decode(file_get_contents('php://input'), true);
     
+    // Debug logging to console output
+    error_log("=== PRINTER SETTINGS UPDATE ===");
+    error_log("Received data keys: " . implode(', ', array_keys($data['settings'] ?? [])));
+    
     try {
         $allowedSettings = [
             'ticket_width', 
@@ -63,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ];
         
         foreach ($data['settings'] ?? [] as $key => $value) {
+            error_log("Processing setting: $key");
             if (!in_array($key, $allowedSettings)) {
                 continue;
             }
