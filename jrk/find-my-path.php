@@ -72,10 +72,10 @@
     <div class="result-box">
         <h2>✅ Your Correct .htaccess File</h2>
         <p>Copy this entire text and save it as <strong>.htaccess</strong> in your installation folder:</p>
-        <div class="code"># ManageMyParking - Apache Configuration
+        <textarea class="code" rows="30" style="width: 100%; font-family: monospace; white-space: pre;"># ManageMyParking - Apache Configuration
 # This file enables URL rewriting for the application
 
-&lt;IfModule mod_rewrite.c&gt;
+<IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase <?php echo $basePath === '' ? '/' : $basePath . '/'; ?>
 
@@ -89,29 +89,29 @@
     
     # Route everything through index.php
     RewriteRule ^(.*)$ index.php [QSA,L]
-&lt;/IfModule&gt;
+</IfModule>
 
 # Security Headers
-&lt;IfModule mod_headers.c&gt;
+<IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set X-XSS-Protection "1; mode=block"
     
     # Disable caching for JavaScript and HTML (force fresh load)
-    &lt;FilesMatch "\.(js|html)$"&gt;
+    <FilesMatch "\.(js|html)$">
         Header set Cache-Control "no-cache, no-store, must-revalidate"
         Header set Pragma "no-cache"
         Header set Expires "0"
-    &lt;/FilesMatch&gt;
-&lt;/IfModule&gt;
+    </FilesMatch>
+</IfModule>
 
 # Disable directory browsing
 Options -Indexes
 
 # Protect sensitive files
-&lt;FilesMatch "(^\.htaccess|^config\.php|\.sql$)"&gt;
+<FilesMatch "(^\.htaccess|^config\.php|\.sql$)">
     Require all denied
-&lt;/FilesMatch&gt;</div>
+</FilesMatch></textarea>
     </div>
     
     <div class="result-box">
