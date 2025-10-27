@@ -176,9 +176,19 @@ body {
     background: #0f172a;
     border: 1px solid #334155;
     border-radius: 4px;
-    color: #e2e8f0;
+    color: #ffffff;
     font-size: 16px; /* 16px prevents zoom on iOS */
     min-height: 44px; /* Better touch target */
+}
+
+/* Date input specific styling */
+.form-group input[type="date"] {
+    color: #ffffff;
+    color-scheme: dark;
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 .form-group input:focus,
@@ -1330,7 +1340,8 @@ body {
 
 .filter-row .form-group {
     flex: 1;
-    min-width: 200px;
+    min-width: 150px;
+    max-width: 100%;
 }
 
 .filter-row .flex-grow {
