@@ -815,7 +815,7 @@ async function loadUsersSection() {
     }
 }
 
-function setupDatabasePageHandlers() {
+async function setupDatabasePageHandlers() {
     // Import/Export buttons
     const importBtn = document.getElementById('importBtn');
     const exportBtn = document.getElementById('exportBtn');
@@ -851,6 +851,7 @@ function setupDatabasePageHandlers() {
     const violationSearchBtn = document.getElementById('violationSearchBtn');
     const violationPrintBtn = document.getElementById('violationPrintBtn');
     const violationExportBtn = document.getElementById('violationExportBtn');
+    const clearViolationSearchBtn = document.getElementById('clearViolationSearchBtn');
     
     if (violationSearchBtn) {
         violationSearchBtn.onclick = handleViolationSearch;
@@ -862,6 +863,85 @@ function setupDatabasePageHandlers() {
     
     if (violationExportBtn) {
         violationExportBtn.onclick = handleViolationExport;
+    }
+    
+    if (clearViolationSearchBtn) {
+        clearViolationSearchBtn.onclick = handleClearViolationSearch;
+    }
+    
+    // Clear duplicates button
+    const clearDuplicatesBtn = document.getElementById('clearDuplicatesBtn');
+    if (clearDuplicatesBtn) {
+        clearDuplicatesBtn.onclick = handleClearDuplicates;
+    }
+    
+    // Populate dropdowns with properties and violation types
+    await populateDatabaseDropdowns();
+}
+
+async function populateDatabaseDropdowns() {
+    // Fetch properties
+    try {
+        const response = await secureApiCall(`${API_BASE}/properties-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const properties = data.properties || [];
+            
+            // Populate bulk delete property dropdown
+            const bulkDeleteProperty = document.getElementById('bulkDeleteProperty');
+            if (bulkDeleteProperty) {
+                bulkDeleteProperty.innerHTML = '<option value="">Select Property</option>';
+                properties.forEach(property => {
+                    const option = document.createElement('option');
+                    option.value = property.id;
+                    option.textContent = property.name;
+                    bulkDeleteProperty.appendChild(option);
+                });
+            }
+            
+            // Populate violation search property filter
+            const violationPropertyFilter = document.getElementById('violationPropertyFilter');
+            if (violationPropertyFilter) {
+                violationPropertyFilter.innerHTML = '<option value="">All Properties</option>';
+                properties.forEach(property => {
+                    const option = document.createElement('option');
+                    option.value = property.id;
+                    option.textContent = property.name;
+                    violationPropertyFilter.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading properties for dropdowns:', error);
+    }
+    
+    // Fetch violation types
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const violations = data.violations || [];
+            
+            // Populate violation type filter
+            const violationTypeFilter = document.getElementById('violationTypeFilter');
+            if (violationTypeFilter) {
+                violationTypeFilter.innerHTML = '<option value="">All Violations</option>';
+                violations.forEach(violation => {
+                    const option = document.createElement('option');
+                    option.value = violation.id;
+                    option.textContent = violation.name;
+                    violationTypeFilter.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading violation types for dropdowns:', error);
     }
 }
 
@@ -1097,6 +1177,37 @@ async function handleViolationExport() {
     }
 }
 
+function handleClearViolationSearch() {
+    // Clear all search form fields
+    const startDate = document.getElementById('violationStartDate');
+    const endDate = document.getElementById('violationEndDate');
+    const propertyFilter = document.getElementById('violationPropertyFilter');
+    const typeFilter = document.getElementById('violationTypeFilter');
+    const searchQuery = document.getElementById('violationSearchQuery');
+    const resultsDiv = document.getElementById('violationSearchResults');
+    const countSpan = document.getElementById('violationResultsCount');
+    const actionsDiv = document.querySelector('.search-actions');
+    
+    if (startDate) startDate.value = '';
+    if (endDate) endDate.value = '';
+    if (propertyFilter) propertyFilter.value = '';
+    if (typeFilter) typeFilter.value = '';
+    if (searchQuery) searchQuery.value = '';
+    if (resultsDiv) resultsDiv.innerHTML = '';
+    if (countSpan) countSpan.textContent = '';
+    if (actionsDiv) actionsDiv.style.display = 'none';
+    
+    showToast('Search cleared', 'info');
+}
+
+function handleClearDuplicates() {
+    const resultsDiv = document.getElementById('duplicatesResults');
+    if (resultsDiv) {
+        resultsDiv.innerHTML = '';
+    }
+    showToast('Results cleared', 'info');
+}
+
 function displayUsers(users) {
     const container = document.getElementById('usersResults');
     if (!container) return;
@@ -1265,6 +1376,8 @@ function openViolationTypeModal(violation = null) {
         title.textContent = 'Edit Violation Type';
         document.getElementById('violationTypeId').value = violation.id;
         document.getElementById('violationTypeName').value = violation.name || '';
+        document.getElementById('violationTypeFineAmount').value = violation.fine_amount || '';
+        document.getElementById('violationTypeTowDeadline').value = violation.tow_deadline_hours || '';
         document.getElementById('violationTypeDisplayOrder').value = violation.display_order || 0;
         document.getElementById('violationTypeIsActive').checked = violation.is_active == 1;
     } else {
@@ -1313,6 +1426,8 @@ async function handleViolationTypeSubmit(e) {
     
     const formData = {
         name: form.querySelector('[name="name"]').value,
+        fine_amount: parseFloat(form.querySelector('[name="fine_amount"]').value) || null,
+        tow_deadline_hours: parseInt(form.querySelector('[name="tow_deadline_hours"]').value) || null,
         display_order: parseInt(form.querySelector('[name="display_order"]').value) || 0,
         is_active: form.querySelector('[name="is_active"]').checked ? 1 : 0
     };
@@ -1409,7 +1524,7 @@ function openUserModal(user = null) {
     if (user) {
         title.textContent = 'Edit User';
         document.getElementById('userId').value = user.id;
-        document.getElementById('userName').value = user.username;
+        document.getElementById('userUsername').value = user.username;
         document.getElementById('userEmail').value = user.email || '';
         document.getElementById('userRole').value = user.role || 'user';
         document.getElementById('userPassword').required = false;
