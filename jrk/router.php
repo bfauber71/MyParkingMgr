@@ -22,6 +22,12 @@ if (empty($uri) || $uri === 'index.html') {
 if (preg_match('/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|json|txt|map)$/', $uri)) {
     $filePath = __DIR__ . '/' . $uri;
     if (file_exists($filePath) && is_file($filePath)) {
+        // Add no-cache headers for JS and CSS to prevent caching issues
+        if (preg_match('/\.(css|js)$/', $uri)) {
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
+        }
         return false; // Let PHP serve the file
     }
 }
