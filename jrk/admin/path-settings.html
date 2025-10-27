@@ -25,7 +25,7 @@
             
             // Load config script dynamically
             const configScript = document.createElement('script');
-            configScript.src = basePath + '/public/assets/config.js';
+            configScript.src = basePath + '/assets/config.js';
             document.head.appendChild(configScript);
         })();
     </script>
@@ -160,7 +160,7 @@
 
     <script>
         // Set dashboard link dynamically
-        document.getElementById('dashboardBtn').href = window.MPM_CONFIG.basePath + '/public/index.html';
+        document.getElementById('dashboardBtn').href = window.MPM_CONFIG.basePath + '/index.html';
         
         const API_BASE = window.MPM_CONFIG ? window.MPM_CONFIG.apiBase : '/api';
 

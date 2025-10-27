@@ -16,6 +16,7 @@ PACKAGE DESCRIPTIONS
    - Complete installation package
    - Includes all application files, SQL scripts, documentation,
      deployment packages, and license key generation tools
+   - NEW: All public assets (HTML, CSS, JS) are now at root level
    - Use for: Fresh installations, vendor/reseller distributions
    - Extract to your web server directory and run setup.php
 
@@ -30,10 +31,11 @@ PACKAGE DESCRIPTIONS
    - IMPORTANT: Backup your installation before applying
    - Extract over existing installation (your config.php is preserved)
 
-3. myparkingmanager-v2.3.0-minimal.zip (132 KB)
+3. myparkingmanager-v2.3.0-minimal.zip (131 KB)
    - Clean installation package for end-users
    - Excludes: deployment packages, license generators, vendor guides
    - Includes: All core application files, SQL scripts, user documentation
+   - NEW: All public assets (HTML, CSS, JS) are now at root level
    - Use for: Production deployments, customer installations
    - Best for: End-user installations without vendor tools
 
@@ -48,10 +50,17 @@ WHAT'S NEW IN v2.3.0
 ================================================================================
 
 CRITICAL FIXES:
-✓ Fixed static asset routing for /public/* references
+✓ Flattened public directory - all assets now at installation root
+✓ Fixed static asset routing (no more /public/* references)
 ✓ Resolved admin page asset loading issues  
-✓ Corrected path handling to prevent /public/public/... double paths
+✓ Corrected path handling to prevent double-path errors
 ✓ All installations now work with ANY custom path configuration
+
+DIRECTORY STRUCTURE CHANGE:
+✓ Public assets (index.html, assets/, css/) moved to root level
+✓ No more nested public/ directory
+✓ Cleaner, more standard web application structure
+✓ Direct access to assets from installation root
 
 DYNAMIC PATH SUPPORT:
 ✓ Completely removed hardcoded "jrk" path references
@@ -117,9 +126,9 @@ SHA256 CHECKSUMS
 ================================================================================
 
 3916cee43f62ecba5354dc4d7217213e93a36b137bceed0f3198f37e81bcc8f1  myparkingmanager-v2.3.0-docs.zip
-98dc85e5a17844c735ccba2079acffbf14e0fd83b6f10baa3881aca03f6722ef  myparkingmanager-v2.3.0-full.zip
-07d1ceb28df5b3770d49a16736fca4afb7634c3fe021e62d9b958ebe355a0f5d  myparkingmanager-v2.3.0-minimal.zip
-1d0a08a32def4a5f4b18cf7af6994d66cc6ca56b8f619a6fda56a4f259b11664  myparkingmanager-v2.3.0-update.zip
+3b2ba707c97ed6ed8a1e22484d6468662677517852849dce76a7a2d8f6e39674  myparkingmanager-v2.3.0-full.zip
+41d0e8df9995c8b9d3954ceaa5d8c5f822ba8d43bdc333e2de3d1511cd7ab7c8  myparkingmanager-v2.3.0-minimal.zip
+f0fb14aa406fe921e92f2425ca301ca9760bcf6c2953fabc85d5b7feb7d370a0  myparkingmanager-v2.3.0-update.zip
 
 Verify package integrity:
   sha256sum -c CHECKSUMS.txt
