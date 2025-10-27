@@ -12,12 +12,18 @@ class Security {
      * Generate CSRF token
      */
     public static function generateCsrfToken() {
-        if (!Session::has(self::$csrfTokenName) || self::isTokenExpired()) {
-            $token = bin2hex(random_bytes(32));
-            Session::set(self::$csrfTokenName, $token);
-            Session::set(self::$csrfTokenName . '_time', time());
+        // Return existing token if valid, otherwise generate new one
+        if (Session::has(self::$csrfTokenName) && !self::isTokenExpired()) {
+            return Session::get(self::$csrfTokenName);
         }
-        return Session::get(self::$csrfTokenName);
+        
+        // Generate new token
+        $token = bin2hex(random_bytes(32));
+        Session::set(self::$csrfTokenName, $token);
+        Session::set(self::$csrfTokenName . '_time', time());
+        error_log("New CSRF token generated: " . substr($token, 0, 10) . "...");
+        
+        return $token;
     }
     
     /**
