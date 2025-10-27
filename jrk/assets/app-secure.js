@@ -1583,7 +1583,9 @@ async function loadSettingsSection() {
             if (response.ok) {
                 showToast('Printer settings saved successfully', 'success');
             } else {
-                showToast('Error saving printer settings', 'error');
+                const errorData = await response.json();
+                console.error('Printer settings error:', errorData);
+                showToast(errorData.error || 'Error saving printer settings', 'error');
             }
         } catch (error) {
             console.error('Error saving printer settings:', error);

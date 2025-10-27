@@ -77,10 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             $sql = "INSERT INTO printer_settings (id, setting_key, setting_value) 
                     VALUES (UUID(), ?, ?)
-                    ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value),
-                                          updated_at = CURRENT_TIMESTAMP";
+                    ON DUPLICATE KEY UPDATE 
+                        setting_value = ?,
+                        updated_at = CURRENT_TIMESTAMP";
             
-            Database::execute($sql, [$key, $value]);
+            Database::execute($sql, [$key, $value, $value]);
         }
         
         logAudit('UPDATE', 'printer_settings', null, [
@@ -94,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         
     } catch (Exception $e) {
         error_log('Update printer settings error: ' . $e->getMessage());
-        jsonResponse(['error' => 'Failed to update settings'], 500);
+        jsonResponse(['error' => 'Failed to update settings: ' . $e->getMessage()], 500);
     }
 } else {
     jsonResponse(['error' => 'Method not allowed'], 405);
