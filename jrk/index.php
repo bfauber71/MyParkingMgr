@@ -10,6 +10,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // Include dependencies
+require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/includes/database.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/helpers.php';
@@ -34,9 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Initialize router
-$config = require __DIR__ . '/config.php';
-$router = new Router($config['base_path']);
+// Initialize router with dynamic configuration
+$config = ConfigLoader::load();
+$router = new Router(ConfigLoader::getBasePath());
+
+// Configuration route (for frontend)
+$router->get('/api/app-config', __DIR__ . '/api/app-config.php');
 
 // API Routes
 $router->post('/api/login', __DIR__ . '/api/login.php');

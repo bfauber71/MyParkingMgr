@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Violation Types - MyParkingManager</title>
+    <script src="assets/config.js"></script>
     <link rel="stylesheet" href="assets/style.css">
     <style>
         .violations-manager {
@@ -279,9 +280,12 @@
     </div>
 
     <script>
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
-            ? '/api'
-            : '/jrk/api';
+        // Use dynamic configuration
+        const MPM_CONFIG = window.MPM_CONFIG || {
+            basePath: '',
+            apiBase: '/api'
+        };
+        const API_BASE = MPM_CONFIG.apiBase;
 
         let violations = [];
         let csrfToken = '';

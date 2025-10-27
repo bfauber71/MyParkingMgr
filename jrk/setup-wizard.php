@@ -219,6 +219,14 @@ if ($step == 3 && isset($_SESSION['setup_config'])) {
                 // Initialize license system after saving config
                 License::initialize($installId);
                 
+                // Determine install path and base path
+                $installPath = dirname(__FILE__);
+                
+                // Ensure base_path is properly set without trailing slashes
+                if (isset($cfg['base_path'])) {
+                    $cfg['base_path'] = rtrim($cfg['base_path'], '/');
+                }
+                
                 $configContent = '<?php
 /**
  * MyParkingManager Configuration
@@ -231,6 +239,7 @@ return [
     \'app_name\' => ' . var_export($cfg['app_name'], true) . ',
     \'app_url\' => ' . var_export($cfg['app_url'], true) . ',
     \'base_path\' => ' . var_export($cfg['base_path'], true) . ',
+    \'install_path\' => ' . var_export($installPath, true) . ',
     
     // Database Configuration
     \'db\' => [

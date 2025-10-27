@@ -1,10 +1,14 @@
 // MyParkingManager - Frontend Application (Security Enhanced)
 
-// Get base path from server-injected config (fallback to auto-detection for development)
-const basePath = (window.APP_CONFIG && window.APP_CONFIG.basePath) 
-    ? window.APP_CONFIG.basePath 
-    : (window.location.pathname.startsWith('/jrk') ? '/jrk' : '');
-const API_BASE = `${basePath}/api`;
+// Get base path from dynamic configuration
+const MPM_CONFIG = window.MPM_CONFIG || {
+    basePath: (window.APP_CONFIG && window.APP_CONFIG.basePath) 
+        ? window.APP_CONFIG.basePath 
+        : '',
+    apiBase: '/api'
+};
+const basePath = MPM_CONFIG.basePath;
+const API_BASE = MPM_CONFIG.apiBase;
 let currentUser = null;
 let properties = [];
 let currentSection = 'vehicles';

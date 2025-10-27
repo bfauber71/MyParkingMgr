@@ -15,7 +15,8 @@ class Database {
             return self::$pdo;
         }
         
-        $config = require __DIR__ . '/../config.php';
+        require_once __DIR__ . '/config-loader.php';
+        $config = ConfigLoader::load();
         $db = $config['db'];
         
         try {
