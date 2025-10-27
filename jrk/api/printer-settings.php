@@ -45,12 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         jsonResponse(['error' => 'Admin access required to modify settings'], 403);
     }
     
+    // CSRF validation (checks both headers and body)
+    Security::requireCsrfProtection();
+    
     // Update printer settings
     $data = json_decode(file_get_contents('php://input'), true);
-    
-    if (!validateCsrfToken($data['csrf_token'] ?? '')) {
-        jsonResponse(['error' => 'Invalid CSRF token'], 403);
-    }
     
     try {
         $allowedSettings = [
