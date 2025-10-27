@@ -55,6 +55,7 @@
                     <button class="tab-btn" data-tab="properties" id="propertiesTab">Properties</button>
                     <button class="tab-btn" data-tab="database" id="databaseTab">Database</button>
                     <button class="tab-btn" data-tab="violations" id="violationsTab">Violations</button>
+                    <button class="tab-btn" data-tab="settings" id="settingsTab">Settings</button>
                 </div>
 
                 <!-- Vehicles Section -->
@@ -224,6 +225,54 @@
                     </header>
 
                     <div id="violationsResults"></div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settingsSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Settings</h2>
+                    </header>
+
+                    <div class="database-subsection">
+                        <div class="subsection-header">
+                            <h3>Violation Ticket Printer Settings</h3>
+                        </div>
+                        <div class="settings-info">
+                            <p class="help-text">Configure custom page sizes and logos for violation tickets.</p>
+                            <p class="help-text">Settings apply to individual violation tickets printed from the ticket view.</p>
+                            <div style="margin-top: 20px;">
+                                <button id="openPrinterSettingsBtn" class="btn btn-primary">Configure Printer Settings</button>
+                            </div>
+                            <div style="margin-top: 15px; padding: 15px; background: #f5f5f5; border-left: 4px solid #4a90e2;">
+                                <p><strong>Note:</strong> Printer settings are accessed through the violation ticket print page.</p>
+                                <p style="margin-top: 8px;">You can customize:</p>
+                                <ul style="margin-top: 8px; margin-left: 20px;">
+                                    <li>Ticket width and height (inches, mm, or cm)</li>
+                                    <li>Top and bottom logos</li>
+                                    <li>Custom page sizes for thermal printers</li>
+                                </ul>
+                                <p style="margin-top: 8px;"><strong>Default:</strong> 2.5" x 6" thermal printer ticket</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="database-subsection" style="margin-top: 30px;">
+                        <div class="subsection-header">
+                            <h3>About Violation Search Results Printing</h3>
+                        </div>
+                        <div class="settings-info">
+                            <p class="help-text"><strong>Violation Search Results</strong> automatically print on standard 8.5" x 11" (Letter) paper.</p>
+                            <p class="help-text" style="margin-top: 10px;">To print search results:</p>
+                            <ol style="margin-left: 20px; margin-top: 8px;">
+                                <li>Go to Database tab</li>
+                                <li>Use Violation Search & Reports section</li>
+                                <li>Set your search filters and click Search</li>
+                                <li>Click "Print Results" button</li>
+                                <li>A new window opens with printable table on 8.5x11 paper</li>
+                            </ol>
+                            <p class="help-text" style="margin-top: 10px;"><strong>Note:</strong> This is different from individual violation tickets which use custom sizes.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

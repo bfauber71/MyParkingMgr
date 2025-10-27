@@ -487,6 +487,8 @@ function switchTab(tabName) {
             loadUsersSection();
         } else if (tabName === 'violations') {
             loadViolationsManagementSection();
+        } else if (tabName === 'settings') {
+            loadSettingsSection();
         }
     } catch (error) {
         console.error('Error loading section:', tabName, error);
@@ -1156,7 +1158,145 @@ function displayViolationSearchResults(violations) {
 }
 
 async function handleViolationPrint() {
-    showToast('Print functionality coming soon', 'info');
+    const resultsDiv = document.getElementById('violationSearchResults');
+    if (!resultsDiv || !resultsDiv.querySelector('table')) {
+        showToast('No results to print', 'warning');
+        return;
+    }
+    
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        showToast('Please allow popups to print', 'error');
+        return;
+    }
+    
+    // Get the results table
+    const table = resultsDiv.querySelector('table').cloneNode(true);
+    
+    // Build print HTML
+    const printHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Violation Search Results</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 0.5in;
+                    background: white;
+                }
+                
+                h1 {
+                    font-size: 18px;
+                    margin-bottom: 10px;
+                    text-align: center;
+                }
+                
+                .print-info {
+                    font-size: 10px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                    color: #666;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 10px;
+                }
+                
+                th {
+                    background: #333;
+                    color: white;
+                    padding: 8px;
+                    text-align: left;
+                    font-weight: bold;
+                    border: 1px solid #000;
+                }
+                
+                td {
+                    padding: 6px 8px;
+                    border: 1px solid #ccc;
+                }
+                
+                tr:nth-child(even) {
+                    background: #f9f9f9;
+                }
+                
+                @media print {
+                    body {
+                        padding: 0.25in;
+                    }
+                    
+                    @page {
+                        size: letter;
+                        margin: 0.5in;
+                    }
+                    
+                    table {
+                        page-break-inside: auto;
+                    }
+                    
+                    tr {
+                        page-break-inside: avoid;
+                        page-break-after: auto;
+                    }
+                    
+                    thead {
+                        display: table-header-group;
+                    }
+                }
+                
+                .no-print {
+                    text-align: center;
+                    margin: 20px 0;
+                }
+                
+                .no-print button {
+                    background: #4a90e2;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    font-size: 14px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin: 0 5px;
+                }
+                
+                @media print {
+                    .no-print {
+                        display: none;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Violation Search Results</h1>
+            <div class="print-info">
+                Generated: ${new Date().toLocaleString()}<br>
+                Total Results: ${table.querySelectorAll('tbody tr').length}
+            </div>
+            
+            <div class="no-print">
+                <button onclick="window.print()">Print</button>
+                <button onclick="window.close()">Close</button>
+            </div>
+            
+            ${table.outerHTML}
+        </body>
+        </html>
+    `;
+    
+    printWindow.document.write(printHtml);
+    printWindow.document.close();
+    showToast('Print preview opened', 'success');
 }
 
 async function handleViolationExport() {
@@ -1290,6 +1430,19 @@ async function loadViolationsManagementSection() {
     }
     
     await loadViolations();
+}
+
+// Settings Section
+function loadSettingsSection() {
+    const openPrinterSettingsBtn = document.getElementById('openPrinterSettingsBtn');
+    
+    if (openPrinterSettingsBtn) {
+        openPrinterSettingsBtn.onclick = () => {
+            // Open violations-print.html with a demo ticket to access settings
+            window.open('violations-print.html?id=demo', '_blank');
+            showToast('Opening printer settings page', 'info');
+        };
+    }
 }
 
 async function loadViolations() {
