@@ -4,9 +4,6 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/security.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
-// Debug: Log request arrival
-file_put_contents('/tmp/printer_debug.log', date('Y-m-d H:i:s') . " - Request received: " . $_SERVER['REQUEST_METHOD'] . "\n", FILE_APPEND);
-
 Session::start();
 
 if (!Session::isAuthenticated()) {
@@ -43,29 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    file_put_contents('/tmp/printer_debug.log', "POST - Admin check\n", FILE_APPEND);
-    
     // Only admins can update printer settings
     if (Session::user()['role'] !== 'admin') {
-        file_put_contents('/tmp/printer_debug.log', "POST - Not admin, exit\n", FILE_APPEND);
         jsonResponse(['error' => 'Admin access required to modify settings'], 403);
     }
     
-    file_put_contents('/tmp/printer_debug.log', "POST - Before CSRF check\n", FILE_APPEND);
-    
     // CSRF validation (checks both headers and body)
     Security::validateRequest(['POST']);
-    
-    file_put_contents('/tmp/printer_debug.log', "POST - After CSRF check\n", FILE_APPEND);
     
     // Update printer settings
     // IMPORTANT: Use getJsonInput() instead of file_get_contents('php://input')
     // because CSRF validation already read the body
     $data = getJsonInput();
-    
-    // Debug logging to file
-    file_put_contents('/tmp/printer_debug.log', date('Y-m-d H:i:s') . " - POST received\n", FILE_APPEND);
-    file_put_contents('/tmp/printer_debug.log', "Settings keys: " . implode(', ', array_keys($data['settings'] ?? [])) . "\n", FILE_APPEND);
     
     try {
         $allowedSettings = [
@@ -79,26 +65,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ];
         
         foreach ($data['settings'] ?? [] as $key => $value) {
-            file_put_contents('/tmp/printer_debug.log', "Processing: $key\n", FILE_APPEND);
-            
             if (!in_array($key, $allowedSettings)) {
-                file_put_contents('/tmp/printer_debug.log', "  Skipped (not allowed)\n", FILE_APPEND);
+                error_log("Printer settings: Skipped invalid key: $key");
                 continue;
             }
             
             // Handle logo upload separately (base64 encoded images)
             if (($key === 'logo_top' || $key === 'logo_bottom') && $value !== null) {
-                $len = strlen($value);
-                file_put_contents('/tmp/printer_debug.log', "  Logo length: $len\n", FILE_APPEND);
                 // Validate it's a valid image data URL
                 if (!preg_match('/^data:image\/(png|jpg|jpeg|gif|webp);base64,/', $value)) {
-                    file_put_contents('/tmp/printer_debug.log', "  FAILED validation\n", FILE_APPEND);
+                    error_log("Printer settings: Invalid logo format for $key");
                     continue;
                 }
-                file_put_contents('/tmp/printer_debug.log', "  PASSED validation\n", FILE_APPEND);
             }
             
-            file_put_contents('/tmp/printer_debug.log', "  Executing SQL for $key\n", FILE_APPEND);
             $sql = "INSERT INTO printer_settings (id, setting_key, setting_value) 
                     VALUES (UUID(), ?, ?)
                     ON DUPLICATE KEY UPDATE 
@@ -106,7 +86,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         updated_at = CURRENT_TIMESTAMP";
             
             Database::execute($sql, [$key, $value, $value]);
-            file_put_contents('/tmp/printer_debug.log', "  SQL executed successfully\n", FILE_APPEND);
         }
         
         logAudit('UPDATE', 'printer_settings', null, [
