@@ -405,6 +405,7 @@ function showLogin() {
 }
 
 async function showDashboard() {
+    console.log('=== showDashboard() called ===');
     loginPage.style.display = 'none';
     dashboardPage.style.display = 'block';
     
@@ -416,6 +417,7 @@ async function showDashboard() {
     loadProperties().catch(err => console.error('Failed to load properties:', err));
     
     // Load and display license status badge
+    console.log('About to call loadLicenseStatus()...');
     loadLicenseStatus().catch(err => console.error('Failed to load license status:', err));
     
     // Immediately show vehicles tab
