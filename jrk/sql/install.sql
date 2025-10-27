@@ -264,7 +264,7 @@ INSERT INTO violations (id, name, display_order) VALUES
 CREATE TABLE printer_settings (
     id VARCHAR(36) PRIMARY KEY,
     setting_key VARCHAR(100) NOT NULL UNIQUE,
-    setting_value TEXT,
+    setting_value LONGTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_setting_key (setting_key)
