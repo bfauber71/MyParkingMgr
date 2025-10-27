@@ -1,0 +1,36 @@
+# ManageMyParking - Apache Configuration
+# This file enables URL rewriting for the application
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /jrk/
+    
+    # Don't rewrite existing files or directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Route everything through index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Disable caching for JavaScript and HTML (force fresh load)
+    <FilesMatch "\.(js|html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "(^\.htaccess|^config\.php|\.sql$)">
+    Require all denied
+</FilesMatch>
