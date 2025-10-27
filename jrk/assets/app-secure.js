@@ -415,8 +415,42 @@ async function showDashboard() {
     // Load properties in background, don't wait for it
     loadProperties().catch(err => console.error('Failed to load properties:', err));
     
+    // Load and display license status badge
+    loadLicenseStatus().catch(err => console.error('Failed to load license status:', err));
+    
     // Immediately show vehicles tab
     switchTab('vehicles');
+}
+
+// Load and display license status badge
+async function loadLicenseStatus() {
+    try {
+        const response = await secureApiCall(`${API_BASE}/license-status`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const badge = document.getElementById('licenseStatusBadge');
+            
+            if (badge && data.license) {
+                const status = data.license.status;
+                
+                if (status === 'trial') {
+                    badge.textContent = 'TRIAL';
+                    badge.className = 'license-badge trial';
+                } else if (status === 'expired') {
+                    badge.textContent = 'EXPIRED';
+                    badge.className = 'license-badge expired';
+                } else if (status === 'licensed') {
+                    badge.textContent = '';
+                    badge.className = 'license-badge';
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error loading license status:', error);
+    }
 }
 
 function showError(message) {
