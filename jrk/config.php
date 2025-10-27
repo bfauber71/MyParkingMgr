@@ -10,6 +10,7 @@ return [
     'app_name' => 'MyParkingManager',
     'app_url' => '',  // Full URL to your application (set via setup wizard)
     'base_path' => '',  // Subdirectory path or empty string for root (auto-detected)
+    'install_id' => 'fceee37b-b387-11f0-908f-0242ac1f52e2',  // Unique installation identifier
     
     // Database Configuration
     'db' => [
