@@ -1475,16 +1475,141 @@ async function loadViolationsManagementSection() {
 }
 
 // Settings Section
-function loadSettingsSection() {
-    const openPrinterSettingsBtn = document.getElementById('openPrinterSettingsBtn');
-    
-    if (openPrinterSettingsBtn) {
-        openPrinterSettingsBtn.onclick = () => {
-            // Open violations-print.html with a demo ticket to access settings
-            window.open('violations-print.html?id=demo', '_blank');
-            showToast('Opening printer settings page', 'info');
-        };
+async function loadSettingsSection() {
+    let printerSettings = {
+        ticket_width: '2.5',
+        ticket_height: '6',
+        ticket_unit: 'in',
+        logo_top: null,
+        logo_bottom: null,
+        logo_top_enabled: 'false',
+        logo_bottom_enabled: 'false'
+    };
+
+    // Load current settings from API
+    async function loadPrinterSettings() {
+        try {
+            const response = await secureApiCall(`${API_BASE}/printer-settings`, {
+                method: 'GET'
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                printerSettings = data.settings;
+                applySettingsToForm();
+            }
+        } catch (error) {
+            console.error('Error loading printer settings:', error);
+        }
     }
+
+    // Apply settings to form fields
+    function applySettingsToForm() {
+        document.getElementById('ticketWidth').value = printerSettings.ticket_width;
+        document.getElementById('ticketHeight').value = printerSettings.ticket_height;
+        document.getElementById('ticketUnit').value = printerSettings.ticket_unit;
+        document.getElementById('logoTopEnabled').checked = printerSettings.logo_top_enabled === 'true';
+        document.getElementById('logoBottomEnabled').checked = printerSettings.logo_bottom_enabled === 'true';
+
+        // Show/hide logo upload sections
+        document.getElementById('logoTopUpload').style.display = 
+            printerSettings.logo_top_enabled === 'true' ? 'block' : 'none';
+        document.getElementById('logoBottomUpload').style.display = 
+            printerSettings.logo_bottom_enabled === 'true' ? 'block' : 'none';
+
+        // Show logo previews
+        if (printerSettings.logo_top) {
+            document.getElementById('logoTopPreview').innerHTML = 
+                `<img src="${printerSettings.logo_top}" style="max-width: 200px; max-height: 100px;">`;
+        }
+        if (printerSettings.logo_bottom) {
+            document.getElementById('logoBottomPreview').innerHTML = 
+                `<img src="${printerSettings.logo_bottom}" style="max-width: 200px; max-height: 100px;">`;
+        }
+    }
+
+    // Handle checkbox toggles
+    document.getElementById('logoTopEnabled').addEventListener('change', function() {
+        document.getElementById('logoTopUpload').style.display = this.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('logoBottomEnabled').addEventListener('change', function() {
+        document.getElementById('logoBottomUpload').style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Handle logo uploads
+    document.getElementById('logoTopFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                printerSettings.logo_top = e.target.result;
+                document.getElementById('logoTopPreview').innerHTML = 
+                    `<img src="${e.target.result}" style="max-width: 200px; max-height: 100px;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('logoBottomFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                printerSettings.logo_bottom = e.target.result;
+                document.getElementById('logoBottomPreview').innerHTML = 
+                    `<img src="${e.target.result}" style="max-width: 200px; max-height: 100px;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Save settings
+    document.getElementById('savePrinterSettingsBtn').addEventListener('click', async function() {
+        try {
+            printerSettings.ticket_width = document.getElementById('ticketWidth').value;
+            printerSettings.ticket_height = document.getElementById('ticketHeight').value;
+            printerSettings.ticket_unit = document.getElementById('ticketUnit').value;
+            printerSettings.logo_top_enabled = document.getElementById('logoTopEnabled').checked ? 'true' : 'false';
+            printerSettings.logo_bottom_enabled = document.getElementById('logoBottomEnabled').checked ? 'true' : 'false';
+
+            const response = await secureApiCall(`${API_BASE}/printer-settings`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    settings: printerSettings
+                })
+            });
+
+            if (response.ok) {
+                showToast('Printer settings saved successfully', 'success');
+            } else {
+                showToast('Error saving printer settings', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving printer settings:', error);
+            showToast('Error saving printer settings', 'error');
+        }
+    });
+
+    // Reset to defaults
+    document.getElementById('resetPrinterSettingsBtn').addEventListener('click', function() {
+        printerSettings = {
+            ticket_width: '2.5',
+            ticket_height: '6',
+            ticket_unit: 'in',
+            logo_top: null,
+            logo_bottom: null,
+            logo_top_enabled: 'false',
+            logo_bottom_enabled: 'false'
+        };
+        applySettingsToForm();
+        document.getElementById('logoTopPreview').innerHTML = '';
+        document.getElementById('logoBottomPreview').innerHTML = '';
+        showToast('Settings reset to defaults', 'info');
+    });
+
+    // Load settings on page load
+    await loadPrinterSettings();
 }
 
 async function loadViolations() {

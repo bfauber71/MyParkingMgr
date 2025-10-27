@@ -245,22 +245,59 @@
                             <h3>Violation Ticket Printer Settings</h3>
                         </div>
                         <div class="settings-info">
-                            <p class="help-text">Configure custom page sizes and logos for violation tickets.</p>
-                            <p class="help-text">Settings apply to individual violation tickets printed from the ticket view.</p>
-                            <div style="margin-top: 20px;">
-                                <button id="openPrinterSettingsBtn" class="btn btn-primary">Configure Printer Settings</button>
-                            </div>
-                            <div style="margin-top: 15px; padding: 15px; background: #f5f5f5; border-left: 4px solid #4a90e2;">
-                                <p><strong>Note:</strong> Printer settings are accessed through the violation ticket print page.</p>
-                                <p style="margin-top: 8px;">You can customize:</p>
-                                <ul style="margin-top: 8px; margin-left: 20px;">
-                                    <li>Ticket width and height (inches, mm, or cm)</li>
-                                    <li>Top and bottom logos</li>
-                                    <li>Custom page sizes for thermal printers</li>
-                                </ul>
-                                <p style="margin-top: 8px;"><strong>Default:</strong> 2.5" x 6" thermal printer ticket</p>
-                            </div>
+                            <p class="help-text">Configure custom page sizes and logos for violation tickets printed from the ticket view.</p>
+                            <p class="help-text"><strong>Default:</strong> 2.5" x 6" thermal printer ticket</p>
                         </div>
+
+                        <form id="printerSettingsForm" style="margin-top: 20px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ticketWidth">Ticket Width</label>
+                                    <input type="number" id="ticketWidth" step="0.1" min="2" max="12" value="2.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticketHeight">Ticket Height</label>
+                                    <input type="number" id="ticketHeight" step="0.1" min="3" max="14" value="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticketUnit">Unit</label>
+                                    <select id="ticketUnit">
+                                        <option value="in">Inches</option>
+                                        <option value="mm">Millimeters</option>
+                                        <option value="cm">Centimeters</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label>
+                                    <input type="checkbox" id="logoTopEnabled">
+                                    Enable Top Logo
+                                </label>
+                                <div id="logoTopUpload" style="margin-top: 10px; display: none;">
+                                    <input type="file" id="logoTopFile" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('logoTopFile').click()">Choose Top Logo</button>
+                                    <div id="logoTopPreview" style="margin-top: 10px;"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="logoBottomEnabled">
+                                    Enable Bottom Logo
+                                </label>
+                                <div id="logoBottomUpload" style="margin-top: 10px; display: none;">
+                                    <input type="file" id="logoBottomFile" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('logoBottomFile').click()">Choose Bottom Logo</button>
+                                    <div id="logoBottomPreview" style="margin-top: 10px;"></div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <button type="button" id="savePrinterSettingsBtn" class="btn btn-primary">Save Settings</button>
+                                <button type="button" id="resetPrinterSettingsBtn" class="btn btn-secondary">Reset to Default</button>
+                            </div>
+                        </form>
                     </div>
 
                     <div class="database-subsection" style="margin-top: 30px;">
