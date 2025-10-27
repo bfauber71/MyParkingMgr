@@ -1928,6 +1928,7 @@ function openPropertyModal(property = null) {
         document.getElementById('propertyId').value = property.id;
         document.getElementById('propertyName').value = property.name;
         document.getElementById('propertyAddress').value = property.address || '';
+        document.getElementById('propertyTicketText').value = property.custom_ticket_text || '';
         
         if (property.contacts && property.contacts.length > 0) {
             property.contacts.forEach((contact, index) => {
@@ -2076,18 +2077,29 @@ async function deleteVehicle(id, tag) {
 async function handlePropertySubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const propertyId = form.querySelector('[name="property_id"]')?.value;
+    const propertyId = document.getElementById('propertyId').value;
     const isUpdate = propertyId && propertyId !== '';
     
+    const contacts = [];
+    for (let i = 1; i <= 3; i++) {
+        const name = document.getElementById(`contact${i}Name`).value.trim();
+        const phone = document.getElementById(`contact${i}Phone`).value.trim();
+        const email = document.getElementById(`contact${i}Email`).value.trim();
+        
+        if (name) {
+            contacts.push({
+                name: name,
+                phone: phone || '',
+                email: email || ''
+            });
+        }
+    }
+    
     const formData = {
-        name: form.querySelector('[name="name"]').value,
-        address: form.querySelector('[name="address"]').value,
-        city: form.querySelector('[name="city"]').value,
-        state: form.querySelector('[name="state"]').value,
-        zip: form.querySelector('[name="zip"]').value,
-        contact_name: form.querySelector('[name="contact_name"]')?.value || '',
-        contact_phone: form.querySelector('[name="contact_phone"]')?.value || '',
-        contact_email: form.querySelector('[name="contact_email"]')?.value || ''
+        name: document.getElementById('propertyName').value,
+        address: document.getElementById('propertyAddress').value,
+        custom_ticket_text: document.getElementById('propertyTicketText').value,
+        contacts: contacts
     };
     
     if (isUpdate) {

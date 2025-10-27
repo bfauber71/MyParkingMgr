@@ -14,6 +14,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 $name = trim($input['name'] ?? '');
 $address = trim($input['address'] ?? '');
+$customTicketText = trim($input['custom_ticket_text'] ?? '');
 $contacts = $input['contacts'] ?? [];
 
 if (empty($name)) {
@@ -60,10 +61,10 @@ try {
     $propertyId = $db->query("SELECT UUID()")->fetchColumn();
     
     $stmt = $db->prepare("
-        INSERT INTO properties (id, name, address, created_at, updated_at)
-        VALUES (?, ?, ?, NOW(), NOW())
+        INSERT INTO properties (id, name, address, custom_ticket_text, created_at, updated_at)
+        VALUES (?, ?, ?, ?, NOW(), NOW())
     ");
-    $stmt->execute([$propertyId, $name, $address]);
+    $stmt->execute([$propertyId, $name, $address, $customTicketText ?: null]);
     
     $contactStmt = $db->prepare("
         INSERT INTO property_contacts (property_id, name, phone, email, position, created_at, updated_at)

@@ -15,6 +15,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $propertyId = trim($input['id'] ?? '');
 $name = trim($input['name'] ?? '');
 $address = trim($input['address'] ?? '');
+$customTicketText = trim($input['custom_ticket_text'] ?? '');
 $contacts = $input['contacts'] ?? [];
 
 if (empty($propertyId)) {
@@ -79,10 +80,10 @@ try {
     
     $stmt = $db->prepare("
         UPDATE properties 
-        SET name = ?, address = ?, updated_at = NOW()
+        SET name = ?, address = ?, custom_ticket_text = ?, updated_at = NOW()
         WHERE id = ?
     ");
-    $stmt->execute([$name, $address, $propertyId]);
+    $stmt->execute([$name, $address, $customTicketText ?: null, $propertyId]);
     
     if ($name !== $oldProperty['name']) {
         $stmt = $db->prepare("UPDATE vehicles SET property = ? WHERE property = ?");

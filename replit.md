@@ -10,6 +10,33 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.4 Property-Specific Ticket Text & B/W Ticket Design
+
+**Property-Specific Custom Ticket Text:**
+- Added custom_ticket_text field to properties table and forms
+- Property managers can add custom text (e.g., tow company info, payment instructions)
+- Custom text displays on violation tickets below the fine total
+- Text is property-specific and appears on all tickets for that property
+- Migration file: sql/add-custom-ticket-text.sql
+
+**Black & White Ticket Design:**
+- Converted all ticket colors to black and white for better thermal printer compatibility
+- Replaced color-based emphasis with bold text and border styles
+- Fine section: 3px solid black border (was 2px with light background)
+- Tow warning: 3px double border with underline (was red text)
+- Custom property text: 2px solid border, center-aligned
+- Added ⚠ symbols to tow warning for visual emphasis
+- All buttons and UI elements now use black/gray instead of colors
+
+**Technical Details:**
+- violations-print.html: Updated styling and custom text display
+- index.html: +5 lines (added custom_ticket_text field to property form)
+- app-secure.js: Updated property form handling (+29 lines)
+- properties-create.php: Saves custom_ticket_text field
+- properties-update.php: Updates custom_ticket_text field
+- violations-ticket.php: Returns custom_ticket_text in ticket data
+- sql/install.sql: Added custom_ticket_text column to properties table
+
 ### October 27, 2025 - v2.3.3 Accessibility & Contrast Improvements
 
 **Improved Readability:**

@@ -66,6 +66,7 @@ CREATE TABLE properties (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     address TEXT,
+    custom_ticket_text TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_name (name)

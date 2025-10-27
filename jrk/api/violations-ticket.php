@@ -43,8 +43,8 @@ try {
         exit;
     }
     
-    // Check property access - verify user has permission to view this ticket
-    $stmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
+    // Check property access and get custom_ticket_text
+    $stmt = $db->prepare("SELECT id, custom_ticket_text FROM properties WHERE name = ?");
     $stmt->execute([$ticket['property']]);
     $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -52,6 +52,11 @@ try {
         http_response_code(403);
         echo json_encode(['error' => 'You do not have access to this ticket']);
         exit;
+    }
+    
+    // Add custom ticket text to ticket data
+    if ($propertyData) {
+        $ticket['property_custom_ticket_text'] = $propertyData['custom_ticket_text'];
     }
     
     // Fetch violation items with fine and tow information
