@@ -659,6 +659,11 @@ async function loadVehiclesSection() {
     const clearSearchBtn = document.getElementById('clearSearchBtn');
     const searchInput = document.getElementById('searchInput');
     const propertyFilter = document.getElementById('propertyFilter');
+    const addVehicleBtn = document.getElementById('addVehicleBtn');
+    
+    if (addVehicleBtn) {
+        addVehicleBtn.onclick = () => openVehicleModal();
+    }
     
     if (searchBtn) {
         searchBtn.onclick = async () => {
@@ -749,13 +754,19 @@ function displayVehicles(vehicles) {
         
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
-        const viewBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'View');
+        const editBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Edit');
+        const deleteBtn = createElement('button', { className: 'btn btn-sm btn-danger' }, 'Delete');
         
-        safeAddEventListener(viewBtn, 'click', () => {
-            showToast(`Vehicle details: ${vehicle.tag_number}`, 'info');
+        safeAddEventListener(editBtn, 'click', () => {
+            openVehicleModal(vehicle);
         });
         
-        actionsDiv.appendChild(viewBtn);
+        safeAddEventListener(deleteBtn, 'click', () => {
+            deleteVehicle(vehicle.id, vehicle.tag_number);
+        });
+        
+        if (canEditVehicles()) actionsDiv.appendChild(editBtn);
+        if (canDeleteVehicles()) actionsDiv.appendChild(deleteBtn);
         actionsTd.appendChild(actionsDiv);
         row.appendChild(actionsTd);
         tbody.appendChild(row);
@@ -768,6 +779,12 @@ function displayVehicles(vehicles) {
 
 // Users Section
 async function loadUsersSection() {
+    const addUserBtn = document.getElementById('addUserBtn');
+    
+    if (addUserBtn) {
+        addUserBtn.onclick = () => openUserModal();
+    }
+    
     try {
         const response = await secureApiCall(`${API_BASE}/users-list`, {
             method: 'GET'
@@ -825,12 +842,18 @@ function displayUsers(users) {
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
         const editBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Edit');
+        const deleteBtn = createElement('button', { className: 'btn btn-sm btn-danger' }, 'Delete');
         
         safeAddEventListener(editBtn, 'click', () => {
-            showToast(`Edit user: ${user.username}`, 'info');
+            editUser(user);
+        });
+        
+        safeAddEventListener(deleteBtn, 'click', () => {
+            deleteUser(user.id, user.username);
         });
         
         actionsDiv.appendChild(editBtn);
+        actionsDiv.appendChild(deleteBtn);
         actionsTd.appendChild(actionsDiv);
         row.appendChild(actionsTd);
         tbody.appendChild(row);
@@ -844,6 +867,168 @@ function displayUsers(users) {
 // Violations Section
 async function loadViolationsManagementSection() {
     showToast('Violations section loaded', 'info');
+}
+
+// Modal Management Functions
+function openPropertyModal(property = null) {
+    const modal = document.getElementById('propertyModal');
+    const title = document.getElementById('propertyModalTitle');
+    const form = modal.querySelector('form');
+    
+    if (property) {
+        title.textContent = 'Edit Property';
+        document.getElementById('propertyId').value = property.id;
+        document.getElementById('propertyName').value = property.name;
+        document.getElementById('propertyAddress').value = property.address || '';
+        
+        if (property.contacts && property.contacts.length > 0) {
+            property.contacts.forEach((contact, index) => {
+                if (index < 3) {
+                    document.getElementById(`contact${index + 1}Name`).value = contact.name || '';
+                    document.getElementById(`contact${index + 1}Phone`).value = contact.phone || '';
+                    document.getElementById(`contact${index + 1}Email`).value = contact.email || '';
+                }
+            });
+        }
+    } else {
+        title.textContent = 'Add Property';
+        form.reset();
+        document.getElementById('propertyId').value = '';
+    }
+    
+    modal.classList.add('show');
+}
+
+function editProperty(property) {
+    openPropertyModal(property);
+}
+
+async function deleteProperty(id, name) {
+    if (!confirm(`Are you sure you want to delete property "${name}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/properties-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            showToast('Property deleted successfully', 'success');
+            loadPropertiesSection();
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Failed to delete property', 'error');
+        }
+    } catch (error) {
+        showToast('Error deleting property', 'error');
+    }
+}
+
+function openUserModal(user = null) {
+    const modal = document.getElementById('userModal');
+    const title = document.getElementById('userModalTitle');
+    const form = modal.querySelector('form');
+    
+    if (user) {
+        title.textContent = 'Edit User';
+        document.getElementById('userId').value = user.id;
+        document.getElementById('userName').value = user.username;
+        document.getElementById('userEmail').value = user.email || '';
+        document.getElementById('userRole').value = user.role || 'user';
+        document.getElementById('userPassword').required = false;
+    } else {
+        title.textContent = 'Add User';
+        form.reset();
+        document.getElementById('userId').value = '';
+        document.getElementById('userPassword').required = true;
+    }
+    
+    modal.classList.add('show');
+}
+
+function editUser(user) {
+    openUserModal(user);
+}
+
+async function deleteUser(id, username) {
+    if (!confirm(`Are you sure you want to delete user "${username}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/users-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            showToast('User deleted successfully', 'success');
+            loadUsersSection();
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Failed to delete user', 'error');
+        }
+    } catch (error) {
+        showToast('Error deleting user', 'error');
+    }
+}
+
+function openVehicleModal(vehicle = null) {
+    const modal = document.getElementById('vehicleModal');
+    const title = document.getElementById('vehicleModalTitle');
+    const form = modal.querySelector('form');
+    
+    if (vehicle) {
+        title.textContent = 'Edit Vehicle';
+        document.getElementById('vehicleId').value = vehicle.id;
+        document.getElementById('vehicleTag').value = vehicle.tag_number || '';
+        document.getElementById('vehiclePlate').value = vehicle.plate_number || '';
+        document.getElementById('vehicleOwner').value = vehicle.owner_name || '';
+        document.getElementById('vehicleApt').value = vehicle.apt_number || '';
+        document.getElementById('vehicleMake').value = vehicle.make || '';
+        document.getElementById('vehicleModel').value = vehicle.model || '';
+        document.getElementById('vehicleColor').value = vehicle.color || '';
+        document.getElementById('vehicleYear').value = vehicle.year || '';
+        document.getElementById('vehicleProperty').value = vehicle.property || '';
+    } else {
+        title.textContent = 'Add Vehicle';
+        form.reset();
+        document.getElementById('vehicleId').value = '';
+    }
+    
+    modal.classList.add('show');
+}
+
+async function deleteVehicle(id, tag) {
+    if (!confirm(`Are you sure you want to delete vehicle ${tag}?`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/vehicles-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            showToast('Vehicle deleted successfully', 'success');
+            searchVehicles('', '');
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Failed to delete vehicle', 'error');
+        }
+    } catch (error) {
+        showToast('Error deleting vehicle', 'error');
+    }
+}
+
+// Helper Functions
+function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
 }
 
 // SECURITY: Input validation helper
