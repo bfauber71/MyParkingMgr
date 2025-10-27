@@ -114,7 +114,16 @@ $router->get('/.*', function() use ($config) {
     
     // Serve static assets directly
     if (preg_match('/\.(html|js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/', $uri)) {
-        $file = __DIR__ . '/public' . str_replace($config['base_path'], '', $uri);
+        // Remove base_path from URI to get relative path
+        $relativePath = str_replace($config['base_path'], '', $uri);
+        
+        // If the path already starts with /public, don't add it again
+        if (strpos($relativePath, '/public/') === 0) {
+            // Remove the /public prefix since we'll add it back
+            $relativePath = substr($relativePath, 7); // Remove '/public'
+        }
+        
+        $file = __DIR__ . '/public' . $relativePath;
         if (file_exists($file)) {
             // Proper MIME types for static assets
             $extension = pathinfo($file, PATHINFO_EXTENSION);
@@ -143,7 +152,10 @@ $router->get('/.*', function() use ($config) {
     }
     
     // Serve index.html for all other routes with injected config
-    $indexFile = __DIR__ . '/public/index.html';
+    // The public directory is always relative to the application root
+    $publicDir = __DIR__ . DIRECTORY_SEPARATOR . 'public';
+    $indexFile = $publicDir . DIRECTORY_SEPARATOR . 'index.html';
+    
     if (file_exists($indexFile)) {
         header('Content-Type: text/html');
         $html = file_get_contents($indexFile);

@@ -4,7 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Path Configuration - MyParkingManager</title>
-    <script src="../public/assets/config.js"></script>
+    <script>
+        // Detect base path dynamically
+        (function() {
+            const pathname = window.location.pathname;
+            const pathParts = pathname.split('/');
+            pathParts.pop(); // Remove current file
+            if (pathParts[pathParts.length - 1] === 'admin') {
+                pathParts.pop(); // Remove admin directory
+            }
+            const basePath = pathParts.join('/') || '';
+            
+            // Set default configuration
+            window.MPM_CONFIG = {
+                basePath: basePath,
+                apiBase: basePath + '/api',
+                appName: 'MyParkingManager'
+            };
+            window.API_BASE = window.MPM_CONFIG.apiBase;
+            
+            // Load config script dynamically
+            const configScript = document.createElement('script');
+            configScript.src = basePath + '/public/assets/config.js';
+            document.head.appendChild(configScript);
+        })();
+    </script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -130,11 +154,14 @@
         </div>
 
         <div style="margin-top: 30px;">
-            <a href="../public/index.html" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="#" id="dashboardBtn" class="btn btn-secondary">Back to Dashboard</a>
         </div>
     </div>
 
     <script>
+        // Set dashboard link dynamically
+        document.getElementById('dashboardBtn').href = window.MPM_CONFIG.basePath + '/public/index.html';
+        
         const API_BASE = window.MPM_CONFIG ? window.MPM_CONFIG.apiBase : '/api';
 
         async function loadConfig() {
