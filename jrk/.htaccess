@@ -16,11 +16,16 @@
     # Don't rewrite if already requesting index.php
     RewriteRule ^index\.php$ - [L]
     
+    # Route API calls to PHP files (add .php extension if missing)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/(.+)$ api/$1.php [L,QSA]
+    
     # Don't rewrite existing files or directories
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     
-    # Route everything through index.php
+    # Route everything else through index.php (for SPA routing)
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
