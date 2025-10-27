@@ -93,10 +93,6 @@ externalPort = 6800
 localPort = 46405
 externalPort = 5173
 
-[[ports]]
-localPort = 46417
-externalPort = 8099
-
 [nix]
 channel = "stable-25_05"
 packages = ["zip", "unzip", "imagemagick", "mariadb"]

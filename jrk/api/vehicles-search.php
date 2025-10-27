@@ -4,6 +4,10 @@
  * GET /api/vehicles/search?q=keyword&property=name
  */
 
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
 requireAuth();
 
 $query = $_GET['q'] ?? '';

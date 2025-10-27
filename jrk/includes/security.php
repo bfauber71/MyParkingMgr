@@ -21,7 +21,6 @@ class Security {
         $token = bin2hex(random_bytes(32));
         Session::set(self::$csrfTokenName, $token);
         Session::set(self::$csrfTokenName . '_time', time());
-        error_log("New CSRF token generated: " . substr($token, 0, 10) . "...");
         
         return $token;
     }
@@ -82,23 +81,11 @@ class Security {
         $headers = getallheaders();
         $csrfToken = null;
         
-        // Debug: Log all headers to see what's arriving
-        error_log("All headers received: " . json_encode(array_keys($headers)));
-        
-        if (isset($headers['X-CSRF-Token'])) {
-            $csrfToken = $headers['X-CSRF-Token'];
-            error_log("Found CSRF token in X-CSRF-Token header");
-        } elseif (isset($headers['x-csrf-token'])) {
-            $csrfToken = $headers['x-csrf-token'];
-            error_log("Found CSRF token in x-csrf-token header");
-        } else {
-            // Check for other variations
-            foreach ($headers as $key => $value) {
-                if (strtolower($key) === 'x-csrf-token') {
-                    $csrfToken = $value;
-                    error_log("Found CSRF token with key: $key");
-                    break;
-                }
+        // Check for CSRF token in headers (case-insensitive)
+        foreach ($headers as $key => $value) {
+            if (strtolower($key) === 'x-csrf-token') {
+                $csrfToken = $value;
+                break;
             }
         }
         
