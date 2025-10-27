@@ -31,10 +31,18 @@ async function getCsrfToken() {
         if (response.ok) {
             const data = await response.json();
             csrfToken = data.token;
+            console.log('CSRF token fetched successfully:', csrfToken ? 'valid' : 'null');
+        } else {
+            console.error('Failed to fetch CSRF token, status:', response.status);
         }
     } catch (error) {
         console.error('Failed to get CSRF token:', error);
     }
+    
+    if (!csrfToken) {
+        console.error('CSRF token is null after fetch attempt!');
+    }
+    
     return csrfToken;
 }
 
@@ -206,6 +214,8 @@ async function secureApiCall(url, options = {}) {
     
     if (token) {
         defaultHeaders['X-CSRF-Token'] = token;
+    } else {
+        console.warn('CSRF token is null - API call may fail for POST/PUT/DELETE requests');
     }
     
     const mergedOptions = {
