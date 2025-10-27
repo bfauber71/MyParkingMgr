@@ -51,9 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Update printer settings
     $data = json_decode(file_get_contents('php://input'), true);
     
-    // Debug logging to console output
-    error_log("=== PRINTER SETTINGS UPDATE ===");
-    error_log("Received data keys: " . implode(', ', array_keys($data['settings'] ?? [])));
+    // Debug logging to file
+    file_put_contents('/tmp/printer_debug.log', date('Y-m-d H:i:s') . " - POST received\n", FILE_APPEND);
+    file_put_contents('/tmp/printer_debug.log', "Settings keys: " . implode(', ', array_keys($data['settings'] ?? [])) . "\n", FILE_APPEND);
     
     try {
         $allowedSettings = [
@@ -67,22 +67,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ];
         
         foreach ($data['settings'] ?? [] as $key => $value) {
-            error_log("Processing setting: $key");
+            file_put_contents('/tmp/printer_debug.log', "Processing: $key\n", FILE_APPEND);
+            
             if (!in_array($key, $allowedSettings)) {
+                file_put_contents('/tmp/printer_debug.log', "  Skipped (not allowed)\n", FILE_APPEND);
                 continue;
             }
             
             // Handle logo upload separately (base64 encoded images)
             if (($key === 'logo_top' || $key === 'logo_bottom') && $value !== null) {
-                error_log("Received logo for $key, length: " . strlen($value));
+                $len = strlen($value);
+                file_put_contents('/tmp/printer_debug.log', "  Logo length: $len\n", FILE_APPEND);
                 // Validate it's a valid image data URL
                 if (!preg_match('/^data:image\/(png|jpg|jpeg|gif|webp);base64,/', $value)) {
-                    error_log("Logo validation failed for $key - invalid format");
+                    file_put_contents('/tmp/printer_debug.log', "  FAILED validation\n", FILE_APPEND);
                     continue;
                 }
-                error_log("Logo validated successfully for $key");
+                file_put_contents('/tmp/printer_debug.log', "  PASSED validation\n", FILE_APPEND);
             }
             
+            file_put_contents('/tmp/printer_debug.log', "  Executing SQL for $key\n", FILE_APPEND);
             $sql = "INSERT INTO printer_settings (id, setting_key, setting_value) 
                     VALUES (UUID(), ?, ?)
                     ON DUPLICATE KEY UPDATE 
@@ -90,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         updated_at = CURRENT_TIMESTAMP";
             
             Database::execute($sql, [$key, $value, $value]);
+            file_put_contents('/tmp/printer_debug.log', "  SQL executed successfully\n", FILE_APPEND);
         }
         
         logAudit('UPDATE', 'printer_settings', null, [
