@@ -424,27 +424,37 @@ async function showDashboard() {
 
 // Load and display license status badge
 async function loadLicenseStatus() {
+    console.log('loadLicenseStatus() called');
     try {
         const response = await secureApiCall(`${API_BASE}/license-status`, {
             method: 'GET'
         });
         
+        console.log('License status response:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('License data:', data);
             const badge = document.getElementById('licenseStatusBadge');
+            
+            console.log('Badge element found:', !!badge);
             
             if (badge && data.license) {
                 const status = data.license.status;
+                console.log('License status:', status);
                 
                 if (status === 'trial') {
                     badge.textContent = 'TRIAL';
                     badge.className = 'license-badge trial';
+                    console.log('Set TRIAL badge');
                 } else if (status === 'expired') {
                     badge.textContent = 'EXPIRED';
                     badge.className = 'license-badge expired';
+                    console.log('Set EXPIRED badge');
                 } else if (status === 'licensed') {
                     badge.textContent = '';
                     badge.className = 'license-badge';
+                    console.log('Cleared badge (licensed)');
                 }
             }
         }
