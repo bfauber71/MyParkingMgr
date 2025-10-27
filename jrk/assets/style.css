@@ -721,15 +721,16 @@ body {
 
 /* Violation Modal Styles */
 .violation-vehicle-info {
-    background: #1e293b;
-    padding: 14px;
+    background: #1e293b !important;
+    padding: 16px !important;
     border-radius: 6px;
     margin-bottom: 16px;
-    font-size: 16px;
-    color: #ffffff;
-    font-weight: 600;
+    font-size: 18px !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
     border: 2px solid #3b82f6;
-    line-height: 1.6;
+    line-height: 1.7;
+    min-height: 50px;
 }
 
 .violation-checkboxes {
