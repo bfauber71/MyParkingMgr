@@ -15,7 +15,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### October 27, 2025 - v2.3.7 MySQL Database Installation & Security Hardening
+### October 27, 2025 - v2.3.7 MySQL Database Installation & User Management Fixes
 
 **MySQL Database Environment Setup:**
 - Installed MariaDB 10.11.13 in Replit environment (MySQL-compatible)
@@ -24,6 +24,13 @@ Preferred communication style: Simple, everyday language.
 - Credentials: root/[no password] (development only)
 - All 12 tables successfully created (users, properties, vehicles, violations, etc.)
 - Default admin user: username `admin`, password `admin123`
+- Admin users now automatically assigned to all properties
+
+**User Management Fixes:**
+- Fixed api/user.php missing includes (session.php, helpers.php) - prevents login errors
+- Added setPermissionPreset() JavaScript function for quick permission assignment
+- Standardized all checkbox sizes to 16px (one-line height) for consistent UI
+- Fixed permission preset buttons (Admin/View Only/Custom) functionality
 
 **Setup Wizard Improvements:**
 - Fixed PDO::MYSQL_ATTR_USE_BUFFERED_QUERY configuration in all setup steps

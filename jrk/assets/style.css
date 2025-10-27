@@ -747,10 +747,10 @@ body {
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 10px 8px;
+    padding: 6px 8px;
     border-radius: 4px;
     transition: background 0.2s;
-    min-height: 44px;
+    min-height: 28px;
 }
 
 .checkbox-item label:hover {
@@ -758,9 +758,9 @@ body {
 }
 
 .checkbox-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    margin-right: 12px;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
     cursor: pointer;
     flex-shrink: 0;
 }
@@ -850,8 +850,8 @@ body {
 }
 
 .violation-checkbox-item input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 

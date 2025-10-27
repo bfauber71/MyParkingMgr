@@ -2228,6 +2228,23 @@ async function handlePropertySubmit(e) {
     }
 }
 
+// Set permission preset for user form
+function setPermissionPreset(preset) {
+    const checkboxes = document.querySelectorAll('#userModal .perm-check');
+    
+    checkboxes.forEach(checkbox => {
+        if (preset === 'admin') {
+            checkbox.checked = true;
+        } else if (preset === 'view') {
+            // View only: only check "view" checkboxes
+            checkbox.checked = checkbox.dataset.action === 'view';
+        } else if (preset === 'custom') {
+            // Custom: uncheck all
+            checkbox.checked = false;
+        }
+    });
+}
+
 async function handleUserSubmit(e) {
     e.preventDefault();
     const form = e.target;
