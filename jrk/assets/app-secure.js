@@ -176,6 +176,9 @@ function setupEventListeners() {
     const vehicleForm = document.querySelector('#vehicleModal form');
     if (vehicleForm) vehicleForm.addEventListener('submit', handleVehicleSubmit);
     
+    const violationTypeForm = document.querySelector('#violationTypeModal form');
+    if (violationTypeForm) violationTypeForm.addEventListener('submit', handleViolationTypeSubmit);
+    
     document.querySelectorAll('[data-modal]').forEach(btn => {
         btn.addEventListener('click', (e) => closeModalByName(e.target.dataset.modal));
     });
@@ -795,6 +798,9 @@ async function loadUsersSection() {
         addUserBtn.onclick = () => openUserModal();
     }
     
+    // Database page button handlers
+    setupDatabasePageHandlers();
+    
     try {
         const response = await secureApiCall(`${API_BASE}/users-list`, {
             method: 'GET'
@@ -806,6 +812,288 @@ async function loadUsersSection() {
         }
     } catch (error) {
         console.error('Error loading users:', error);
+    }
+}
+
+function setupDatabasePageHandlers() {
+    // Import/Export buttons
+    const importBtn = document.getElementById('importBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importFileInput = document.getElementById('importFileInput');
+    
+    if (importBtn) {
+        importBtn.onclick = () => {
+            if (importFileInput) importFileInput.click();
+        };
+    }
+    
+    if (importFileInput) {
+        importFileInput.onchange = handleImportFile;
+    }
+    
+    if (exportBtn) {
+        exportBtn.onclick = handleExportVehicles;
+    }
+    
+    // Bulk operations
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.onclick = handleBulkDelete;
+    }
+    
+    if (findDuplicatesBtn) {
+        findDuplicatesBtn.onclick = handleFindDuplicates;
+    }
+    
+    // Violation search
+    const violationSearchBtn = document.getElementById('violationSearchBtn');
+    const violationPrintBtn = document.getElementById('violationPrintBtn');
+    const violationExportBtn = document.getElementById('violationExportBtn');
+    
+    if (violationSearchBtn) {
+        violationSearchBtn.onclick = handleViolationSearch;
+    }
+    
+    if (violationPrintBtn) {
+        violationPrintBtn.onclick = handleViolationPrint;
+    }
+    
+    if (violationExportBtn) {
+        violationExportBtn.onclick = handleViolationExport;
+    }
+}
+
+async function handleImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const response = await fetch(`${API_BASE}/vehicles-import`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(`Successfully imported ${data.count || 0} vehicles`, 'success');
+            searchVehicles('', '');
+        } else {
+            showToast(data.error || 'Failed to import vehicles', 'error');
+        }
+    } catch (error) {
+        console.error('Error importing vehicles:', error);
+        showToast('Error importing vehicles', 'error');
+    }
+    
+    e.target.value = '';
+}
+
+async function handleExportVehicles() {
+    try {
+        const response = await secureApiCall(`${API_BASE}/vehicles-export`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vehicles_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            showToast('Vehicles exported successfully', 'success');
+        } else {
+            showToast('Failed to export vehicles', 'error');
+        }
+    } catch (error) {
+        console.error('Error exporting vehicles:', error);
+        showToast('Error exporting vehicles', 'error');
+    }
+}
+
+async function handleBulkDelete() {
+    const propertySelect = document.getElementById('bulkDeleteProperty');
+    if (!propertySelect || !propertySelect.value) {
+        showToast('Please select a property', 'error');
+        return;
+    }
+    
+    const propertyName = propertySelect.options[propertySelect.selectedIndex].text;
+    
+    if (!confirm(`Are you sure you want to delete ALL vehicles for property "${propertyName}"? This cannot be undone.`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/vehicles-bulk-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ property: propertySelect.value })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(`Deleted ${data.count || 0} vehicles`, 'success');
+            searchVehicles('', '');
+        } else {
+            showToast(data.error || 'Failed to delete vehicles', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting vehicles:', error);
+        showToast('Error deleting vehicles', 'error');
+    }
+}
+
+async function handleFindDuplicates() {
+    const criteriaSelect = document.getElementById('duplicateCriteria');
+    const resultsDiv = document.getElementById('duplicatesResults');
+    
+    if (!criteriaSelect || !resultsDiv) return;
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/vehicles-duplicates?criteria=${criteriaSelect.value}`, {
+            method: 'GET'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            if (data.duplicates && data.duplicates.length > 0) {
+                resultsDiv.innerHTML = `<p class="alert alert-warning">Found ${data.duplicates.length} duplicate(s)</p>`;
+                showToast(`Found ${data.duplicates.length} duplicates`, 'info');
+            } else {
+                resultsDiv.innerHTML = '<p class="alert alert-success">No duplicates found</p>';
+                showToast('No duplicates found', 'success');
+            }
+        } else {
+            showToast(data.error || 'Failed to find duplicates', 'error');
+        }
+    } catch (error) {
+        console.error('Error finding duplicates:', error);
+        showToast('Error finding duplicates', 'error');
+    }
+}
+
+async function handleViolationSearch() {
+    const startDate = document.getElementById('violationStartDate')?.value || '';
+    const endDate = document.getElementById('violationEndDate')?.value || '';
+    const property = document.getElementById('violationPropertyFilter')?.value || '';
+    const violationType = document.getElementById('violationTypeFilter')?.value || '';
+    const query = document.getElementById('violationSearchQuery')?.value || '';
+    
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (property) params.append('property', property);
+    if (violationType) params.append('violation_type', violationType);
+    if (query) params.append('query', query);
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-search?${params.toString()}`, {
+            method: 'GET'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            displayViolationSearchResults(data.violations || []);
+        } else {
+            showToast(data.error || 'Failed to search violations', 'error');
+        }
+    } catch (error) {
+        console.error('Error searching violations:', error);
+        showToast('Error searching violations', 'error');
+    }
+}
+
+function displayViolationSearchResults(violations) {
+    const resultsDiv = document.getElementById('violationSearchResults');
+    const countSpan = document.getElementById('violationResultsCount');
+    const actionsDiv = document.querySelector('.search-actions');
+    
+    if (!resultsDiv) return;
+    
+    if (countSpan) {
+        countSpan.textContent = `${violations.length} result(s) found`;
+    }
+    
+    if (actionsDiv) {
+        actionsDiv.style.display = violations.length > 0 ? 'block' : 'none';
+    }
+    
+    if (violations.length === 0) {
+        resultsDiv.innerHTML = '<p class="empty-state">No violations found matching your criteria.</p>';
+        return;
+    }
+    
+    const table = createElement('table', { className: 'data-table' });
+    const thead = createElement('thead');
+    const headerRow = createElement('tr');
+    ['Date', 'Vehicle', 'Violation', 'Property', 'Status'].forEach(text => {
+        const th = createElement('th', {}, text);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = createElement('tbody');
+    violations.forEach(violation => {
+        const row = createElement('tr');
+        [
+            formatDate(violation.created_at),
+            `${violation.tag_number || 'N/A'} (${violation.state || ''})`,
+            violation.violation_type || 'N/A',
+            violation.property_name || 'N/A',
+            violation.status || 'Active'
+        ].forEach(text => {
+            const td = createElement('td', {}, text);
+            row.appendChild(td);
+        });
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    
+    resultsDiv.innerHTML = '';
+    resultsDiv.appendChild(table);
+}
+
+async function handleViolationPrint() {
+    showToast('Print functionality coming soon', 'info');
+}
+
+async function handleViolationExport() {
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-export`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `violations_export_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            showToast('Violations exported successfully', 'success');
+        } else {
+            showToast('Failed to export violations', 'error');
+        }
+    } catch (error) {
+        console.error('Error exporting violations:', error);
+        showToast('Error exporting violations', 'error');
     }
 }
 
@@ -876,7 +1164,184 @@ function displayUsers(users) {
 
 // Violations Section
 async function loadViolationsManagementSection() {
-    showToast('Violations section loaded', 'info');
+    const addViolationBtn = document.getElementById('addViolationBtn');
+    
+    if (addViolationBtn) {
+        addViolationBtn.onclick = () => openViolationTypeModal();
+    }
+    
+    await loadViolations();
+}
+
+async function loadViolations() {
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayViolations(data.violations || []);
+        } else {
+            showToast('Failed to load violations', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading violations:', error);
+        showToast('Error loading violations', 'error');
+    }
+}
+
+function displayViolations(violations) {
+    const container = document.getElementById('violationsResults');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (violations.length === 0) {
+        container.innerHTML = '<p class="empty-state">No violations found. Click "Add Violation" to create a violation type.</p>';
+        return;
+    }
+    
+    const dataTable = createElement('div', { className: 'data-table' });
+    const table = createElement('table');
+    
+    const thead = createElement('thead');
+    const headerRow = createElement('tr');
+    ['Violation Type', 'Fine Amount', 'Tow Deadline', 'Display Order', 'Status', 'Actions'].forEach(text => {
+        const th = createElement('th', {}, text);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = createElement('tbody');
+    violations.forEach(violation => {
+        const row = createElement('tr');
+        
+        [
+            violation.name || 'N/A',
+            violation.fine_amount ? `$${parseFloat(violation.fine_amount).toFixed(2)}` : 'N/A',
+            violation.tow_deadline_hours ? `${violation.tow_deadline_hours} hours` : 'N/A',
+            violation.display_order || '0',
+            violation.is_active ? 'Active' : 'Inactive'
+        ].forEach(text => {
+            const td = createElement('td', {}, text);
+            row.appendChild(td);
+        });
+        
+        const actionsTd = createElement('td');
+        const actionsDiv = createElement('div', { className: 'actions' });
+        const editBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Edit');
+        const deleteBtn = createElement('button', { className: 'btn btn-sm btn-danger' }, 'Delete');
+        
+        safeAddEventListener(editBtn, 'click', () => {
+            editViolationType(violation);
+        });
+        
+        safeAddEventListener(deleteBtn, 'click', () => {
+            deleteViolationType(violation.id, violation.name);
+        });
+        
+        actionsDiv.appendChild(editBtn);
+        actionsDiv.appendChild(deleteBtn);
+        actionsTd.appendChild(actionsDiv);
+        row.appendChild(actionsTd);
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    dataTable.appendChild(table);
+    container.appendChild(dataTable);
+}
+
+function openViolationTypeModal(violation = null) {
+    const modal = document.getElementById('violationTypeModal');
+    const form = document.getElementById('violationTypeForm');
+    const title = document.getElementById('violationTypeModalTitle');
+    
+    if (!modal || !form) return;
+    
+    if (violation) {
+        title.textContent = 'Edit Violation Type';
+        document.getElementById('violationTypeId').value = violation.id;
+        document.getElementById('violationTypeName').value = violation.name || '';
+        document.getElementById('violationTypeDisplayOrder').value = violation.display_order || 0;
+        document.getElementById('violationTypeIsActive').checked = violation.is_active == 1;
+    } else {
+        title.textContent = 'Add Violation Type';
+        form.reset();
+        document.getElementById('violationTypeId').value = '';
+        document.getElementById('violationTypeIsActive').checked = true;
+    }
+    
+    modal.classList.add('show');
+}
+
+function editViolationType(violation) {
+    openViolationTypeModal(violation);
+}
+
+async function deleteViolationType(id, name) {
+    if (!confirm(`Are you sure you want to delete violation type "${name}"?`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
+        
+        if (response.ok) {
+            showToast('Violation type deleted successfully', 'success');
+            loadViolations();
+        } else {
+            const data = await response.json();
+            showToast(data.error || 'Failed to delete violation type', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting violation type:', error);
+        showToast('Error deleting violation type', 'error');
+    }
+}
+
+async function handleViolationTypeSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const violationId = form.querySelector('[name="id"]')?.value;
+    const isUpdate = violationId && violationId !== '';
+    
+    const formData = {
+        name: form.querySelector('[name="name"]').value,
+        display_order: parseInt(form.querySelector('[name="display_order"]').value) || 0,
+        is_active: form.querySelector('[name="is_active"]').checked ? 1 : 0
+    };
+    
+    if (isUpdate) {
+        formData.id = violationId;
+    }
+    
+    try {
+        const endpoint = isUpdate ? `${API_BASE}/violations-update` : `${API_BASE}/violations-create`;
+        const response = await secureApiCall(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(isUpdate ? 'Violation type updated successfully' : 'Violation type created successfully', 'success');
+            closeModalByName('violationType');
+            form.reset();
+            loadViolations();
+        } else {
+            showToast(data.error || 'Failed to save violation type', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving violation type:', error);
+        showToast('Error saving violation type', 'error');
+    }
 }
 
 // Modal Management Functions
