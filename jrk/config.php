@@ -13,11 +13,11 @@ return [
     
     // Database Configuration
     'db' => [
-        'host' => 'localhost',
+        'host' => '127.0.0.1',
         'port' => '3306',
         'database' => 'myparkingmanager',
-        'username' => 'your_db_username',
-        'password' => 'your_db_password',
+        'username' => 'root',
+        'password' => '',
         'charset' => 'utf8mb4',
     ],
     

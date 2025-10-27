@@ -14,6 +14,10 @@ author = "agent"
 task = "workflow.run"
 args = "PHP Test Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MySQL Server"
+
 [[workflows.workflow]]
 name = "PHP Test Server"
 author = "agent"
@@ -25,6 +29,21 @@ outputType = "webview"
 task = "shell.exec"
 args = "cd jrk && php -S 0.0.0.0:5000 router.php"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "MySQL Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mysqld --defaults-file=$HOME/my.cnf --user=$USER --skip-grant-tables"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3306
+externalPort = 8081
 
 [[ports]]
 localPort = 5000
@@ -80,4 +99,4 @@ externalPort = 5173
 
 [nix]
 channel = "stable-25_05"
-packages = ["zip", "unzip", "imagemagick"]
+packages = ["zip", "unzip", "imagemagick", "mariadb"]

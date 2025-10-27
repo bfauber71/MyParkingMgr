@@ -172,22 +172,31 @@ function importSQLFile($pdo, $filePath) {
         
         // Remove comments and split by semicolon
         $sql = preg_replace('/^\s*--.*$/m', '', $sql);
+        $sql = preg_replace('/^\s*\/\*.*?\*\//sm', '', $sql); // Remove /* */ comments
         $queries = array_filter(array_map('trim', explode(';', $sql)));
         
-        $pdo->beginTransaction();
+        // Disable foreign key checks during import
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
         
+        // Execute queries without transaction (some DDL statements auto-commit)
+        $count = 0;
         foreach ($queries as $query) {
             if (!empty($query)) {
+                // Use exec() for DDL statements
                 $pdo->exec($query);
+                $count++;
             }
         }
         
-        $pdo->commit();
-        return ['success' => true];
+        // Re-enable foreign key checks
+        $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+        
+        return ['success' => true, 'queries' => $count];
     } catch (PDOException $e) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollback();
-        }
+        // Make sure to re-enable foreign key checks even on error
+        try {
+            $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+        } catch (Exception $ignored) {}
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }

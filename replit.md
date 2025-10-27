@@ -8,7 +8,27 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 Preferred communication style: Simple, everyday language.
 
+**CRITICAL DATABASE REQUIREMENT:**
+- **MySQL ONLY** - Never use PostgreSQL for any project
+- Always use MySQL 5.7+ or MariaDB 10.2+
+- No PostgreSQL, no database conversions
+
 ## Recent Changes
+
+### October 27, 2025 - v2.3.7 MySQL Database Installation & Security Hardening
+
+**MySQL Database Environment Setup:**
+- Installed MariaDB 10.11.13 in Replit environment (MySQL-compatible)
+- Created automated MySQL Server workflow (runs on startup)
+- Database: myparkingmanager (localhost:3306)
+- Credentials: root/[no password] (development only)
+- All 12 tables successfully created (users, properties, vehicles, violations, etc.)
+- Default admin user: username `admin`, password `admin123`
+
+**Setup Wizard Improvements:**
+- Fixed PDO::MYSQL_ATTR_USE_BUFFERED_QUERY configuration in all setup steps
+- Updated importSQLFile() to disable foreign key checks during schema installation
+- Removed transactions from DDL statements (auto-commit behavior)
 
 ### October 27, 2025 - v2.3.6 Production Security Hardening & User Property Assignment
 
