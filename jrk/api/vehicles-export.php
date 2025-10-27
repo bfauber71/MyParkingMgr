@@ -54,7 +54,7 @@ try {
         'Property', 'Tag Number', 'Plate Number', 'State', 'Make', 'Model', 
         'Color', 'Year', 'Apt Number', 'Owner Name', 'Owner Phone', 
         'Owner Email', 'Reserved Space'
-    ]);
+    ], ',', '"', '\\');
     
     // Write data rows
     foreach ($vehicles as $vehicle) {
@@ -72,7 +72,7 @@ try {
             $vehicle['owner_phone'] ?? '',
             $vehicle['owner_email'] ?? '',
             $vehicle['reserved_space'] ?? ''
-        ]);
+        ], ',', '"', '\\');
     }
     
     fclose($output);
