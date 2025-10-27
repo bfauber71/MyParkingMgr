@@ -1041,16 +1041,20 @@ async function handleFindDuplicates() {
     if (!criteriaSelect || !resultsDiv) return;
     
     try {
-        const response = await secureApiCall(`${API_BASE}/vehicles-duplicates?criteria=${criteriaSelect.value}`, {
-            method: 'GET'
+        const response = await secureApiCall(`${API_BASE}/vehicles-duplicates`, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'find',
+                criteria: criteriaSelect.value
+            })
         });
         
         const data = await response.json();
         
-        if (response.ok && data.success) {
+        if (response.ok) {
             if (data.duplicates && data.duplicates.length > 0) {
-                resultsDiv.innerHTML = `<p class="alert alert-warning">Found ${data.duplicates.length} duplicate(s)</p>`;
-                showToast(`Found ${data.duplicates.length} duplicates`, 'info');
+                resultsDiv.innerHTML = `<p class="alert alert-warning">Found ${data.total_groups} duplicate group(s)</p>`;
+                showToast(`Found ${data.total_groups} duplicate group(s)`, 'info');
             } else {
                 resultsDiv.innerHTML = '<p class="alert alert-success">No duplicates found</p>';
                 showToast('No duplicates found', 'success');
@@ -1071,28 +1075,32 @@ async function handleViolationSearch() {
     const violationType = document.getElementById('violationTypeFilter')?.value || '';
     const query = document.getElementById('violationSearchQuery')?.value || '';
     
-    const params = new URLSearchParams();
-    if (startDate) params.append('start_date', startDate);
-    if (endDate) params.append('end_date', endDate);
-    if (property) params.append('property', property);
-    if (violationType) params.append('violation_type', violationType);
-    if (query) params.append('query', query);
+    const searchData = {};
+    if (startDate) searchData.start_date = startDate;
+    if (endDate) searchData.end_date = endDate;
+    if (property) searchData.property = property;
+    if (violationType) searchData.violation_type = violationType;
+    if (query) searchData.query = query;
     
     try {
-        const response = await secureApiCall(`${API_BASE}/violations-search?${params.toString()}`, {
-            method: 'GET'
+        const response = await secureApiCall(`${API_BASE}/violations-search`, {
+            method: 'POST',
+            body: JSON.stringify(searchData)
         });
         
         const data = await response.json();
         
-        if (response.ok && data.success) {
+        if (response.ok) {
             displayViolationSearchResults(data.violations || []);
+            showToast(`Found ${data.total || 0} violation(s)`, 'success');
         } else {
             showToast(data.error || 'Failed to search violations', 'error');
+            displayViolationSearchResults([]);
         }
     } catch (error) {
         console.error('Error searching violations:', error);
         showToast('Error searching violations', 'error');
+        displayViolationSearchResults([]);
     }
 }
 

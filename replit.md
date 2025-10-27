@@ -51,6 +51,13 @@ The system is built to handle multiple properties, track vehicles and violations
 - Added 115+ lines of new functionality
 - Update package: 20 KB (6 files)
 
+**API Method Fixes:**
+- Fixed handleFindDuplicates() to use POST instead of GET
+- Fixed handleViolationSearch() to use POST instead of GET
+- Both functions now send JSON request bodies matching API expectations
+- Improved error handling and user feedback
+- app-secure.js: 1,825 lines total
+
 **Previous Updates:**
 - Complete form submission handlers for Properties/Users/Vehicles
 - All modal and CRUD functions
