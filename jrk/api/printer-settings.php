@@ -59,7 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     file_put_contents('/tmp/printer_debug.log', "POST - After CSRF check\n", FILE_APPEND);
     
     // Update printer settings
-    $data = json_decode(file_get_contents('php://input'), true);
+    // IMPORTANT: Use getJsonInput() instead of file_get_contents('php://input')
+    // because CSRF validation already read the body
+    $data = getJsonInput();
     
     // Debug logging to file
     file_put_contents('/tmp/printer_debug.log', date('Y-m-d H:i:s') . " - POST received\n", FILE_APPEND);
