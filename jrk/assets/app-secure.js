@@ -595,6 +595,32 @@ function switchSettingsTab(subTabName) {
         loadUsersSection();
     } else if (subTabName === 'violations') {
         loadViolationsManagementSection();
+        setupViolationSearchHandlers();
+    }
+}
+
+// Set up violation search event handlers
+function setupViolationSearchHandlers() {
+    const violationSearchBtn = document.getElementById('violationSearchBtn');
+    const violationPrintBtn = document.getElementById('violationPrintBtn');
+    const violationExportBtn = document.getElementById('violationExportBtn');
+    const clearViolationSearchBtn = document.getElementById('clearViolationSearchBtn');
+    
+    if (violationSearchBtn) {
+        violationSearchBtn.onclick = handleViolationSearch;
+        secureLog('Violation search button handler attached');
+    }
+    
+    if (violationPrintBtn) {
+        violationPrintBtn.onclick = handleViolationPrint;
+    }
+    
+    if (violationExportBtn) {
+        violationExportBtn.onclick = handleViolationExport;
+    }
+    
+    if (clearViolationSearchBtn) {
+        clearViolationSearchBtn.onclick = handleClearViolationSearch;
     }
 }
 
