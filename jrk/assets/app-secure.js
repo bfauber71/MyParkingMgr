@@ -166,6 +166,16 @@ function setupEventListeners() {
         });
     });
     
+    // Form submissions
+    const propertyForm = document.querySelector('#propertyModal form');
+    if (propertyForm) propertyForm.addEventListener('submit', handlePropertySubmit);
+    
+    const userForm = document.querySelector('#userModal form');
+    if (userForm) userForm.addEventListener('submit', handleUserSubmit);
+    
+    const vehicleForm = document.querySelector('#vehicleModal form');
+    if (vehicleForm) vehicleForm.addEventListener('submit', handleVehicleSubmit);
+    
     document.querySelectorAll('[data-modal]').forEach(btn => {
         btn.addEventListener('click', (e) => closeModalByName(e.target.dataset.modal));
     });
@@ -1024,11 +1034,155 @@ async function deleteVehicle(id, tag) {
     }
 }
 
+// Form Submission Handlers
+async function handlePropertySubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const propertyId = form.querySelector('[name="property_id"]')?.value;
+    const isUpdate = propertyId && propertyId !== '';
+    
+    const formData = {
+        name: form.querySelector('[name="name"]').value,
+        address: form.querySelector('[name="address"]').value,
+        city: form.querySelector('[name="city"]').value,
+        state: form.querySelector('[name="state"]').value,
+        zip: form.querySelector('[name="zip"]').value,
+        contact_name: form.querySelector('[name="contact_name"]')?.value || '',
+        contact_phone: form.querySelector('[name="contact_phone"]')?.value || '',
+        contact_email: form.querySelector('[name="contact_email"]')?.value || ''
+    };
+    
+    if (isUpdate) {
+        formData.id = propertyId;
+    }
+    
+    try {
+        const endpoint = isUpdate ? `${API_BASE}/properties-update` : `${API_BASE}/properties-create`;
+        const response = await secureApiCall(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(isUpdate ? 'Property updated successfully' : 'Property created successfully', 'success');
+            closeModalByName('property');
+            form.reset();
+            loadPropertiesSection();
+        } else {
+            showToast(data.error || 'Failed to save property', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving property:', error);
+        showToast('Error saving property', 'error');
+    }
+}
+
+async function handleUserSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const userId = form.querySelector('[name="user_id"]')?.value;
+    const isUpdate = userId && userId !== '';
+    
+    const formData = {
+        username: form.querySelector('[name="username"]').value,
+        email: form.querySelector('[name="email"]').value,
+        role: form.querySelector('[name="role"]').value,
+        full_name: form.querySelector('[name="full_name"]')?.value || ''
+    };
+    
+    const passwordField = form.querySelector('[name="password"]');
+    if (passwordField && passwordField.value) {
+        formData.password = passwordField.value;
+    }
+    
+    if (isUpdate) {
+        formData.id = userId;
+    }
+    
+    try {
+        const endpoint = isUpdate ? `${API_BASE}/users-update` : `${API_BASE}/users-create`;
+        const response = await secureApiCall(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(isUpdate ? 'User updated successfully' : 'User created successfully', 'success');
+            closeModalByName('user');
+            form.reset();
+            loadUsersSection();
+        } else {
+            showToast(data.error || 'Failed to save user', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving user:', error);
+        showToast('Error saving user', 'error');
+    }
+}
+
+async function handleVehicleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const vehicleId = form.querySelector('[name="vehicle_id"]')?.value;
+    const isUpdate = vehicleId && vehicleId !== '';
+    
+    const formData = {
+        tag_number: form.querySelector('[name="tag_number"]').value,
+        state: form.querySelector('[name="state"]').value,
+        make: form.querySelector('[name="make"]')?.value || '',
+        model: form.querySelector('[name="model"]')?.value || '',
+        color: form.querySelector('[name="color"]')?.value || '',
+        property_id: form.querySelector('[name="property_id"]')?.value || null,
+        resident_name: form.querySelector('[name="resident_name"]')?.value || '',
+        unit_number: form.querySelector('[name="unit_number"]')?.value || '',
+        notes: form.querySelector('[name="notes"]')?.value || ''
+    };
+    
+    if (isUpdate) {
+        formData.id = vehicleId;
+    }
+    
+    try {
+        const endpoint = isUpdate ? `${API_BASE}/vehicles-update` : `${API_BASE}/vehicles-create`;
+        const response = await secureApiCall(endpoint, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(isUpdate ? 'Vehicle updated successfully' : 'Vehicle created successfully', 'success');
+            closeModalByName('vehicle');
+            form.reset();
+            searchVehicles('', '');
+        } else {
+            showToast(data.error || 'Failed to save vehicle', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving vehicle:', error);
+        showToast('Error saving vehicle', 'error');
+    }
+}
+
 // Helper Functions
 function formatDate(dateString) {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString();
+}
+
+function closeModalByName(modalName) {
+    const modal = document.getElementById(`${modalName}Modal`);
+    if (modal) {
+        modal.classList.remove('show');
+        const form = modal.querySelector('form');
+        if (form) form.reset();
+    }
 }
 
 // SECURITY: Input validation helper
