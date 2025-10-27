@@ -20,7 +20,7 @@ try {
     if ($role === 'admin' || $role === 'operator') {
         // Admin and Operator can see all properties
         $stmt = $db->prepare("
-            SELECT id, name, address, created_at 
+            SELECT id, name, address, custom_ticket_text, created_at 
             FROM properties 
             ORDER BY name ASC
         ");
@@ -28,7 +28,7 @@ try {
     } else {
         // Regular users only see assigned properties
         $stmt = $db->prepare("
-            SELECT p.id, p.name, p.address, p.created_at
+            SELECT p.id, p.name, p.address, p.custom_ticket_text, p.created_at
             FROM properties p
             INNER JOIN user_assigned_properties uap ON p.id = uap.property_id
             WHERE uap.user_id = ?
