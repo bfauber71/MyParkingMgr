@@ -10,6 +10,23 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.5 Production Server Compatibility Fixes
+
+**Critical Bug Fixes:**
+- Fixed login.php missing includes causing 500 errors
+- Fixed .htaccess API routing (API calls now work without .php extension)
+- Fixed printer_settings table column size (TEXT → LONGTEXT for logo support)
+- Fixed deprecated MySQL VALUES() syntax in printer-settings.php for compatibility
+- All fixes target production server compatibility issues
+
+**Technical Details:**
+- api/login.php: Added required includes (database, session, helpers, security)
+- .htaccess: Added API routing rule to append .php extension automatically
+- sql/fix-printer-settings-column-size.sql: Migration to support large base64 logos
+- sql/install.sql: Updated printer_settings.setting_value to LONGTEXT
+- sql/add-printer-settings-table.sql: Updated to use LONGTEXT
+- api/printer-settings.php: Replaced VALUES() with parameter binding
+
 ### October 27, 2025 - v2.3.4 Property-Specific Ticket Text & B/W Ticket Design
 
 **Property-Specific Custom Ticket Text:**

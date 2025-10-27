@@ -9,11 +9,12 @@
  * - Automatic reset after successful login or 1 hour
  */
 
-// Include security headers (lightweight integration)
-if (file_exists(__DIR__ . '/../includes/security.php')) {
-    require_once __DIR__ . '/../includes/security.php';
-    Security::setSecurityHeaders();
-}
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/security.php';
+
+Security::setSecurityHeaders();
 
 $data = getJsonInput();
 
