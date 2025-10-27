@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     file_put_contents('/tmp/printer_debug.log', "POST - Before CSRF check\n", FILE_APPEND);
     
     // CSRF validation (checks both headers and body)
-    Security::requireCsrfProtection();
+    Security::validateRequest(['POST']);
     
     file_put_contents('/tmp/printer_debug.log', "POST - After CSRF check\n", FILE_APPEND);
     
