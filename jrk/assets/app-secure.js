@@ -1977,7 +1977,7 @@ async function deleteProperty(id, name) {
     }
 }
 
-function openUserModal(user = null) {
+async function openUserModal(user = null) {
     const modal = document.getElementById('userModal');
     const title = document.getElementById('userModalTitle');
     const form = modal.querySelector('form');
@@ -1989,14 +1989,111 @@ function openUserModal(user = null) {
         document.getElementById('userEmail').value = user.email || '';
         document.getElementById('userRole').value = user.role || 'user';
         document.getElementById('userPassword').required = false;
+        
+        // Load permissions
+        await loadUserPermissions(user.id);
+        
+        // Load assigned properties
+        await loadUserProperties(user.id);
     } else {
         title.textContent = 'Add User';
         form.reset();
         document.getElementById('userId').value = '';
         document.getElementById('userPassword').required = true;
+        
+        // Clear permissions
+        document.querySelectorAll('.perm-check').forEach(checkbox => checkbox.checked = false);
+        
+        // Load properties list for new user
+        await loadUserProperties(null);
     }
     
     modal.classList.add('show');
+}
+
+// Load and display properties for user assignment
+async function loadUserProperties(userId) {
+    try {
+        // Fetch all properties
+        const response = await secureApiCall(`${API_BASE}/properties-list`, {
+            method: 'GET'
+        });
+        
+        if (!response.ok) {
+            console.error('Failed to load properties');
+            return;
+        }
+        
+        const data = await response.json();
+        const properties = data.properties || [];
+        
+        // Fetch user's assigned properties if editing
+        let assignedPropertyIds = [];
+        if (userId) {
+            const assignedResponse = await secureApiCall(`${API_BASE}/users-assigned-properties?user_id=${userId}`, {
+                method: 'GET'
+            });
+            
+            if (assignedResponse.ok) {
+                const assignedData = await assignedResponse.json();
+                assignedPropertyIds = assignedData.property_ids || [];
+            }
+        }
+        
+        // Render property checkboxes
+        const container = document.getElementById('userPropertiesCheckboxes');
+        if (properties.length === 0) {
+            container.innerHTML = '<div style="color: #94a3b8; padding: 10px;">No properties available. Create properties first.</div>';
+            return;
+        }
+        
+        container.innerHTML = properties.map(property => `
+            <div style="margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input 
+                        type="checkbox" 
+                        class="property-check" 
+                        data-property-id="${property.id}"
+                        ${assignedPropertyIds.includes(property.id) ? 'checked' : ''}
+                        style="margin-right: 8px;"
+                    >
+                    <span>${escapeHtml(property.name)}</span>
+                </label>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading properties:', error);
+    }
+}
+
+// Load user permissions (existing permission checkboxes)
+async function loadUserPermissions(userId) {
+    try {
+        const response = await secureApiCall(`${API_BASE}/users-permissions?user_id=${userId}`, {
+            method: 'GET'
+        });
+        
+        if (!response.ok) {
+            return;
+        }
+        
+        const data = await response.json();
+        const permissions = data.permissions || [];
+        
+        // Clear all checkboxes first
+        document.querySelectorAll('.perm-check').forEach(checkbox => checkbox.checked = false);
+        
+        // Check boxes based on permissions
+        permissions.forEach(perm => {
+            const checkbox = document.querySelector(`.perm-check[data-module="${perm.module}"][data-action="${perm.action}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+    } catch (error) {
+        console.error('Error loading permissions:', error);
+    }
 }
 
 function editUser(user) {
