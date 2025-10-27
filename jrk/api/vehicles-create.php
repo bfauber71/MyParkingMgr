@@ -3,7 +3,8 @@ require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
-Session::start();
+// Require authentication (includes CSRF validation)
+requireAuth();
 
 $input = json_decode(file_get_contents('php://input'), true);
 $vehicleId = isset($input['id']) && $input['id'] !== '' ? trim($input['id']) : null;

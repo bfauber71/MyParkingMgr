@@ -1,23 +1,16 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/middleware.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/security.php';
 
 header('Content-Type: application/json');
 
-// Require authentication
+// Require authentication (includes CSRF validation)
 requireAuth();
 
-// CSRF protection
-validateCsrfToken();
-
 // Check permissions
-if (!hasPermission('edit_vehicles')) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Permission denied']);
-    exit;
-}
+requirePermission(MODULE_VEHICLES, ACTION_EDIT);
 
 try {
     // Get input data
