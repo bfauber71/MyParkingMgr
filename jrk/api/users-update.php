@@ -78,5 +78,5 @@ try {
     ]);
 } catch (PDOException $e) {
     error_log("User Update Error: " . $e->getMessage());
-    jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
+    jsonResponse(['error' => 'Failed to update user'], 500);
 }

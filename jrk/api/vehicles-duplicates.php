@@ -101,5 +101,5 @@ try {
     }
 } catch (Exception $e) {
     error_log("Duplicates error: " . $e->getMessage());
-    jsonResponse(['error' => 'Operation failed: ' . $e->getMessage()], 500);
+    jsonResponse(['error' => 'Operation failed'], 500);
 }

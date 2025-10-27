@@ -32,9 +32,13 @@ require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/includes/database.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/helpers.php';
+require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/router.php';
 require_once __DIR__ . '/includes/license.php';
 require_once __DIR__ . '/includes/middleware.php';
+
+// PRODUCTION SECURITY: Set security headers globally
+Security::setSecurityHeaders();
 
 // Start session
 Session::start();

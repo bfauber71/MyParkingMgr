@@ -45,5 +45,5 @@ try {
     ]);
 } catch (Exception $e) {
     error_log("Bulk delete error: " . $e->getMessage());
-    jsonResponse(['error' => 'Failed to delete vehicles: ' . $e->getMessage()], 500);
+    jsonResponse(['error' => 'Failed to delete vehicles'], 500);
 }

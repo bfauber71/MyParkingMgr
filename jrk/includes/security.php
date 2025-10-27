@@ -69,14 +69,8 @@ class Security {
             return true;
         }
         
-        // Check if we're in development mode (skip CSRF in dev)
-        $isDevelopment = ($_SERVER['HTTP_HOST'] ?? '') === 'localhost' || 
-                         ($_SERVER['HTTP_HOST'] ?? '') === '127.0.0.1' ||
-                         strpos($_SERVER['HTTP_HOST'] ?? '', 'replit') !== false;
-        
-        if ($isDevelopment) {
-            return true; // Skip CSRF in development
-        }
+        // PRODUCTION SECURITY: Never skip CSRF validation
+        // CSRF protection is ALWAYS enforced for all POST/PUT/DELETE requests
         
         // Get CSRF token from headers or body
         $headers = getallheaders();
@@ -450,16 +444,10 @@ function securityMiddleware() {
     $identifier = getClientIp() . ':' . $_SERVER['REQUEST_URI'];
     Security::checkRateLimit($identifier, 60, 1);
     
-    // For demo/development, you might want to skip CSRF
-    $isDevelopment = ($_SERVER['HTTP_HOST'] ?? '') === 'localhost' || 
-                     ($_SERVER['HTTP_HOST'] ?? '') === '127.0.0.1';
-    
-    if (!$isDevelopment) {
-        // Validate CSRF for state-changing operations
-        $method = $_SERVER['REQUEST_METHOD'];
-        if ($method === 'POST' || $method === 'PUT' || $method === 'DELETE') {
-            Security::validateRequest([$method]);
-        }
+    // PRODUCTION SECURITY: Always validate CSRF for state-changing operations
+    $method = $_SERVER['REQUEST_METHOD'];
+    if ($method === 'POST' || $method === 'PUT' || $method === 'DELETE') {
+        Security::validateRequest([$method]);
     }
 }
 
