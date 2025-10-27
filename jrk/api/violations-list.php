@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/session.php';
-
-Session::start();
+require_once __DIR__ . '/../includes/helpers.php';
 
 // Require authentication and view permission for violations
 requirePermission(MODULE_VIOLATIONS, ACTION_VIEW);
