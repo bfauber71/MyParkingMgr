@@ -25,6 +25,13 @@ The system is built to handle multiple properties, track vehicles and violations
 - Opens violations-print.html with ticket ID for reprinting
 - One-click access to existing violation tickets
 
+**Printer Settings Streamlined:**
+- Removed settings UI from violations-print.html page
+- Settings now only accessible from main Settings tab (admin only)
+- violations-print.html shows only "Print Ticket" button
+- Saved settings still applied automatically to all printed tickets
+- Cleaner, simpler printing experience
+
 **New Functions (2):**
 - openCreateTicketModal(vehicle) - Displays violation selection modal
 - handleCreateViolation(event) - Processes ticket creation and printing
@@ -40,9 +47,9 @@ The system is built to handle multiple properties, track vehicles and violations
 
 **File Stats:**
 - app-secure.js: 2,129 lines, 66 functions (was 64)
-- index.html: 659 lines (unchanged, modal already existed)
+- violations-print.html: 369 lines (was 586, removed 217 lines of settings UI)
 - style.css: 1,304 lines (added 46 lines for styling)
-- Total: 151 new lines of functionality
+- Total: 151 new lines of functionality, 217 lines removed for cleaner UX
 
 ### October 27, 2025 - v2.3.1 Print Functionality & Settings Page
 

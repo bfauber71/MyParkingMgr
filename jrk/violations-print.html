@@ -133,51 +133,6 @@
             background: #357abd;
         }
 
-        .settings-panel {
-            background: white;
-            padding: 20px;
-            margin: 20px auto;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .settings-row {
-            margin-bottom: 15px;
-        }
-
-        .settings-row label {
-            display: inline-block;
-            width: 150px;
-            font-weight: bold;
-        }
-
-        .settings-row input[type="number"],
-        .settings-row select {
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .settings-row input[type="file"] {
-            display: none;
-        }
-
-        .logo-upload-btn {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .logo-preview {
-            max-width: 200px;
-            max-height: 100px;
-            margin-top: 10px;
-        }
-
         @media print {
             body {
                 background: white;
@@ -191,10 +146,6 @@
             }
 
             .no-print {
-                display: none !important;
-            }
-
-            .settings-panel {
                 display: none !important;
             }
 
@@ -213,45 +164,8 @@
     </style>
 </head>
 <body>
-    <!-- Print Settings Panel -->
-    <div class="no-print settings-panel">
-        <h3>Printer Settings</h3>
-        <div class="settings-row">
-            <label>Ticket Width:</label>
-            <input type="number" id="ticketWidth" value="2.5" step="0.1" min="2" max="8">
-            <select id="ticketUnit">
-                <option value="in">inches</option>
-                <option value="mm">millimeters</option>
-                <option value="cm">centimeters</option>
-            </select>
-        </div>
-        <div class="settings-row">
-            <label>Ticket Height:</label>
-            <input type="number" id="ticketHeight" value="6" step="0.1" min="3" max="11">
-        </div>
-        <div class="settings-row">
-            <label>Top Logo:</label>
-            <input type="checkbox" id="logoTopEnabled"> Enable
-            <input type="file" id="logoTopFile" accept="image/*">
-            <button class="logo-upload-btn" onclick="document.getElementById('logoTopFile').click()">Choose Logo</button>
-            <div id="logoTopPreview"></div>
-        </div>
-        <div class="settings-row">
-            <label>Bottom Logo:</label>
-            <input type="checkbox" id="logoBottomEnabled"> Enable
-            <input type="file" id="logoBottomFile" accept="image/*">
-            <button class="logo-upload-btn" onclick="document.getElementById('logoBottomFile').click()">Choose Logo</button>
-            <div id="logoBottomPreview"></div>
-        </div>
-        <div class="settings-row">
-            <button onclick="saveSettings()">Save Settings</button>
-            <button onclick="resetSettings()">Reset to Default</button>
-        </div>
-    </div>
-
     <div class="no-print">
         <button onclick="window.print()">Print Ticket</button>
-        <button onclick="toggleSettings()">Printer Settings</button>
     </div>
 
     <div id="ticketContent" class="loading">Loading ticket...</div>
@@ -296,21 +210,6 @@
         }
 
         function applySettings() {
-            document.getElementById('ticketWidth').value = printerSettings.ticket_width;
-            document.getElementById('ticketHeight').value = printerSettings.ticket_height;
-            document.getElementById('ticketUnit').value = printerSettings.ticket_unit;
-            document.getElementById('logoTopEnabled').checked = printerSettings.logo_top_enabled === 'true';
-            document.getElementById('logoBottomEnabled').checked = printerSettings.logo_bottom_enabled === 'true';
-
-            if (printerSettings.logo_top && printerSettings.logo_top_enabled === 'true') {
-                document.getElementById('logoTopPreview').innerHTML = 
-                    `<img src="${printerSettings.logo_top}" class="logo-preview">`;
-            }
-            if (printerSettings.logo_bottom && printerSettings.logo_bottom_enabled === 'true') {
-                document.getElementById('logoBottomPreview').innerHTML = 
-                    `<img src="${printerSettings.logo_bottom}" class="logo-preview">`;
-            }
-
             updateTicketStyles();
         }
 
@@ -333,93 +232,6 @@
             styleElement.innerHTML = updatedStyles;
         }
 
-        async function saveSettings() {
-            try {
-                // Update settings from UI
-                printerSettings.ticket_width = document.getElementById('ticketWidth').value;
-                printerSettings.ticket_height = document.getElementById('ticketHeight').value;
-                printerSettings.ticket_unit = document.getElementById('ticketUnit').value;
-                printerSettings.logo_top_enabled = document.getElementById('logoTopEnabled').checked ? 'true' : 'false';
-                printerSettings.logo_bottom_enabled = document.getElementById('logoBottomEnabled').checked ? 'true' : 'false';
-
-                // Get CSRF token
-                const tokenResponse = await fetch(`${API_BASE}/csrf-token`, {
-                    credentials: 'include'
-                });
-                const tokenData = await tokenResponse.json();
-
-                const response = await fetch(`${API_BASE}/printer-settings`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        csrf_token: tokenData.token,
-                        settings: printerSettings
-                    })
-                });
-
-                if (response.ok) {
-                    alert('Settings saved successfully');
-                    applySettings();
-                    // Reload ticket with new settings
-                    loadTicket();
-                } else if (response.status === 403) {
-                    alert('Only administrators can modify printer settings');
-                } else {
-                    alert('Error saving settings');
-                }
-            } catch (error) {
-                console.error('Error saving settings:', error);
-                alert('Error saving settings');
-            }
-        }
-
-        function resetSettings() {
-            printerSettings = {
-                ticket_width: '2.5',
-                ticket_height: '6',
-                ticket_unit: 'in',
-                logo_top: null,
-                logo_bottom: null,
-                logo_top_enabled: 'false',
-                logo_bottom_enabled: 'false'
-            };
-            applySettings();
-        }
-
-        function toggleSettings() {
-            const panel = document.querySelector('.settings-panel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Handle logo uploads
-        document.getElementById('logoTopFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    printerSettings.logo_top = e.target.result;
-                    document.getElementById('logoTopPreview').innerHTML = 
-                        `<img src="${e.target.result}" class="logo-preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('logoBottomFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    printerSettings.logo_bottom = e.target.result;
-                    document.getElementById('logoBottomPreview').innerHTML = 
-                        `<img src="${e.target.result}" class="logo-preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
 
         async function loadTicket() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -548,36 +360,8 @@
             document.getElementById('ticketContent').innerHTML = html;
         }
 
-        // Check if user is admin
-        async function checkAdminAccess() {
-            try {
-                const response = await fetch(`${API_BASE}/user`, {
-                    credentials: 'include'
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    const isAdmin = data.user && data.user.role === 'admin';
-                    
-                    // Show/hide settings button based on admin status
-                    const settingsBtn = document.querySelector('button[onclick="toggleSettings()"]');
-                    if (settingsBtn) {
-                        settingsBtn.style.display = isAdmin ? 'inline-block' : 'none';
-                    }
-                    
-                    // Hide settings panel for non-admins
-                    if (!isAdmin) {
-                        document.querySelector('.settings-panel').style.display = 'none';
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking admin access:', error);
-            }
-        }
-
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async () => {
-            await checkAdminAccess();
             await loadSettings();
             await loadTicket();
         });
