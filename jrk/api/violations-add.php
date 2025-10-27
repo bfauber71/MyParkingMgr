@@ -13,6 +13,8 @@ $user = Session::user();
 $data = json_decode(file_get_contents('php://input'), true);
 
 $name = trim($data['name'] ?? '');
+$fineAmount = isset($data['fine_amount']) && $data['fine_amount'] !== '' ? floatval($data['fine_amount']) : null;
+$towDeadlineHours = isset($data['tow_deadline_hours']) && $data['tow_deadline_hours'] !== '' ? intval($data['tow_deadline_hours']) : null;
 $displayOrder = (int)($data['display_order'] ?? 0);
 $isActive = isset($data['is_active']) ? (bool)$data['is_active'] : true;
 
@@ -28,12 +30,20 @@ try {
     $id = Database::uuid();
     
     $stmt = $db->prepare("
-        INSERT INTO violations (id, name, display_order, is_active)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO violations (id, name, fine_amount, tow_deadline_hours, display_order, is_active)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->execute([$id, $name, $displayOrder, $isActive ? 1 : 0]);
+    $stmt->execute([$id, $name, $fineAmount, $towDeadlineHours, $displayOrder, $isActive ? 1 : 0]);
     
-    auditLog('create_violation', 'violations', $id, "Created violation: $name");
+    $details = "Created violation: $name";
+    if ($fineAmount !== null) {
+        $details .= ", fine: \$$fineAmount";
+    }
+    if ($towDeadlineHours !== null) {
+        $details .= ", tow deadline: {$towDeadlineHours}hrs";
+    }
+    
+    auditLog('create_violation', 'violations', $id, $details);
     
     echo json_encode([
         'success' => true,

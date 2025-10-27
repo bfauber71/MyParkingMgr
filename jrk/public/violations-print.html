@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Violation Ticket</title>
-    <style>
+    <style id="dynamicStyles">
         * {
             margin: 0;
             padding: 0;
@@ -24,6 +24,19 @@
             margin: 0 auto;
             padding: 0.1in;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .logo-section img {
+            max-width: 100%;
+            max-height: 0.75in;
+            object-fit: contain;
         }
 
         .ticket-header {
@@ -56,6 +69,7 @@
             font-size: 10px;
             margin-bottom: 10px;
             padding-left: 15px;
+            flex: 1;
         }
 
         .violations-list li {
@@ -69,11 +83,22 @@
             line-height: 1.4;
         }
 
+        .fine-section {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            padding: 8px;
+            border: 2px solid #000;
+            background-color: #f9f9f9;
+        }
+
         .tow-warning {
             font-size: 11px;
             font-weight: bold;
             margin-bottom: 10px;
             text-align: center;
+            color: #d00;
         }
 
         .property-info {
@@ -100,10 +125,56 @@
             font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
+            margin: 0 5px;
         }
 
         .no-print button:hover {
             background: #357abd;
+        }
+
+        .settings-panel {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .settings-row {
+            margin-bottom: 15px;
+        }
+
+        .settings-row label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+
+        .settings-row input[type="number"],
+        .settings-row select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .settings-row input[type="file"] {
+            display: none;
+        }
+
+        .logo-upload-btn {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .logo-preview {
+            max-width: 200px;
+            max-height: 100px;
+            margin-top: 10px;
         }
 
         @media print {
@@ -113,15 +184,17 @@
             }
 
             .ticket-container {
-                width: 2.5in;
-                height: 6in;
                 margin: 0;
                 box-shadow: none;
                 page-break-after: avoid;
             }
 
             .no-print {
-                display: none;
+                display: none !important;
+            }
+
+            .settings-panel {
+                display: none !important;
             }
 
             @page {
@@ -139,8 +212,45 @@
     </style>
 </head>
 <body>
+    <!-- Print Settings Panel -->
+    <div class="no-print settings-panel">
+        <h3>Printer Settings</h3>
+        <div class="settings-row">
+            <label>Ticket Width:</label>
+            <input type="number" id="ticketWidth" value="2.5" step="0.1" min="2" max="8">
+            <select id="ticketUnit">
+                <option value="in">inches</option>
+                <option value="mm">millimeters</option>
+                <option value="cm">centimeters</option>
+            </select>
+        </div>
+        <div class="settings-row">
+            <label>Ticket Height:</label>
+            <input type="number" id="ticketHeight" value="6" step="0.1" min="3" max="11">
+        </div>
+        <div class="settings-row">
+            <label>Top Logo:</label>
+            <input type="checkbox" id="logoTopEnabled"> Enable
+            <input type="file" id="logoTopFile" accept="image/*">
+            <button class="logo-upload-btn" onclick="document.getElementById('logoTopFile').click()">Choose Logo</button>
+            <div id="logoTopPreview"></div>
+        </div>
+        <div class="settings-row">
+            <label>Bottom Logo:</label>
+            <input type="checkbox" id="logoBottomEnabled"> Enable
+            <input type="file" id="logoBottomFile" accept="image/*">
+            <button class="logo-upload-btn" onclick="document.getElementById('logoBottomFile').click()">Choose Logo</button>
+            <div id="logoBottomPreview"></div>
+        </div>
+        <div class="settings-row">
+            <button onclick="saveSettings()">Save Settings</button>
+            <button onclick="resetSettings()">Reset to Default</button>
+        </div>
+    </div>
+
     <div class="no-print">
         <button onclick="window.print()">Print Ticket</button>
+        <button onclick="toggleSettings()">Printer Settings</button>
     </div>
 
     <div id="ticketContent" class="loading">Loading ticket...</div>
@@ -149,6 +259,163 @@
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname.includes('replit')
             ? '/api'
             : '/jrk/api';
+
+        let printerSettings = {
+            ticket_width: '2.5',
+            ticket_height: '6',
+            ticket_unit: 'in',
+            logo_top: null,
+            logo_bottom: null,
+            logo_top_enabled: 'false',
+            logo_bottom_enabled: 'false'
+        };
+
+        async function loadSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/printer-settings`, {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    printerSettings = data.settings;
+                    applySettings();
+                } else if (response.status === 403 || response.status === 401) {
+                    console.log('Using default printer settings (no access to custom settings)');
+                } else {
+                    console.error('Error loading printer settings:', response.status);
+                }
+            } catch (error) {
+                console.error('Error loading printer settings:', error);
+                // Continue with default settings
+            }
+        }
+
+        function applySettings() {
+            document.getElementById('ticketWidth').value = printerSettings.ticket_width;
+            document.getElementById('ticketHeight').value = printerSettings.ticket_height;
+            document.getElementById('ticketUnit').value = printerSettings.ticket_unit;
+            document.getElementById('logoTopEnabled').checked = printerSettings.logo_top_enabled === 'true';
+            document.getElementById('logoBottomEnabled').checked = printerSettings.logo_bottom_enabled === 'true';
+
+            if (printerSettings.logo_top && printerSettings.logo_top_enabled === 'true') {
+                document.getElementById('logoTopPreview').innerHTML = 
+                    `<img src="${printerSettings.logo_top}" class="logo-preview">`;
+            }
+            if (printerSettings.logo_bottom && printerSettings.logo_bottom_enabled === 'true') {
+                document.getElementById('logoBottomPreview').innerHTML = 
+                    `<img src="${printerSettings.logo_bottom}" class="logo-preview">`;
+            }
+
+            updateTicketStyles();
+        }
+
+        function updateTicketStyles() {
+            const width = printerSettings.ticket_width + printerSettings.ticket_unit;
+            const height = printerSettings.ticket_height + printerSettings.ticket_unit;
+
+            const styleElement = document.getElementById('dynamicStyles');
+            const existingStyles = styleElement.innerHTML;
+            
+            // Update ticket container and @page sizes
+            const updatedStyles = existingStyles.replace(
+                /\.ticket-container\s*{\s*width:\s*[^;]+;\s*height:\s*[^;]+;/,
+                `.ticket-container { width: ${width}; height: ${height};`
+            ).replace(
+                /@page\s*{\s*size:\s*[^;]+;/,
+                `@page { size: ${width} ${height};`
+            );
+
+            styleElement.innerHTML = updatedStyles;
+        }
+
+        async function saveSettings() {
+            try {
+                // Update settings from UI
+                printerSettings.ticket_width = document.getElementById('ticketWidth').value;
+                printerSettings.ticket_height = document.getElementById('ticketHeight').value;
+                printerSettings.ticket_unit = document.getElementById('ticketUnit').value;
+                printerSettings.logo_top_enabled = document.getElementById('logoTopEnabled').checked ? 'true' : 'false';
+                printerSettings.logo_bottom_enabled = document.getElementById('logoBottomEnabled').checked ? 'true' : 'false';
+
+                // Get CSRF token
+                const tokenResponse = await fetch(`${API_BASE}/csrf-token`, {
+                    credentials: 'include'
+                });
+                const tokenData = await tokenResponse.json();
+
+                const response = await fetch(`${API_BASE}/printer-settings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        csrf_token: tokenData.token,
+                        settings: printerSettings
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Settings saved successfully');
+                    applySettings();
+                    // Reload ticket with new settings
+                    loadTicket();
+                } else if (response.status === 403) {
+                    alert('Only administrators can modify printer settings');
+                } else {
+                    alert('Error saving settings');
+                }
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('Error saving settings');
+            }
+        }
+
+        function resetSettings() {
+            printerSettings = {
+                ticket_width: '2.5',
+                ticket_height: '6',
+                ticket_unit: 'in',
+                logo_top: null,
+                logo_bottom: null,
+                logo_top_enabled: 'false',
+                logo_bottom_enabled: 'false'
+            };
+            applySettings();
+        }
+
+        function toggleSettings() {
+            const panel = document.querySelector('.settings-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Handle logo uploads
+        document.getElementById('logoTopFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    printerSettings.logo_top = e.target.result;
+                    document.getElementById('logoTopPreview').innerHTML = 
+                        `<img src="${e.target.result}" class="logo-preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('logoBottomFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    printerSettings.logo_bottom = e.target.result;
+                    document.getElementById('logoBottomPreview').innerHTML = 
+                        `<img src="${e.target.result}" class="logo-preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
         async function loadTicket() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -177,69 +444,139 @@
         }
 
         function renderTicket(ticket) {
-            const vehicleInfo = [ticket.vehicle_year, ticket.vehicle_color, ticket.vehicle_make, ticket.vehicle_model]
-                .filter(v => v)
-                .join(' ');
-
-            const violationItems = ticket.violations.map(v => `<li>${escapeHtml(v.description)}</li>`).join('');
-
             const issuedDate = new Date(ticket.issued_at);
-            const formattedDate = issuedDate.toLocaleDateString() + ' ' + issuedDate.toLocaleTimeString();
+            const formattedDate = issuedDate.toLocaleDateString();
+            const formattedTime = issuedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Build violations list
+            let violationsHtml = '';
+            ticket.violations.forEach(v => {
+                violationsHtml += `<li>${v.description}</li>`;
+            });
+
+            // Build tow warning if applicable
+            let towWarningHtml = '';
+            if (ticket.min_tow_deadline_hours !== null) {
+                const hours = ticket.min_tow_deadline_hours;
+                towWarningHtml = `
+                    <div class="tow-warning">
+                        SUBJECT TO TOW IN ${hours} HOUR${hours !== 1 ? 'S' : ''}
+                    </div>
+                `;
+            }
+
+            // Build fine section if applicable
+            let fineHtml = '';
+            if (ticket.total_fine > 0) {
+                fineHtml = `
+                    <div class="fine-section">
+                        FINE AMOUNT: $${ticket.total_fine.toFixed(2)}
+                    </div>
+                `;
+            }
+
+            // Build logos
+            let topLogoHtml = '';
+            let bottomLogoHtml = '';
+            
+            if (printerSettings.logo_top_enabled === 'true' && printerSettings.logo_top) {
+                topLogoHtml = `
+                    <div class="logo-section">
+                        <img src="${printerSettings.logo_top}" alt="Logo">
+                    </div>
+                `;
+            }
+            
+            if (printerSettings.logo_bottom_enabled === 'true' && printerSettings.logo_bottom) {
+                bottomLogoHtml = `
+                    <div class="logo-section">
+                        <img src="${printerSettings.logo_bottom}" alt="Logo">
+                    </div>
+                `;
+            }
 
             const html = `
                 <div class="ticket-container">
+                    ${topLogoHtml}
                     <div class="ticket-header">
                         <h1>VIOLATION</h1>
                     </div>
-
+                    
                     <div class="vehicle-info">
-                        ${escapeHtml(vehicleInfo) || 'Unknown Vehicle'}
+                        ${ticket.vehicle_year || ''} ${ticket.vehicle_color || ''} 
+                        ${ticket.vehicle_make || ''} ${ticket.vehicle_model || ''}
                     </div>
-
+                    
                     <div class="violation-intro">
-                        has been found to have the following violation(s):
+                        <strong>THE FOLLOWING VIOLATION(S) HAVE BEEN ISSUED:</strong>
                     </div>
-
+                    
                     <ul class="violations-list">
-                        ${violationItems}
+                        ${violationsHtml}
                     </ul>
 
+                    ${ticket.custom_note ? `
+                        <div class="ticket-details">
+                            <strong>Note:</strong> ${ticket.custom_note}
+                        </div>
+                    ` : ''}
+                    
                     <div class="ticket-details">
-                        <strong>Date/Time:</strong> ${formattedDate}<br>
-                        <strong>Issued By:</strong> ${escapeHtml(ticket.issued_by_username)}
+                        <strong>Date:</strong> ${formattedDate}<br>
+                        <strong>Time:</strong> ${formattedTime}<br>
+                        <strong>Officer:</strong> ${ticket.issued_by_username}
                     </div>
-
-                    <div class="tow-warning">
-                        and is subject to TOW within 24hrs.
-                    </div>
-
+                    
+                    ${towWarningHtml}
+                    ${fineHtml}
+                    
                     <div class="property-info">
-                        <strong>${escapeHtml(ticket.property_name)}</strong><br>
-                        ${escapeHtml(ticket.property_address || '')}<br>
-                        ${ticket.property_contact_name ? 'Contact: ' + escapeHtml(ticket.property_contact_name) + '<br>' : ''}
-                        ${ticket.property_contact_phone ? 'Phone: ' + escapeHtml(ticket.property_contact_phone) + '<br>' : ''}
-                        ${ticket.property_contact_email ? 'Email: ' + escapeHtml(ticket.property_contact_email) : ''}
+                        <strong>${ticket.property_name || 'Property Management'}</strong><br>
+                        ${ticket.property_address ? ticket.property_address + '<br>' : ''}
+                        ${ticket.property_contact_name ? 'Contact: ' + ticket.property_contact_name + '<br>' : ''}
+                        ${ticket.property_contact_phone ? 'Phone: ' + ticket.property_contact_phone + '<br>' : ''}
+                        ${ticket.property_contact_email ? 'Email: ' + ticket.property_contact_email : ''}
                     </div>
+                    ${bottomLogoHtml}
                 </div>
             `;
 
             document.getElementById('ticketContent').innerHTML = html;
-
-            // Auto-open print dialog after a short delay
-            setTimeout(() => {
-                window.print();
-            }, 500);
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        // Check if user is admin
+        async function checkAdminAccess() {
+            try {
+                const response = await fetch(`${API_BASE}/user`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const isAdmin = data.user && data.user.role === 'admin';
+                    
+                    // Show/hide settings button based on admin status
+                    const settingsBtn = document.querySelector('button[onclick="toggleSettings()"]');
+                    if (settingsBtn) {
+                        settingsBtn.style.display = isAdmin ? 'inline-block' : 'none';
+                    }
+                    
+                    // Hide settings panel for non-admins
+                    if (!isAdmin) {
+                        document.querySelector('.settings-panel').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+            }
         }
 
-        // Load ticket on page load
-        loadTicket();
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAdminAccess();
+            await loadSettings();
+            await loadTicket();
+        });
     </script>
 </body>
 </html>

@@ -54,17 +54,39 @@ try {
         exit;
     }
     
-    // Fetch violation items
+    // Fetch violation items with fine and tow information
     $stmt = $db->prepare("
-        SELECT description, display_order
-        FROM violation_ticket_items
-        WHERE ticket_id = ?
-        ORDER BY display_order ASC
+        SELECT 
+            vti.description, 
+            vti.display_order,
+            v.fine_amount,
+            v.tow_deadline_hours
+        FROM violation_ticket_items vti
+        LEFT JOIN violations v ON vti.violation_id = v.id
+        WHERE vti.ticket_id = ?
+        ORDER BY vti.display_order ASC
     ");
     $stmt->execute([$ticketId]);
     $violations = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+    // Calculate total fine and minimum tow deadline
+    $totalFine = 0;
+    $minTowDeadline = null;
+    foreach ($violations as $violation) {
+        if ($violation['fine_amount'] !== null) {
+            $totalFine += floatval($violation['fine_amount']);
+        }
+        if ($violation['tow_deadline_hours'] !== null) {
+            $hours = intval($violation['tow_deadline_hours']);
+            if ($minTowDeadline === null || $hours < $minTowDeadline) {
+                $minTowDeadline = $hours;
+            }
+        }
+    }
+    
     $ticket['violations'] = $violations;
+    $ticket['total_fine'] = $totalFine;
+    $ticket['min_tow_deadline_hours'] = $minTowDeadline;
     
     echo json_encode(['ticket' => $ticket]);
 } catch (PDOException $e) {

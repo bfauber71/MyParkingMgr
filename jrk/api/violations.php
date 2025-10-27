@@ -14,7 +14,7 @@ $db = Database::getInstance();
 
 try {
     $stmt = $db->prepare("
-        SELECT id, name, display_order
+        SELECT id, name, fine_amount, tow_deadline_hours, display_order
         FROM violations
         WHERE is_active = 1
         ORDER BY display_order ASC, name ASC
