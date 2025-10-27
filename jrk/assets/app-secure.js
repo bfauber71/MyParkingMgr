@@ -30,20 +30,22 @@ async function getCsrfToken() {
         });
         if (response.ok) {
             const data = await response.json();
-            csrfToken = data.token;
-            console.log('CSRF token fetched successfully:', csrfToken ? 'valid' : 'null');
+            if (data && data.token) {
+                csrfToken = data.token;
+                console.log('CSRF token fetched successfully, length:', csrfToken.length);
+                return csrfToken;
+            } else {
+                console.error('CSRF token missing in response:', data);
+                return null;
+            }
         } else {
             console.error('Failed to fetch CSRF token, status:', response.status);
+            return null;
         }
     } catch (error) {
         console.error('Failed to get CSRF token:', error);
+        return null;
     }
-    
-    if (!csrfToken) {
-        console.error('CSRF token is null after fetch attempt!');
-    }
-    
-    return csrfToken;
 }
 
 // SECURITY: Enhanced HTML escaping function
@@ -214,6 +216,7 @@ async function secureApiCall(url, options = {}) {
     
     if (token) {
         defaultHeaders['X-CSRF-Token'] = token;
+        console.log('Adding CSRF token to request headers, length:', token.length);
     } else {
         console.warn('CSRF token is null - API call may fail for POST/PUT/DELETE requests');
     }
@@ -227,6 +230,7 @@ async function secureApiCall(url, options = {}) {
         credentials: 'include'
     };
     
+    console.log('Making API call to:', url, 'with CSRF token:', token ? 'present' : 'MISSING');
     return fetch(url, mergedOptions);
 }
 
