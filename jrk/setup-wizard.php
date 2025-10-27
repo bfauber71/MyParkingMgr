@@ -212,6 +212,13 @@ if ($step == 3 && isset($_SESSION['setup_config'])) {
                 $cfg = $_SESSION['setup_config'];
                 $setupToken = trim($_POST['setup_token'] ?? 'reconfigure');
                 
+                // Generate install ID for license system
+                require_once __DIR__ . '/includes/license.php';
+                $installId = License::generateUUID();
+                
+                // Initialize license system after saving config
+                License::initialize($installId);
+                
                 $configContent = '<?php
 /**
  * MyParkingManager Configuration
@@ -246,6 +253,9 @@ return [
     // Security
     \'password_cost\' => 10,
     \'setup_token\' => ' . var_export($setupToken, true) . ',
+    
+    // License System
+    \'install_id\' => ' . var_export($installId, true) . ',
     
     // File Upload
     \'max_upload_size\' => 52428800,

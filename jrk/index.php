@@ -14,9 +14,14 @@ require_once __DIR__ . '/includes/database.php';
 require_once __DIR__ . '/includes/session.php';
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/router.php';
+require_once __DIR__ . '/includes/license.php';
+require_once __DIR__ . '/includes/middleware.php';
 
 // Start session
 Session::start();
+
+// Check license access for protected endpoints
+checkLicenseAccess();
 
 // CORS headers (adjust for your domain in production)
 header('Access-Control-Allow-Origin: *');
@@ -37,6 +42,10 @@ $router = new Router($config['base_path']);
 $router->post('/api/login', __DIR__ . '/api/login.php');
 $router->post('/api/logout', __DIR__ . '/api/logout.php');
 $router->get('/api/user', __DIR__ . '/api/user.php');
+
+// License routes
+$router->get('/api/license-status', __DIR__ . '/api/license-status.php');
+$router->post('/api/license-activate', __DIR__ . '/api/license-activate.php');
 
 // Vehicle routes
 $router->get('/api/vehicles-search', __DIR__ . '/api/vehicles-search.php');
