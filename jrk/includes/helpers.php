@@ -3,6 +3,8 @@
  * Helper Functions
  */
 
+require_once __DIR__ . '/security.php';
+
 /**
  * Send JSON response
  */
