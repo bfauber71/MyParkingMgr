@@ -43,13 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    file_put_contents('/tmp/printer_debug.log', "POST - Admin check\n", FILE_APPEND);
+    
     // Only admins can update printer settings
     if (Session::user()['role'] !== 'admin') {
+        file_put_contents('/tmp/printer_debug.log', "POST - Not admin, exit\n", FILE_APPEND);
         jsonResponse(['error' => 'Admin access required to modify settings'], 403);
     }
     
+    file_put_contents('/tmp/printer_debug.log', "POST - Before CSRF check\n", FILE_APPEND);
+    
     // CSRF validation (checks both headers and body)
     Security::requireCsrfProtection();
+    
+    file_put_contents('/tmp/printer_debug.log', "POST - After CSRF check\n", FILE_APPEND);
     
     // Update printer settings
     $data = json_decode(file_get_contents('php://input'), true);
