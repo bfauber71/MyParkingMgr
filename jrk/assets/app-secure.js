@@ -23,18 +23,17 @@ const secureLog = isDevelopment ? console.log : () => {};
 let csrfToken = null;
 
 async function getCsrfToken() {
-    if (!csrfToken) {
-        try {
-            const response = await fetch(`${API_BASE}/csrf-token`, {
-                credentials: 'include'
-            });
-            if (response.ok) {
-                const data = await response.json();
-                csrfToken = data.token;
-            }
-        } catch (error) {
-            console.error('Failed to get CSRF token');
+    // Always fetch fresh CSRF token to avoid expiration issues
+    try {
+        const response = await fetch(`${API_BASE}/csrf-token`, {
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            csrfToken = data.token;
         }
+    } catch (error) {
+        console.error('Failed to get CSRF token:', error);
     }
     return csrfToken;
 }
