@@ -56,13 +56,19 @@
             </nav>
 
             <div class="container">
-                <!-- Navigation Tabs -->
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="vehicles">🚗 Vehicles</button>
-                    <button class="tab-btn" data-tab="properties" id="propertiesTab">🏢 Properties</button>
-                    <button class="tab-btn" data-tab="database" id="databaseTab">🗄️ Database</button>
-                    <button class="tab-btn" data-tab="violations" id="violationsTab">🎫 Violations</button>
-                    <button class="tab-btn" data-tab="settings" id="settingsTab">⚙️ Settings</button>
+                <!-- Navigation Dropdown Menu -->
+                <div class="nav-dropdown-container">
+                    <button class="nav-dropdown-toggle" id="navDropdownToggle">
+                        <span id="currentSectionName">🚗 Vehicles</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="nav-dropdown-menu" id="navDropdownMenu">
+                        <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
+                        <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
+                        <button class="nav-dropdown-item" data-tab="database" id="databaseTab">🗄️ Database</button>
+                        <button class="nav-dropdown-item" data-tab="violations" id="violationsTab">🎫 Violations</button>
+                        <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
+                    </div>
                 </div>
 
                 <!-- Vehicles Section -->

@@ -159,16 +159,40 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
     
-    // Set up tab click handlers
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    secureLog('Found tab buttons:', tabButtons.length);
-    tabButtons.forEach(btn => {
+    // Set up dropdown menu handlers
+    const dropdownToggle = document.getElementById('navDropdownToggle');
+    const dropdownMenu = document.getElementById('navDropdownMenu');
+    const dropdownItems = document.querySelectorAll('.nav-dropdown-item');
+    
+    if (dropdownToggle && dropdownMenu) {
+        dropdownToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownToggle.classList.toggle('active');
+            dropdownMenu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-dropdown-container')) {
+                dropdownToggle.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+    
+    secureLog('Found dropdown items:', dropdownItems.length);
+    dropdownItems.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            const tabName = e.target.dataset.tab || e.target.closest('.tab-btn')?.dataset.tab;
+            const tabName = e.target.dataset.tab || e.target.closest('.nav-dropdown-item')?.dataset.tab;
             secureLog('Tab clicked:', tabName);
             if (tabName) {
                 switchTab(tabName);
+                // Close dropdown after selection
+                if (dropdownToggle && dropdownMenu) {
+                    dropdownToggle.classList.remove('active');
+                    dropdownMenu.classList.remove('show');
+                }
             } else {
                 console.error('No tab name found for click');
             }
@@ -463,20 +487,25 @@ function switchTab(tabName) {
     secureLog('Switching to tab:', tabName);
     currentSection = tabName;
     
-    // Remove active class from all tabs and content
-    document.querySelectorAll('.tab-btn').forEach(btn => {
+    // Remove active class from all dropdown items and content
+    document.querySelectorAll('.nav-dropdown-item').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
     
-    // Add active class to selected tab and content
+    // Add active class to selected dropdown item and content
     const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
     const activeContent = document.getElementById(`${tabName}Section`);
     
     if (activeBtn) {
         activeBtn.classList.add('active');
+        // Update dropdown toggle text to show current section
+        const currentSectionName = document.getElementById('currentSectionName');
+        if (currentSectionName) {
+            currentSectionName.textContent = activeBtn.textContent;
+        }
         secureLog('Activated tab button:', tabName);
     } else {
         console.error('Tab button not found:', tabName);

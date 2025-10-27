@@ -407,41 +407,86 @@ body {
     width: 100%;
 }
 
-/* Tabs - Mobile Optimized */
-.tabs {
-    display: flex;
-    gap: 0;
+/* Navigation Dropdown Menu */
+.nav-dropdown-container {
+    position: relative;
     margin-bottom: 20px;
-    border-bottom: 2px solid #334155;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
-.tab-btn {
+.nav-dropdown-toggle {
+    width: 100%;
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 2px solid #334155;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.nav-dropdown-toggle:hover {
+    border-color: #3b82f6;
+    background: #2d3748;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.nav-dropdown-toggle.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.nav-dropdown-menu.show {
+    display: block;
+}
+
+.nav-dropdown-item {
+    width: 100%;
     background: transparent;
     color: #94a3b8;
     border: none;
-    padding: 12px 16px;
-    cursor: pointer;
-    font-size: 14px;
+    padding: 14px 16px;
+    font-size: 15px;
     font-weight: 500;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
+    cursor: pointer;
+    text-align: left;
     transition: all 0.2s;
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
+    border-bottom: 1px solid #334155;
 }
 
-.tab-btn:hover {
+.nav-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-item:hover {
+    background: #2d3748;
     color: #e2e8f0;
 }
 
-.tab-btn.active {
+.nav-dropdown-item.active {
+    background: #1e3a8a;
     color: #3b82f6;
-    border-bottom-color: #3b82f6;
 }
 
 .tab-content {
