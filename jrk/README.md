@@ -24,7 +24,7 @@ Complete PHP and MySQL vehicle and property management system designed for share
 2. Create a MySQL database using cPanel
 3. Copy `config-sample.php` to `config.php` and edit with your settings:
    - Set `app_url` to your full application URL
-   - Set `base_path` to your subdirectory (e.g., `/jrk`) or empty for root
+   - Set `base_path` to your subdirectory (e.g., `/parking`, `/myapp`) or empty for root
    - Configure database credentials
 4. Import `sql/install.sql` via phpMyAdmin (now without default admin)
 5. Run `setup-wizard.php` to create your first admin user
@@ -141,7 +141,7 @@ jrk/
 ### Configuration Variables
 All configuration is centralized in `config.php`:
 - **app_url** - Full URL to your application (e.g., https://yourdomain.com/path)
-- **base_path** - Subdirectory path (e.g., /jrk) or empty string for root
+- **base_path** - Subdirectory path (e.g., /parking, /myapp) or empty string for root
 - **db** - Database host, port, name, username, password
 - **setup_token** - Required to access setup.php after initial configuration
 

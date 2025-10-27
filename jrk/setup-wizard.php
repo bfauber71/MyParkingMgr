@@ -537,8 +537,8 @@ return [
 
                 <div class="form-group">
                     <label for="base_path">Base Path (optional)</label>
-                    <input type="text" id="base_path" name="base_path" placeholder="/jrk">
-                    <p class="help-text">Leave empty if installed in root directory</p>
+                    <input type="text" id="base_path" name="base_path" placeholder="/subdirectory or leave empty">
+                    <p class="help-text">Leave empty if installed in root directory, or enter subdirectory (e.g., /myapp)</p>
                 </div>
 
                 <div class="grid-2">

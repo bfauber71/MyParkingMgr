@@ -8,8 +8,8 @@
 return [
     // Application Settings
     'app_name' => 'MyParkingManager',
-    'app_url' => 'https://yourdomain.com/path',  // Full URL to your application
-    'base_path' => '/path',  // Subdirectory path (e.g., /jrk) or empty string for root
+    'app_url' => 'https://yourdomain.com',  // Full URL to your application
+    'base_path' => '',  // Subdirectory path (e.g., /parking, /myapp) or empty string for root
     
     // Database Configuration
     'db' => [

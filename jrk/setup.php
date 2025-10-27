@@ -346,8 +346,8 @@ if ($configExists) {
                 
                 <div class="form-group">
                     <label for="base_path">Base Path (Subdirectory)</label>
-                    <input type="text" id="base_path" name="base_path" value="<?php echo htmlspecialchars($currentConfig['base_path']); ?>" placeholder="/jrk or leave empty for root">
-                    <p class="help-text">If installed in a subdirectory, enter it here (e.g., /jrk). Leave empty if installed in root directory.</p>
+                    <input type="text" id="base_path" name="base_path" value="<?php echo htmlspecialchars($currentConfig['base_path']); ?>" placeholder="/subdirectory or leave empty for root">
+                    <p class="help-text">If installed in a subdirectory, enter it here (e.g., /myapp, /parking). Leave empty if installed in root directory.</p>
                 </div>
             </div>
             

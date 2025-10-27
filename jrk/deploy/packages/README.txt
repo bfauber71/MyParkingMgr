@@ -42,7 +42,7 @@ QUICK START:
 
 WHAT'S NEW IN v2.3.0:
 --------------------
-- Flexible installation paths (no more hardcoded /jrk)
+- Flexible installation paths (install in any directory)
 - Dynamic configuration loader
 - Auto-detection of installation directory
 - Fine management for violations

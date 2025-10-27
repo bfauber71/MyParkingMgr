@@ -8,8 +8,8 @@
 return [
     // Application Settings
     'app_name' => 'MyParkingManager',
-    'app_url' => 'https://2clv.com/jrk',  // Full URL to your application
-    'base_path' => '/jrk',  // Subdirectory path or empty string for root
+    'app_url' => '',  // Full URL to your application (set via setup wizard)
+    'base_path' => '',  // Subdirectory path or empty string for root (auto-detected)
     
     // Database Configuration
     'db' => [

@@ -25,7 +25,7 @@ class Session {
         
         $secure = $session['secure'] === 'auto' ? $isHttps : (bool)$session['secure'];
         
-        // Use base_path for cookie path (important for subdirectory installs like /jrk)
+        // Use base_path for cookie path (important for subdirectory installs)
         $cookiePath = $config['base_path'] ? $config['base_path'] . '/' : '/';
         
         // Configure session
