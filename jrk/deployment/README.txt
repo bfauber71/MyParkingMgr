@@ -20,12 +20,11 @@ PACKAGE DESCRIPTIONS
    - Use for: Fresh installations, vendor/reseller distributions
    - Extract to your web server directory and run setup.php
 
-2. myparkingmanager-v2.3.0-update.zip (19 KB)
+2. myparkingmanager-v2.3.0-update.zip (20 KB)
    - Update package with changed files only
-   - Contains: index.php, admin/path-settings.html,
-     includes/config-loader.php, setup.php, setup-test-db.php,
-     includes/database.php, api/violations-manage.php,
-     includes/license-keys.php
+   - Contains: index.php, .htaccess, includes/database.php,
+     admin/path-settings.html, includes/config-loader.php, setup.php,
+     setup-test-db.php, api/violations-manage.php, includes/license-keys.php
    - SAFE: Does NOT include config.php - preserves your settings
    - Use for: Updating existing v2.2.x installations to v2.3.0
    - IMPORTANT: Backup your installation before applying
@@ -50,9 +49,11 @@ WHAT'S NEW IN v2.3.0
 ================================================================================
 
 CRITICAL FIXES:
+✓ Fixed infinite redirect loop in .htaccess causing 500 errors
 ✓ Fixed 500 errors on /api/app-config and /api/csrf-token endpoints
 ✓ Added endpoint whitelist for setup wizard compatibility
 ✓ Resolved database requirement blocking pre-setup API calls
+✓ Disabled problematic mod_php directives (PHP-FPM compatibility)
 ✓ Flattened public directory - all assets now at installation root
 ✓ Fixed static asset routing (no more /public/* references)
 ✓ Resolved admin page asset loading issues  
@@ -129,9 +130,9 @@ SHA256 CHECKSUMS
 ================================================================================
 
 4d534f9bf28266170675d25f067fb1b5b87866c4fdc091a2cce7435f46321fa6  myparkingmanager-v2.3.0-docs.zip
-c5d8f5b5ced85e431699406f4119bcd2ad2006c19be5d761f0bac94b6757e647  myparkingmanager-v2.3.0-full.zip
-e033290947c2e80b54b74a2429e527bddd597fa60992e6aae41d842ad45f68a1  myparkingmanager-v2.3.0-minimal.zip
-7c243f1428026b008ed2585249c74dca24687ecab32c8007ac797c2915f9d7b1  myparkingmanager-v2.3.0-update.zip
+dc30dbbae904a330f71e751644b6b845d3a4af3eb20a2fe51813fcbca56fe8cf  myparkingmanager-v2.3.0-full.zip
+5e63404b2d95d01dc865959afc78b7904bbd200d02c3a0603142b1d65b4a8cc2  myparkingmanager-v2.3.0-minimal.zip
+811d4521d53fc1ff8dd3728d85d4f0eda299a415bf711309182b6b791e18cf6b  myparkingmanager-v2.3.0-update.zip
 
 Verify package integrity:
   sha256sum -c CHECKSUMS.txt

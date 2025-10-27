@@ -9,6 +9,9 @@
     # RewriteCond %{HTTPS} off
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     
+    # Don't rewrite if already requesting index.php
+    RewriteRule ^index\.php$ - [L]
+    
     # Don't rewrite existing files or directories
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -31,13 +34,13 @@
     </FilesMatch>
 </IfModule>
 
-# PHP Settings
-<IfModule mod_php.c>
-    php_value upload_max_filesize 50M
-    php_value post_max_size 50M
-    php_value memory_limit 256M
-    php_value max_execution_time 300
-</IfModule>
+# PHP Settings (for CGI/FastCGI, use php.ini or .user.ini instead)
+# <IfModule mod_php.c>
+#     php_value upload_max_filesize 50M
+#     php_value post_max_size 50M
+#     php_value memory_limit 256M
+#     php_value max_execution_time 300
+# </IfModule>
 
 # Disable directory browsing
 Options -Indexes
