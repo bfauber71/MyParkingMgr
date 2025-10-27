@@ -10,6 +10,26 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.6 User Property Assignment Feature
+
+**New Feature:**
+- Added property assignment to user create/edit functionality
+- Admins can now assign specific properties to users during user management
+- Non-admin users only see data for their assigned properties
+- Property assignments displayed as checkboxes in user modal
+- Automatic permission enforcement (requires MODULE_USERS, ACTION_VIEW)
+
+**Technical Details:**
+- index.html: Added property assignment section to user modal (+8 lines)
+- app-secure.js: Added loadUserProperties() and loadUserPermissions() functions (+80 lines)
+- app-secure.js: Updated handleUserSubmit() to collect and send assigned_properties
+- api/users-assigned-properties.php: New endpoint to fetch user's assigned properties
+- api/users-permissions.php: New endpoint to fetch user's permissions
+- api/users-create.php: Updated to save assigned properties for new users
+- api/users-update.php: Updated to save assigned properties when editing users
+- includes/helpers.php: Added saveUserAssignedProperties() function
+- sql/add-user-assigned-properties-table.sql: Migration to create table and assign admins
+
 ### October 27, 2025 - v2.3.5 Production Server Compatibility Fixes
 
 **Critical Bug Fixes:**
