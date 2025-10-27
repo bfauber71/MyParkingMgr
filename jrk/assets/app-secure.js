@@ -507,36 +507,40 @@ function hasPermission(module, action) {
 }
 
 function applyPermissions() {
-    const propertiesTab = document.getElementById('propertiesTab');
-    const databaseTab = document.getElementById('databaseTab');
-    const violationsTab = document.getElementById('violationsTab');
-    const addVehicleBtn = document.getElementById('addVehicleBtn');
-    const importBtn = document.getElementById('importBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const addPropertyBtn = document.getElementById('addPropertyBtn');
-    const addUserBtn = document.getElementById('addUserBtn');
-    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-    const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
-    
-    secureLog('Applying permissions for user:', currentUser.username);
-    
-    // Show tabs based on view permission
-    propertiesTab.style.display = hasPermission('properties', 'view') ? 'block' : 'none';
-    databaseTab.style.display = hasPermission('database', 'view') ? 'block' : 'none';
-    violationsTab.style.display = hasPermission('violations', 'view') ? 'block' : 'none';
-    
-    // Show buttons based on permissions
-    addVehicleBtn.style.display = hasPermission('vehicles', 'create_delete') ? 'inline-block' : 'none';
-    addPropertyBtn.style.display = hasPermission('properties', 'create_delete') ? 'inline-block' : 'none';
-    
-    // Database tab buttons
-    if (addUserBtn) addUserBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
-    if (importBtn) importBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
-    if (exportBtn) exportBtn.style.display = hasPermission('database', 'view') ? 'inline-block' : 'none';
-    if (bulkDeleteBtn) bulkDeleteBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
-    if (findDuplicatesBtn) findDuplicatesBtn.style.display = hasPermission('database', 'view') ? 'inline-block' : 'none';
-    
-    secureLog('Permissions applied successfully');
+    try {
+        const propertiesTab = document.getElementById('propertiesTab');
+        const databaseTab = document.getElementById('databaseTab');
+        const violationsTab = document.getElementById('violationsTab');
+        const addVehicleBtn = document.getElementById('addVehicleBtn');
+        const importBtn = document.getElementById('importBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const addPropertyBtn = document.getElementById('addPropertyBtn');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
+        
+        console.log('Applying permissions for user:', currentUser.username);
+        
+        // Show tabs based on view permission
+        if (propertiesTab) propertiesTab.style.display = hasPermission('properties', 'view') ? 'block' : 'none';
+        if (databaseTab) databaseTab.style.display = hasPermission('database', 'view') ? 'block' : 'none';
+        if (violationsTab) violationsTab.style.display = hasPermission('violations', 'view') ? 'block' : 'none';
+        
+        // Show buttons based on permissions
+        if (addVehicleBtn) addVehicleBtn.style.display = hasPermission('vehicles', 'create_delete') ? 'inline-block' : 'none';
+        if (addPropertyBtn) addPropertyBtn.style.display = hasPermission('properties', 'create_delete') ? 'inline-block' : 'none';
+        
+        // Database tab buttons
+        if (addUserBtn) addUserBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
+        if (importBtn) importBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
+        if (exportBtn) exportBtn.style.display = hasPermission('database', 'view') ? 'inline-block' : 'none';
+        if (bulkDeleteBtn) bulkDeleteBtn.style.display = hasPermission('database', 'create_delete') ? 'inline-block' : 'none';
+        if (findDuplicatesBtn) findDuplicatesBtn.style.display = hasPermission('database', 'view') ? 'inline-block' : 'none';
+        
+        console.log('Permissions applied successfully');
+    } catch (error) {
+        console.error('Error applying permissions:', error);
+    }
 }
 
 function canEditVehicles() {
