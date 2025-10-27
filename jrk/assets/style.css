@@ -182,13 +182,24 @@ body {
 }
 
 /* Date input specific styling */
-.form-group input[type="date"] {
-    color: #ffffff;
+input[type="date"] {
+    color: #ffffff !important;
     color-scheme: dark;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+    color: #ffffff;
 }
 
 .form-group input:focus,
@@ -1332,20 +1343,18 @@ body {
 }
 
 .filter-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
     margin-bottom: 15px;
-    flex-wrap: wrap;
 }
 
 .filter-row .form-group {
-    flex: 1;
-    min-width: 150px;
-    max-width: 100%;
+    width: 100%;
 }
 
 .filter-row .flex-grow {
-    flex: 2;
+    grid-column: 1 / -1;
 }
 
 .search-actions {

@@ -165,21 +165,23 @@
                                     <div class="filter-row">
                                         <div class="form-group">
                                             <label for="violationStartDate">Start Date</label>
-                                            <input type="date" id="violationStartDate" class="form-control">
+                                            <input type="date" id="violationStartDate">
                                         </div>
                                         <div class="form-group">
                                             <label for="violationEndDate">End Date</label>
-                                            <input type="date" id="violationEndDate" class="form-control">
+                                            <input type="date" id="violationEndDate">
                                         </div>
+                                    </div>
+                                    <div class="filter-row">
                                         <div class="form-group">
                                             <label for="violationPropertyFilter">Property</label>
-                                            <select id="violationPropertyFilter" class="form-control">
+                                            <select id="violationPropertyFilter">
                                                 <option value="">All Properties</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
                                             <label for="violationTypeFilter">Violation Type</label>
-                                            <select id="violationTypeFilter" class="form-control">
+                                            <select id="violationTypeFilter">
                                                 <option value="">All Violations</option>
                                             </select>
                                         </div>
@@ -187,10 +189,11 @@
                                     <div class="filter-row">
                                         <div class="form-group flex-grow">
                                             <label for="violationSearchQuery">Search (Plate, Tag, Make, Model, Notes)</label>
-                                            <input type="text" id="violationSearchQuery" class="form-control" placeholder="Search violations...">
+                                            <input type="text" id="violationSearchQuery" placeholder="Search violations...">
                                         </div>
+                                    </div>
+                                    <div class="filter-row">
                                         <div class="form-group">
-                                            <label>&nbsp;</label>
                                             <button id="violationSearchBtn" class="btn btn-primary">Search</button>
                                             <button id="clearViolationSearchBtn" class="btn btn-secondary">Clear</button>
                                         </div>
