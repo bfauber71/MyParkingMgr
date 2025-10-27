@@ -288,7 +288,7 @@
             let towWarningHtml = '';
             if (ticket.min_tow_deadline_hours !== null) {
                 const hours = ticket.min_tow_deadline_hours;
-                const timeDisplay = hours === 1 ? 'IMMEDIATE' : `${hours} HOUR${hours !== 1 ? 'S' : ''}`;
+                const timeDisplay = hours === 1 ? 'IMMEDIATELY!' : `IN ${hours} HOUR${hours !== 1 ? 'S' : ''}`;
                 towWarningHtml = `
                     <div class="tow-warning">
                         ⚠ SUBJECT TO TOW ${timeDisplay} ⚠
