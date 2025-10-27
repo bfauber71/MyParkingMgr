@@ -8,7 +8,13 @@ The system is built to handle multiple properties, track vehicles and violations
 
 ## Recent Changes
 
-### October 27, 2025 - v2.3.3 Violation Search Results Fixes
+### October 27, 2025 - v2.3.3 Violation Search Results Fixes & Branding
+
+**Version & Branding:**
+- Version number "v2.3.3" displayed in navigation header
+- Stop sign logo (40x40px) in top right corner of header
+- Favicon added to all pages (32x32px stop sign)
+- Professional branding with optimized image assets (2.5KB logo, 2.0KB favicon)
 
 **Violation Search Display Improvements:**
 - Fixed vehicle column to show plate number/tag number with full vehicle description
@@ -23,10 +29,21 @@ The system is built to handle multiple properties, track vehicles and violations
 - Corrected field mapping: property_name → property
 - Enhanced vehicle description builder with year, color, make, model
 - Simplified reprint button logic to always display
+- Added brand styling (.brand-content, .brand-name, .brand-version, .brand-logo)
+
+**Deployment Packages:**
+- Full package: 149 KB (complete application)
+- Minimal package: 133 KB (production deployment)
+- Update package: 27 KB (upgrade files only - 5 files)
+- Docs package: 3.5 KB (documentation)
+- SHA256 checksums generated for all packages
 
 **File Stats:**
-- app-secure.js: 2,150 lines, 66 functions (was 2,129 lines)
-- Added 21 lines for improved vehicle description display
+- app-secure.js: 2,150 lines, 66 functions (was 2,129 lines, +21 lines)
+- index.html: 666 lines (was 659 lines, +7 lines)
+- style.css: 1,334 lines (was 1,304 lines, +30 lines)
+- assets/logo.png: 2.5 KB (NEW)
+- favicon.png: 2.0 KB (NEW)
 
 ### October 27, 2025 - v2.3.2 Quick Ticket Creation & Reprint Features
 

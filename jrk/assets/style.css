@@ -314,6 +314,32 @@ body {
     font-size: 18px;
     font-weight: 600;
     color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.brand-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.brand-version {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.brand-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
 }
 
 .nav-menu {
@@ -863,6 +889,10 @@ body {
     }
 
     .nav-brand {
+        font-size: 20px;
+    }
+
+    .brand-name {
         font-size: 20px;
     }
 
