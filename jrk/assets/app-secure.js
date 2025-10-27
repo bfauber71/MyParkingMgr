@@ -653,8 +653,198 @@ function displayPropertiesTable(properties) {
     container.appendChild(dataTable);
 }
 
-// Continue with remaining functions...
-// Due to length constraints, I'm creating the secure version in a new file
+// Vehicles Section
+async function loadVehiclesSection() {
+    const searchBtn = document.getElementById('searchBtn');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const propertyFilter = document.getElementById('propertyFilter');
+    
+    if (searchBtn) {
+        searchBtn.onclick = async () => {
+            const query = searchInput.value;
+            const property = propertyFilter.value;
+            await searchVehicles(query, property);
+        };
+    }
+    
+    if (clearSearchBtn) {
+        clearSearchBtn.onclick = () => {
+            searchInput.value = '';
+            propertyFilter.value = '';
+            searchVehicles('', '');
+        };
+    }
+    
+    await searchVehicles('', '');
+}
+
+async function searchVehicles(query = '', property = '') {
+    try {
+        const params = new URLSearchParams();
+        if (query) params.append('q', query);
+        if (property) params.append('property', property);
+        
+        const response = await secureApiCall(`${API_BASE}/vehicles-search?${params}`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayVehicles(data.vehicles);
+        } else {
+            console.error('Vehicle search failed:', response.status);
+            displayVehicles([]);
+        }
+    } catch (error) {
+        console.error('Error searching vehicles:', error);
+        displayVehicles([]);
+    }
+}
+
+function displayVehicles(vehicles) {
+    const container = document.getElementById('vehiclesResults');
+    if (!container) return;
+    
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    
+    if (vehicles.length === 0) {
+        const noResults = createElement('div', { className: 'no-results' }, 'No vehicles found. Try adjusting your search or add a new vehicle.');
+        container.appendChild(noResults);
+        return;
+    }
+    
+    const dataTable = createElement('div', { className: 'data-table' });
+    const table = createElement('table');
+    const thead = createElement('thead');
+    const headerRow = createElement('tr');
+    
+    ['Tag', 'Plate', 'Owner', 'Apt', 'Make/Model', 'Color', 'Year', 'Property', 'Violations', 'Actions'].forEach(header => {
+        const th = createElement('th', {}, header);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = createElement('tbody');
+    vehicles.forEach(vehicle => {
+        const row = createElement('tr');
+        
+        [
+            vehicle.tag_number || '-',
+            vehicle.plate_number || '-',
+            vehicle.owner_name || '-',
+            vehicle.apt_number || '-',
+            `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '-',
+            vehicle.color || '-',
+            vehicle.year || '-',
+            vehicle.property || '-',
+            vehicle.violation_count || '0'
+        ].forEach(text => {
+            const td = createElement('td', {}, text);
+            row.appendChild(td);
+        });
+        
+        const actionsTd = createElement('td');
+        const actionsDiv = createElement('div', { className: 'actions' });
+        const viewBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'View');
+        
+        safeAddEventListener(viewBtn, 'click', () => {
+            showToast(`Vehicle details: ${vehicle.tag_number}`, 'info');
+        });
+        
+        actionsDiv.appendChild(viewBtn);
+        actionsTd.appendChild(actionsDiv);
+        row.appendChild(actionsTd);
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    dataTable.appendChild(table);
+    container.appendChild(dataTable);
+}
+
+// Users Section
+async function loadUsersSection() {
+    try {
+        const response = await secureApiCall(`${API_BASE}/users-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayUsers(data.users || []);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
+
+function displayUsers(users) {
+    const container = document.getElementById('usersResults');
+    if (!container) return;
+    
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    
+    if (users.length === 0) {
+        const noResults = createElement('div', { className: 'no-results' }, 'No users found');
+        container.appendChild(noResults);
+        return;
+    }
+    
+    const dataTable = createElement('div', { className: 'data-table' });
+    const table = createElement('table');
+    const thead = createElement('thead');
+    const headerRow = createElement('tr');
+    
+    ['Username', 'Email', 'Role', 'Created', 'Actions'].forEach(header => {
+        const th = createElement('th', {}, header);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = createElement('tbody');
+    users.forEach(user => {
+        const row = createElement('tr');
+        
+        [
+            user.username || '-',
+            user.email || '-',
+            user.role || '-',
+            user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'
+        ].forEach(text => {
+            const td = createElement('td', {}, text);
+            row.appendChild(td);
+        });
+        
+        const actionsTd = createElement('td');
+        const actionsDiv = createElement('div', { className: 'actions' });
+        const editBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Edit');
+        
+        safeAddEventListener(editBtn, 'click', () => {
+            showToast(`Edit user: ${user.username}`, 'info');
+        });
+        
+        actionsDiv.appendChild(editBtn);
+        actionsTd.appendChild(actionsDiv);
+        row.appendChild(actionsTd);
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    dataTable.appendChild(table);
+    container.appendChild(dataTable);
+}
+
+// Violations Section
+async function loadViolationsManagementSection() {
+    showToast('Violations section loaded', 'info');
+}
 
 // SECURITY: Input validation helper
 function validateInput(input, type) {
