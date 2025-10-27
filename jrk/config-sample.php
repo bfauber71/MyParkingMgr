@@ -25,7 +25,7 @@ return [
     'session' => [
         'name' => 'myparkingmanager_session',
         'lifetime' => 1440, // 24 hours in minutes
-        'secure' => 'auto', // Auto-detect HTTPS (use true to force HTTPS only)
+        'secure' => true, // REQUIRED - HTTPS is mandatory for security
         'httponly' => true,
     ],
     

@@ -11,6 +11,12 @@ $step = $_GET['step'] ?? 1;
 $configFile = __DIR__ . '/config.php';
 $configExists = file_exists($configFile);
 
+// Detect HTTPS
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+$httpsWarning = !$isHttps;
+
 // Check if already configured
 $isConfigured = false;
 $dbConnection = null;
@@ -255,7 +261,7 @@ return [
     \'session\' => [
         \'name\' => \'myparkingmanager_session\',
         \'lifetime\' => 1440,
-        \'secure\' => \'auto\',  // Auto-detect HTTPS (recommended)
+        \'secure\' => true,  // REQUIRED for security - use HTTPS
         \'httponly\' => true,
     ],
     
@@ -514,6 +520,19 @@ return [
             <!-- Step 1: Database Configuration -->
             <h1>Database Configuration</h1>
             <p class="subtitle">Configure your database connection settings</p>
+
+            <?php if ($httpsWarning): ?>
+                <div class="alert alert-error">
+                    <strong>⚠ SECURITY WARNING: HTTPS Required</strong><br>
+                    You are accessing this setup wizard over HTTP (not HTTPS). MyParkingManager requires HTTPS for secure session handling.<br><br>
+                    <strong>Please enable HTTPS before proceeding:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li>Get an SSL certificate (free: Let's Encrypt, or cPanel/shared hosting SSL)</li>
+                        <li>Access this page via https://yourdomain.com instead of http://</li>
+                        <li>The application will NOT work correctly over HTTP</li>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-error">
