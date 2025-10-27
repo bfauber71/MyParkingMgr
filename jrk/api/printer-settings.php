@@ -69,10 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             // Handle logo upload separately (base64 encoded images)
             if (($key === 'logo_top' || $key === 'logo_bottom') && $value !== null) {
+                error_log("Received logo for $key, length: " . strlen($value));
                 // Validate it's a valid image data URL
                 if (!preg_match('/^data:image\/(png|jpg|jpeg|gif|webp);base64,/', $value)) {
+                    error_log("Logo validation failed for $key - invalid format");
                     continue;
                 }
+                error_log("Logo validated successfully for $key");
             }
             
             $sql = "INSERT INTO printer_settings (id, setting_key, setting_value) 

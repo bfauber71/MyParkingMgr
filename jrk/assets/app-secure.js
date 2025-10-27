@@ -1586,6 +1586,13 @@ async function loadSettingsSection() {
             printerSettings.logo_top_enabled = document.getElementById('logoTopEnabled').checked ? 'true' : 'false';
             printerSettings.logo_bottom_enabled = document.getElementById('logoBottomEnabled').checked ? 'true' : 'false';
 
+            console.log('Saving printer settings:', {
+                logo_top_length: printerSettings.logo_top ? printerSettings.logo_top.length : 'null',
+                logo_bottom_length: printerSettings.logo_bottom ? printerSettings.logo_bottom.length : 'null',
+                logo_top_enabled: printerSettings.logo_top_enabled,
+                logo_bottom_enabled: printerSettings.logo_bottom_enabled
+            });
+
             const response = await secureApiCall(`${API_BASE}/printer-settings`, {
                 method: 'POST',
                 body: JSON.stringify({
