@@ -9,6 +9,24 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
+// Check if this is a direct access to setup.php or setup-wizard.php
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+if (strpos($requestUri, '/setup.php') !== false) {
+    // Redirect to actual setup.php file
+    require_once __DIR__ . '/setup.php';
+    exit;
+}
+if (strpos($requestUri, '/setup-wizard.php') !== false) {
+    // Redirect to actual setup-wizard.php file
+    require_once __DIR__ . '/setup-wizard.php';
+    exit;
+}
+if (strpos($requestUri, '/setup-test-db.php') !== false) {
+    // Redirect to actual setup-test-db.php file  
+    require_once __DIR__ . '/setup-test-db.php';
+    exit;
+}
+
 // Include dependencies
 require_once __DIR__ . '/includes/config-loader.php';
 require_once __DIR__ . '/includes/database.php';

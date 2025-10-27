@@ -23,7 +23,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd jrk && php -S 0.0.0.0:5000 index.php"
+args = "cd jrk && php -S 0.0.0.0:5000"
 waitForPort = 5000
 
 [[ports]]
@@ -31,12 +31,12 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 35397
-externalPort = 3000
-
-[[ports]]
 localPort = 35575
 externalPort = 6000
+
+[[ports]]
+localPort = 35693
+externalPort = 8000
 
 [[ports]]
 localPort = 35705
