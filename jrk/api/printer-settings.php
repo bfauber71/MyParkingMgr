@@ -4,6 +4,9 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/security.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
+// Debug: Log request arrival
+file_put_contents('/tmp/printer_debug.log', date('Y-m-d H:i:s') . " - Request received: " . $_SERVER['REQUEST_METHOD'] . "\n", FILE_APPEND);
+
 Session::start();
 
 if (!Session::isAuthenticated()) {
