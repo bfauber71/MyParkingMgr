@@ -713,7 +713,7 @@ async function loadVehiclesSection() {
         };
     }
     
-    await searchVehicles('', '');
+    // Start with blank results - removed initial search call
 }
 
 async function searchVehicles(query = '', property = '') {
