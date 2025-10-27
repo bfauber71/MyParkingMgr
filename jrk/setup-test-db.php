@@ -4,6 +4,13 @@
  * Used by setup.php to test database credentials via AJAX
  */
 
+// Prevent any output before JSON
+error_reporting(0);
+ini_set('display_errors', '0');
+ob_start();
+
+// Clear any output and set headers
+ob_clean();
 header('Content-Type: application/json');
 
 // Only allow POST requests
