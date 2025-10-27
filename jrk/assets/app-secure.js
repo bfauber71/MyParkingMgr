@@ -624,6 +624,29 @@ function setupViolationSearchHandlers() {
     }
 }
 
+// Validate violation date range (global function for inline HTML)
+window.validateViolationDateRange = function() {
+    const startDateInput = document.getElementById('violationStartDate');
+    const endDateInput = document.getElementById('violationEndDate');
+    
+    if (!startDateInput || !endDateInput) return;
+    
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+    
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (start > end) {
+            endDateInput.setCustomValidity('End date must be after start date');
+            endDateInput.reportValidity();
+        } else {
+            endDateInput.setCustomValidity('');
+        }
+    }
+};
+
 // Properties
 async function loadProperties() {
     secureLog('loadProperties() called, fetching from:', `${API_BASE}/properties`);
@@ -1215,6 +1238,17 @@ async function handleViolationSearch() {
     const property = document.getElementById('violationPropertyFilter')?.value || '';
     const violationType = document.getElementById('violationTypeFilter')?.value || '';
     const query = document.getElementById('violationSearchQuery')?.value || '';
+    
+    // Validate date range
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        if (start > end) {
+            showToast('Start date must be before end date', 'error');
+            return;
+        }
+    }
     
     const searchData = {};
     if (startDate) searchData.start_date = startDate;

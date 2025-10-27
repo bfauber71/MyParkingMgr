@@ -15,6 +15,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.7 Navigation Consolidation & Violation Search Improvements
+
+**Navigation Consolidation:**
+- Consolidated main navigation from 5 tabs to 3: Vehicles, Properties, Settings
+- Settings now has 4 sub-tabs: Users, Violations, Database Operations, Printer Settings
+- Moved violation types management and violation search under Settings > Violations
+- All database operations (CSV, bulk, violation reports) under Settings > Database Operations
+- Cleaner mobile-friendly dropdown navigation
+
+**Violation Search Form Enhancements:**
+- Reorganized search form into 4 logical rows for better screen fit
+- Changed all form text color to white (#ffffff) for better visibility
+- Added date input dark theme styling with white text
+- Added date range validation: start date must be before end date
+- Real-time validation when dates change with browser validation UI
+- Prevents search execution if date range is invalid
+- Grid-based responsive layout replaces flexbox for better field sizing
+
+**Technical Details:**
+- index.html: Restructured Settings section with sub-tabs (+130 lines)
+- style.css: Added settings sub-tab styling, improved date input visibility (+40 lines)
+- app-secure.js: Added switchSettingsTab(), setupViolationSearchHandlers(), validateViolationDateRange() (+80 lines)
+- Date validation uses HTML5 setCustomValidity() for native browser validation
+
 ### October 27, 2025 - v2.3.7 MySQL Database Installation & User Management Fixes
 
 **MySQL Database Environment Setup:**
