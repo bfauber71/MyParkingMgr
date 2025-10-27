@@ -769,8 +769,13 @@ function displayVehicles(vehicles) {
         
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
+        const createTicketBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Create Ticket');
         const editBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Edit');
         const deleteBtn = createElement('button', { className: 'btn btn-sm btn-danger' }, 'Delete');
+        
+        safeAddEventListener(createTicketBtn, 'click', () => {
+            openCreateTicketModal(vehicle);
+        });
         
         safeAddEventListener(editBtn, 'click', () => {
             openVehicleModal(vehicle);
@@ -780,6 +785,7 @@ function displayVehicles(vehicles) {
             deleteVehicle(vehicle.id, vehicle.tag_number);
         });
         
+        actionsDiv.appendChild(createTicketBtn);
         if (canEditVehicles()) actionsDiv.appendChild(editBtn);
         if (canDeleteVehicles()) actionsDiv.appendChild(deleteBtn);
         actionsTd.appendChild(actionsDiv);
@@ -1129,7 +1135,7 @@ function displayViolationSearchResults(violations) {
     const table = createElement('table', { className: 'data-table' });
     const thead = createElement('thead');
     const headerRow = createElement('tr');
-    ['Date', 'Vehicle', 'Violation', 'Property', 'Status'].forEach(text => {
+    ['Date', 'Vehicle', 'Violation', 'Property', 'Status', 'Actions'].forEach(text => {
         const th = createElement('th', {}, text);
         headerRow.appendChild(th);
     });
@@ -1149,6 +1155,21 @@ function displayViolationSearchResults(violations) {
             const td = createElement('td', {}, text);
             row.appendChild(td);
         });
+        
+        const actionsTd = createElement('td');
+        const actionsDiv = createElement('div', { className: 'actions' });
+        
+        if (violation.ticket_id) {
+            const reprintBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Reprint Ticket');
+            safeAddEventListener(reprintBtn, 'click', () => {
+                window.open(`violations-print.html?id=${violation.ticket_id}`, '_blank');
+                showToast('Opening ticket for printing', 'info');
+            });
+            actionsDiv.appendChild(reprintBtn);
+        }
+        
+        actionsTd.appendChild(actionsDiv);
+        row.appendChild(actionsTd);
         tbody.appendChild(row);
     });
     table.appendChild(tbody);
@@ -1598,7 +1619,7 @@ async function handleViolationTypeSubmit(e) {
     }
     
     try {
-        const endpoint = isUpdate ? `${API_BASE}/violations-update` : `${API_BASE}/violations-create`;
+        const endpoint = isUpdate ? `${API_BASE}/violations-update` : `${API_BASE}/violations-add`;
         const response = await secureApiCall(endpoint, {
             method: 'POST',
             body: JSON.stringify(formData)
@@ -1617,6 +1638,136 @@ async function handleViolationTypeSubmit(e) {
     } catch (error) {
         console.error('Error saving violation type:', error);
         showToast('Error saving violation type', 'error');
+    }
+}
+
+// Create Ticket Modal Functions
+async function openCreateTicketModal(vehicle) {
+    const modal = document.getElementById('violationModal');
+    const form = document.getElementById('violationForm');
+    const vehicleInfo = document.getElementById('violationVehicleInfo');
+    const vehicleIdInput = document.getElementById('violationVehicleId');
+    const checkboxesContainer = document.getElementById('violationCheckboxes');
+    
+    if (!modal || !form) return;
+    
+    vehicleIdInput.value = vehicle.id;
+    vehicleInfo.textContent = `${vehicle.make || ''} ${vehicle.model || ''} - ${vehicle.plate_number || vehicle.tag_number || 'N/A'}`.trim();
+    
+    checkboxesContainer.innerHTML = '<div class="loading">Loading violations...</div>';
+    
+    modal.classList.add('show');
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const violations = data.violations || [];
+            
+            checkboxesContainer.innerHTML = '';
+            
+            const activeViolations = violations.filter(v => v.is_active == 1);
+            
+            if (activeViolations.length === 0) {
+                checkboxesContainer.innerHTML = '<p class="empty-state">No active violations available. Please add violation types first.</p>';
+                return;
+            }
+            
+            activeViolations.forEach(violation => {
+                const checkboxDiv = createElement('div', { className: 'violation-checkbox-item' });
+                const checkbox = createElement('input', { 
+                    type: 'checkbox',
+                    name: 'violations[]',
+                    value: violation.id,
+                    id: `violation_${violation.id}`
+                });
+                
+                let labelText = violation.name;
+                if (violation.fine_amount) {
+                    labelText += ` - $${parseFloat(violation.fine_amount).toFixed(2)}`;
+                }
+                if (violation.tow_deadline_hours) {
+                    labelText += ` (Tow: ${violation.tow_deadline_hours}hrs)`;
+                }
+                
+                const label = createElement('label', { 
+                    htmlFor: `violation_${violation.id}`,
+                    style: 'margin-left: 8px; cursor: pointer;'
+                }, labelText);
+                
+                if (violation.id === 'other' || violation.name.toLowerCase().includes('other')) {
+                    checkbox.addEventListener('change', () => {
+                        const customNoteContainer = document.getElementById('customNoteContainer');
+                        if (customNoteContainer) {
+                            customNoteContainer.style.display = checkbox.checked ? 'block' : 'none';
+                        }
+                    });
+                }
+                
+                checkboxDiv.appendChild(checkbox);
+                checkboxDiv.appendChild(label);
+                checkboxesContainer.appendChild(checkboxDiv);
+            });
+        } else {
+            checkboxesContainer.innerHTML = '<p class="error-message">Failed to load violations.</p>';
+        }
+    } catch (error) {
+        console.error('Error loading violations:', error);
+        checkboxesContainer.innerHTML = '<p class="error-message">Error loading violations.</p>';
+    }
+}
+
+async function handleCreateViolation(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const vehicleId = form.querySelector('[name="vehicleId"]').value;
+    const checkboxes = form.querySelectorAll('input[name="violations[]"]:checked');
+    const customNote = form.querySelector('[name="customNote"]')?.value || '';
+    
+    const violationIds = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (violationIds.length === 0 && !customNote.trim()) {
+        showToast('Please select at least one violation or enter a custom note', 'warning');
+        return;
+    }
+    
+    const requestData = {
+        vehicleId: vehicleId,
+        violations: violationIds,
+        customNote: customNote.trim()
+    };
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/violations-create`, {
+            method: 'POST',
+            body: JSON.stringify(requestData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast('Violation ticket created successfully', 'success');
+            closeModalByName('violation');
+            form.reset();
+            
+            if (data.ticketId) {
+                const shouldPrint = confirm('Ticket created! Would you like to print it now?');
+                if (shouldPrint) {
+                    window.open(`violations-print.html?id=${data.ticketId}`, '_blank');
+                }
+            }
+            
+            searchVehicles('', '');
+        } else {
+            showToast(data.error || 'Failed to create violation ticket', 'error');
+        }
+    } catch (error) {
+        console.error('Error creating violation ticket:', error);
+        showToast('Error creating violation ticket', 'error');
     }
 }
 
