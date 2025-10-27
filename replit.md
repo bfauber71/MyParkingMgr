@@ -10,6 +10,46 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 27, 2025 - v2.3.6 Production Security Hardening & User Property Assignment
+
+**CRITICAL SECURITY FIXES (Production-Ready):**
+
+1. **CSRF Protection Globally Enforced**
+   - Removed host-based bypass that skipped validation for "replit" and "localhost" domains
+   - Added automatic CSRF validation to `requireAuth()` function (helpers.php)
+   - ALL authenticated POST/PUT/DELETE/PATCH endpoints now validate CSRF tokens
+   - Fixed request body double-consumption by checking X-CSRF-Token header first
+
+2. **Global Security Headers**
+   - Added `Security::setSecurityHeaders()` to index.php main entry point
+   - Sets HSTS, CSP, X-Frame-Options, X-Content-Type-Options globally
+   - Prevents clickjacking, XSS, and MIME-sniffing attacks
+
+3. **Database Error Leakage Fixed**
+   - Fixed 4 API endpoints that leaked database error messages
+   - endpoints: users-create.php, users-update.php, vehicles-duplicates.php, vehicles-bulk-delete.php
+   - All now return generic "Failed to..." messages instead of raw PDOException details
+   - Prevents information disclosure about database structure
+
+**Security Verification Completed:**
+- ✅ CSRF protection on ALL authenticated state-changing requests (no bypasses)
+- ✅ Security headers (HSTS, CSP) set globally
+- ✅ SQL injection prevented via PDO prepared statements + MySQL
+- ✅ XSS prevented via sanitize() (htmlspecialchars with ENT_QUOTES)
+- ✅ Authentication required on all protected endpoints
+- ✅ Password hashing uses bcrypt (PASSWORD_BCRYPT, cost=10)
+- ✅ Session security: secure=true, httponly=true (HTTPS mandatory)
+- ✅ No debug code in production (display_errors=0, conditional console.log)
+- ✅ Error messages don't leak database details
+- ✅ MySQL only (no PostgreSQL references)
+- ✅ Audit logging for critical operations
+
+**Deployment Requirements:**
+- HTTPS is MANDATORY (enforced via secure=true cookie flag)
+- MySQL 5.7+ or MariaDB 10.2+
+- PHP 7.4+ with required extensions
+- X-CSRF-Token header must be sent by frontend (already configured in app-secure.js)
+
 ### October 27, 2025 - v2.3.6 User Property Assignment Feature
 
 **New Feature:**
