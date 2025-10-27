@@ -406,22 +406,29 @@ function showLogin() {
 
 async function showDashboard() {
     console.log('=== showDashboard() called ===');
+    console.log('Step 1: Hide login page');
     loginPage.style.display = 'none';
+    console.log('Step 2: Show dashboard');
     dashboardPage.style.display = 'block';
     
+    console.log('Step 3: Set user info');
     userInfo.textContent = `${currentUser.username} (${currentUser.role})`;
     
+    console.log('Step 4: Apply permissions');
     applyPermissions();
     
+    console.log('Step 5: Load properties');
     // Load properties in background, don't wait for it
     loadProperties().catch(err => console.error('Failed to load properties:', err));
     
     // Load and display license status badge
-    console.log('About to call loadLicenseStatus()...');
+    console.log('Step 6: About to call loadLicenseStatus()...');
     loadLicenseStatus().catch(err => console.error('Failed to load license status:', err));
     
+    console.log('Step 7: Switch to vehicles tab');
     // Immediately show vehicles tab
     switchTab('vehicles');
+    console.log('=== showDashboard() completed ===');
 }
 
 // Load and display license status badge
