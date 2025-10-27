@@ -255,7 +255,7 @@ return [
     \'session\' => [
         \'name\' => \'myparkingmanager_session\',
         \'lifetime\' => 1440,
-        \'secure\' => true,
+        \'secure\' => \'auto\',  // Auto-detect HTTPS (recommended)
         \'httponly\' => true,
     ],
     

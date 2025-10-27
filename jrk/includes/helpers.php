@@ -247,13 +247,34 @@ function canAccessProperty($propertyId) {
 function getAccessibleProperties() {
     $user = Session::user();
     if (!$user) {
+        error_log("getAccessibleProperties: No user in session");
         return [];
     }
     
+    // Log for debugging
+    error_log("getAccessibleProperties: User role = " . ($user['role'] ?? 'undefined'));
+    
     // Admins and operators see all properties (case-insensitive)
-    $role = strtolower($user['role']);
+    $role = isset($user['role']) ? strtolower(trim($user['role'])) : '';
     if ($role === 'admin' || $role === 'operator') {
-        return Database::query("SELECT id, name FROM properties ORDER BY name");
+        $properties = Database::query("SELECT id, name FROM properties ORDER BY name");
+        error_log("getAccessibleProperties: Admin/Operator found " . count($properties) . " properties");
+        return $properties;
+    }
+    
+    // Check if user_assigned_properties table exists
+    try {
+        $db = Database::getInstance();
+        $tableCheck = $db->query("SHOW TABLES LIKE 'user_assigned_properties'")->fetch();
+        
+        if (!$tableCheck) {
+            // Table doesn't exist yet, return empty for regular users
+            error_log("getAccessibleProperties: user_assigned_properties table not found");
+            return [];
+        }
+    } catch (Exception $e) {
+        error_log("getAccessibleProperties: Error checking table: " . $e->getMessage());
+        return [];
     }
     
     // Users see only assigned properties
@@ -262,7 +283,9 @@ function getAccessibleProperties() {
             INNER JOIN user_assigned_properties uap ON p.id = uap.property_id
             WHERE uap.user_id = ?
             ORDER BY p.name";
-    return Database::query($sql, [$user['id']]);
+    $properties = Database::query($sql, [$user['id']]);
+    error_log("getAccessibleProperties: Regular user found " . count($properties) . " assigned properties");
+    return $properties;
 }
 
 /**
