@@ -5,6 +5,10 @@
  * Search violation tickets with filters
  */
 
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
 requireAuth();
 requirePermission(MODULE_DATABASE, ACTION_VIEW);
 
