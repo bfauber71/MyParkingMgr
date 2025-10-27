@@ -90,6 +90,8 @@ class Security {
         }
         
         if (!self::validateCsrfToken($csrfToken)) {
+            // Log for debugging
+            error_log("CSRF validation failed. Token received: " . substr($csrfToken ?? 'null', 0, 10) . "... Session token: " . substr(Session::get(self::$csrfTokenName) ?? 'null', 0, 10) . "...");
             http_response_code(403);
             jsonResponse(['error' => 'Invalid or missing CSRF token'], 403);
         }
