@@ -1145,11 +1145,33 @@ function displayViolationSearchResults(violations) {
     const tbody = createElement('tbody');
     violations.forEach(violation => {
         const row = createElement('tr');
+        
+        // Build vehicle description
+        let vehicleDesc = '';
+        if (violation.plate_number) {
+            vehicleDesc = violation.plate_number;
+        } else if (violation.tag_number) {
+            vehicleDesc = violation.tag_number;
+        } else {
+            vehicleDesc = 'Unknown';
+        }
+        
+        // Add vehicle details if available
+        const vehicleParts = [];
+        if (violation.year) vehicleParts.push(violation.year);
+        if (violation.color) vehicleParts.push(violation.color);
+        if (violation.make) vehicleParts.push(violation.make);
+        if (violation.model) vehicleParts.push(violation.model);
+        
+        if (vehicleParts.length > 0) {
+            vehicleDesc += ` (${vehicleParts.join(' ')})`;
+        }
+        
         [
             formatDate(violation.created_at),
-            `${violation.tag_number || 'N/A'} (${violation.state || ''})`,
-            violation.violation_type || 'N/A',
-            violation.property_name || 'N/A',
+            vehicleDesc,
+            violation.violation_list || 'N/A',
+            violation.property || 'N/A',
             violation.status || 'Active'
         ].forEach(text => {
             const td = createElement('td', {}, text);
@@ -1159,14 +1181,13 @@ function displayViolationSearchResults(violations) {
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
         
-        if (violation.ticket_id) {
-            const reprintBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Reprint Ticket');
-            safeAddEventListener(reprintBtn, 'click', () => {
-                window.open(`violations-print.html?id=${violation.ticket_id}`, '_blank');
-                showToast('Opening ticket for printing', 'info');
-            });
-            actionsDiv.appendChild(reprintBtn);
-        }
+        // Add reprint button for all violations (using the violation ticket id)
+        const reprintBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Reprint Ticket');
+        safeAddEventListener(reprintBtn, 'click', () => {
+            window.open(`violations-print.html?id=${violation.id}`, '_blank');
+            showToast('Opening ticket for printing', 'info');
+        });
+        actionsDiv.appendChild(reprintBtn);
         
         actionsTd.appendChild(actionsDiv);
         row.appendChild(actionsTd);
