@@ -85,22 +85,25 @@ Granular permissions for all five modules (Vehicles, Properties, Users, Violatio
 ## 📁 File Structure
 
 ```
-jrk/
+/                           # Installation root (any directory)
 ├── api/                    # API endpoints
 ├── includes/               # Core PHP classes and helpers
-├── public/                 # Frontend assets
-│   ├── index.html         # Main application
-│   └── assets/            # CSS, JavaScript, images
+├── assets/                 # CSS, JavaScript assets
+├── css/                    # Stylesheets
+├── admin/                  # Admin configuration pages
 ├── sql/                    # Database scripts
 │   ├── install.sql        # Fresh installation
 │   ├── migrate.sql        # Full migration
 │   └── migrate-v2-*.sql   # Incremental updates
-├── setup.php              # Setup wizard (delete after install)
-├── setup-test-db.php      # Database test endpoint
-├── config.php             # Configuration (edit or use setup.php)
-├── config-sample.php      # Configuration template
-├── index.php              # Router and entry point
-└── .htaccess              # Apache configuration
+├── index.html              # Main application
+├── license.html            # License management page
+├── violations-*.html       # Violation management pages
+├── setup.php               # Setup wizard (delete after install)
+├── setup-test-db.php       # Database test endpoint
+├── config.php              # Configuration (edit or use setup.php)
+├── config-sample.php       # Configuration template
+├── index.php               # Router and entry point
+└── .htaccess               # Apache configuration
 ```
 
 ## 🔒 Security Features

@@ -125,9 +125,9 @@ SYSTEM REQUIREMENTS
 SHA256 CHECKSUMS
 ================================================================================
 
-3916cee43f62ecba5354dc4d7217213e93a36b137bceed0f3198f37e81bcc8f1  myparkingmanager-v2.3.0-docs.zip
-3b2ba707c97ed6ed8a1e22484d6468662677517852849dce76a7a2d8f6e39674  myparkingmanager-v2.3.0-full.zip
-41d0e8df9995c8b9d3954ceaa5d8c5f822ba8d43bdc333e2de3d1511cd7ab7c8  myparkingmanager-v2.3.0-minimal.zip
+4d534f9bf28266170675d25f067fb1b5b87866c4fdc091a2cce7435f46321fa6  myparkingmanager-v2.3.0-docs.zip
+31d4d50686967dfc439401e82755232e15a848237b96ab2afb0662529056497a  myparkingmanager-v2.3.0-full.zip
+84da67e42f4bdc8e8925d656b1a636aa1820a0bee3c46f8448e3f560b6341ca4  myparkingmanager-v2.3.0-minimal.zip
 f0fb14aa406fe921e92f2425ca301ca9760bcf6c2953fabc85d5b7feb7d370a0  myparkingmanager-v2.3.0-update.zip
 
 Verify package integrity:
