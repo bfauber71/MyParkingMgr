@@ -1,0 +1,97 @@
+MyParkingManager v2.3.1 - Quick Update Guide
+============================================
+
+UPGRADING FROM v2.3.0 TO v2.3.1
+------------------------------
+
+This is a MINOR UPDATE with new features. Update takes 2 minutes.
+
+WHAT'S NEW:
+-----------
+✓ Violation search results print on standard 8.5x11 paper
+✓ Settings tab for printer configuration
+✓ Professional print layout with headers
+✓ Print/Close buttons in preview window
+
+FILES CHANGED (2 files only):
+-----------------------------
+1. assets/app-secure.js - Main application JavaScript
+2. index.html - Main HTML page
+
+STEP-BY-STEP UPGRADE:
+--------------------
+
+1. DOWNLOAD UPDATE PACKAGE
+   File: myparkingmanager-v2.3.1-update.zip (17 KB)
+
+2. EXTRACT THE ZIP
+   You'll see:
+   - assets/app-secure.js
+   - index.html
+
+3. UPLOAD TO YOUR SERVER
+   Using FTP/SFTP/File Manager:
+   - Upload assets/app-secure.js → overwrite existing
+   - Upload index.html → overwrite existing
+
+4. CLEAR BROWSER CACHE
+   - Chrome/Edge: Press Ctrl+Shift+Delete (Windows) or Cmd+Shift+Delete (Mac)
+   - Firefox: Press Ctrl+Shift+Delete
+   - Safari: Press Cmd+Option+E
+   OR just do a hard refresh: Ctrl+F5 (Windows) / Cmd+Shift+R (Mac)
+
+5. VERIFY UPDATE
+   - Login to your application
+   - You should see a new "Settings" tab in navigation
+   - Go to Database tab → Violation Search
+   - Search for violations and click "Print Results"
+   - Print preview should open in new window
+
+TROUBLESHOOTING:
+---------------
+
+"I don't see the Settings tab"
+→ Clear your browser cache completely (Ctrl+Shift+Delete)
+→ Hard refresh the page (Ctrl+F5 or Cmd+Shift+R)
+
+"Print button doesn't work"
+→ Allow popups for this site
+→ Check browser console for errors (F12)
+
+"Old version still showing"
+→ Check file timestamps on server - make sure new files uploaded
+→ Clear server-side cache if using caching
+→ Try a different browser or incognito/private window
+
+NO DATABASE CHANGES:
+-------------------
+This update does NOT require any database changes.
+Your data is completely safe.
+
+NO CONFIG CHANGES:
+-----------------
+Your config.php file does NOT need to be updated.
+
+ROLLBACK PROCEDURE:
+------------------
+If you need to rollback to v2.3.0:
+
+1. Download v2.3.0 update package
+2. Upload the v2.3.0 files
+3. Clear browser cache
+4. Refresh
+
+ESTIMATED TIME:
+--------------
+- Download: 10 seconds
+- Upload: 30 seconds  
+- Clear cache: 10 seconds
+- Test: 1 minute
+TOTAL: ~2 minutes
+
+QUESTIONS?
+----------
+Contact your system administrator if you encounter issues.
+
+Version: 2.3.1
+Date: October 27, 2025

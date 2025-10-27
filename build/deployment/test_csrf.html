@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test User Save</title>
+</head>
+<body>
+    <h1>Test User Save</h1>
+    <button onclick="testUserSave()">Test Save User</button>
+    <pre id="result"></pre>
+    
+    <script>
+    async function testUserSave() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.textContent = 'Testing...\n';
+        
+        // Step 1: Login
+        resultDiv.textContent += 'Step 1: Login...\n';
+        const loginResp = await fetch('/api/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: 'admin', password: 'admin123'})
+        });
+        const loginData = await loginResp.json();
+        resultDiv.textContent += 'Login: ' + JSON.stringify(loginData).substring(0, 100) + '\n\n';
+        
+        // Step 2: Get CSRF Token
+        resultDiv.textContent += 'Step 2: Get CSRF token...\n';
+        const csrfResp = await fetch('/api/csrf-token', {credentials: 'include'});
+        const csrfData = await csrfResp.json();
+        const csrfToken = csrfData.token;
+        resultDiv.textContent += 'CSRF Token: ' + csrfToken.substring(0, 20) + '...\n\n';
+        
+        // Step 3: Update User
+        resultDiv.textContent += 'Step 3: Update user...\n';
+        const updateResp = await fetch('/api/users-update', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({
+                id: loginData.user.id,
+                username: 'admin',
+                email: 'test@test.com',
+                role: 'admin',
+                permissions: [{module: 'users', action: 'view'}],
+                assigned_properties: []
+            })
+        });
+        
+        const updateData = await updateResp.json();
+        resultDiv.textContent += 'Update Response: ' + JSON.stringify(updateData, null, 2) + '\n';
+        resultDiv.textContent += 'Status: ' + updateResp.status + '\n';
+    }
+    </script>
+</body>
+</html>
