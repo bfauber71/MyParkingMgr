@@ -20,6 +20,7 @@ $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 $role = strtolower($input['role'] ?? 'user');
 $permissions = $input['permissions'] ?? [];
+$assignedProperties = $input['assigned_properties'] ?? [];
 
 if (empty($id) || empty($username)) {
     jsonResponse(['error' => 'User ID and username are required'], 400);
@@ -65,6 +66,9 @@ try {
     
     // Save user permissions
     saveUserPermissions($id, $permissions);
+    
+    // Save assigned properties
+    saveUserAssignedProperties($id, $assignedProperties);
     
     auditLog('update_user', 'users', $id, "Updated user: $username ($role)");
     

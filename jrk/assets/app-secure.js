@@ -2231,17 +2231,18 @@ async function handlePropertySubmit(e) {
 async function handleUserSubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const userId = form.querySelector('[name="user_id"]')?.value;
+    const userId = document.getElementById('userId').value;
     const isUpdate = userId && userId !== '';
     
+    // Collect basic user data
     const formData = {
-        username: form.querySelector('[name="username"]').value,
-        email: form.querySelector('[name="email"]').value,
-        role: form.querySelector('[name="role"]').value,
-        full_name: form.querySelector('[name="full_name"]')?.value || ''
+        username: document.getElementById('userUsername').value,
+        email: document.getElementById('userEmail').value,
+        role: document.getElementById('userRole').value
     };
     
-    const passwordField = form.querySelector('[name="password"]');
+    // Add password if provided
+    const passwordField = document.getElementById('userPassword');
     if (passwordField && passwordField.value) {
         formData.password = passwordField.value;
     }
@@ -2249,6 +2250,25 @@ async function handleUserSubmit(e) {
     if (isUpdate) {
         formData.id = userId;
     }
+    
+    // Collect permissions
+    const permissions = [];
+    document.querySelectorAll('.perm-check').forEach(checkbox => {
+        if (checkbox.checked) {
+            permissions.push({
+                module: checkbox.dataset.module,
+                action: checkbox.dataset.action
+            });
+        }
+    });
+    formData.permissions = permissions;
+    
+    // Collect assigned properties
+    const assignedProperties = [];
+    document.querySelectorAll('.property-check:checked').forEach(checkbox => {
+        assignedProperties.push(checkbox.dataset.propertyId);
+    });
+    formData.assigned_properties = assignedProperties;
     
     try {
         const endpoint = isUpdate ? `${API_BASE}/users-update` : `${API_BASE}/users-create`;

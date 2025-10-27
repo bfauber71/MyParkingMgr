@@ -17,6 +17,7 @@ $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 $role = strtolower($input['role'] ?? 'user');
 $permissions = $input['permissions'] ?? [];
+$assignedProperties = $input['assigned_properties'] ?? [];
 
 if (empty($username) || empty($password)) {
     http_response_code(400);
@@ -55,6 +56,9 @@ try {
     
     // Save user permissions
     saveUserPermissions($userId, $permissions);
+    
+    // Save assigned properties
+    saveUserAssignedProperties($userId, $assignedProperties);
     
     auditLog('create_user', 'users', $userId, "Created user: $username ($role)");
     

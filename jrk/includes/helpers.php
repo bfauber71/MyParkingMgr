@@ -96,6 +96,39 @@ function auditLog($action, $entityType, $entityId = null, $details = null) {
  * @param string $userId User ID
  * @param array $permissions Permissions array [module => [can_view, can_edit, can_create_delete]]
  */
+function saveUserAssignedProperties($userId, $propertyIds) {
+    $db = Database::getInstance();
+    
+    try {
+        // Check if table exists
+        $tableExists = $db->query("SHOW TABLES LIKE 'user_assigned_properties'")->fetch();
+        if (!$tableExists) {
+            return; // Silently skip if table doesn't exist
+        }
+        
+        // Delete existing assignments for this user
+        $stmt = $db->prepare("DELETE FROM user_assigned_properties WHERE user_id = ?");
+        $stmt->execute([$userId]);
+        
+        // Insert new assignments
+        if (!empty($propertyIds) && is_array($propertyIds)) {
+            $stmt = $db->prepare("
+                INSERT INTO user_assigned_properties (user_id, property_id, assigned_at)
+                VALUES (?, ?, NOW())
+            ");
+            
+            foreach ($propertyIds as $propertyId) {
+                if (!empty($propertyId)) {
+                    $stmt->execute([$userId, $propertyId]);
+                }
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("Error saving user assigned properties: " . $e->getMessage());
+        throw $e;
+    }
+}
+
 function saveUserPermissions($userId, $permissions) {
     if (empty($permissions) || !is_array($permissions)) {
         return;
