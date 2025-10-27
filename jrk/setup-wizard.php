@@ -132,7 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step == 1) {
             $dsn = "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4";
             $testPdo = new PDO($dsn, $dbUser, $dbPass, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
             ]);
             
             // Save to session for next step (don't store PDO object)
@@ -164,7 +165,8 @@ if ($step == 2 && isset($_SESSION['setup_config'])) {
         $dsn = "mysql:host={$cfg['db_host']};port={$cfg['db_port']};dbname={$cfg['db_name']};charset=utf8mb4";
         $pdo = new PDO($dsn, $cfg['db_user'], $cfg['db_pass'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
         ]);
     } catch (PDOException $e) {
         $errors[] = 'Database connection failed: ' . $e->getMessage();
@@ -196,7 +198,8 @@ if ($step == 3 && isset($_SESSION['setup_config'])) {
         $dsn = "mysql:host={$cfg['db_host']};port={$cfg['db_port']};dbname={$cfg['db_name']};charset=utf8mb4";
         $pdo = new PDO($dsn, $cfg['db_user'], $cfg['db_pass'], [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
         ]);
     } catch (PDOException $e) {
         $errors[] = 'Database connection failed: ' . $e->getMessage();

@@ -12,9 +12,15 @@ Preferred communication style: Simple, everyday language.
 
 ### October 27, 2025 - v2.3.6 Production Security Hardening & User Property Assignment
 
-**CRITICAL SECURITY FIXES (Production-Ready):**
+**CRITICAL FIXES:**
 
-1. **CSRF Protection Globally Enforced**
+1. **Setup Wizard Database Installation Fixed**
+   - Added PDO::MYSQL_ATTR_USE_BUFFERED_QUERY to all PDO connections in setup wizard
+   - Fixes "SQLSTATE[HY000]: General error 2014" when installing database schema
+   - Enables MySQL query buffering for multi-statement SQL execution
+   - Applied to all 3 setup steps (database config test, schema install, admin creation)
+
+2. **CSRF Protection Globally Enforced**
    - Removed host-based bypass that skipped validation for "replit" and "localhost" domains
    - Added automatic CSRF validation to `requireAuth()` function (helpers.php)
    - ALL authenticated POST/PUT/DELETE/PATCH endpoints now validate CSRF tokens
