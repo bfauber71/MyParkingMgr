@@ -50,6 +50,13 @@ function sanitize($value) {
 }
 
 /**
+ * Sanitize input (alias for sanitize)
+ */
+function sanitizeInput($value) {
+    return sanitize($value);
+}
+
+/**
  * Get client IP address
  */
 function getClientIp() {
