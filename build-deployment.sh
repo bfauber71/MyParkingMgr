@@ -23,12 +23,11 @@ rm -f "$BUILD_DIR/config.php"
 cp jrk/config-template.php "$BUILD_DIR/config.php"
 cp jrk/DEPLOYMENT-INSTRUCTIONS.md "$BUILD_DIR/README.txt"
 
-# Remove registration/license management files (keep these separate)
-echo "Removing registration files from deployment..."
-rm -f "$BUILD_DIR/includes/license.php"
-rm -f "$BUILD_DIR/includes/license-keys.php"
-rm -f "$BUILD_DIR/api/license-status.php"
-rm -f "$BUILD_DIR/api/license-activate.php"
+# Remove license KEY GENERATION files only (customer deployment includes license checking)
+echo "Removing license key generation files from deployment..."
+rm -f "$BUILD_DIR/generate-license-key.php"
+rm -f "$BUILD_DIR/generate-license-key-secure.php"
+rm -f "$BUILD_DIR/LICENSE-SYSTEM-GUIDE.md"
 
 # Remove development files
 echo "Removing development files..."
