@@ -49,9 +49,9 @@ try {
         exit;
     }
     
-    // Check property access
-    $stmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
-    $stmt->execute([$vehicle['property']]);
+    // Check property access - handle both UUID and name
+    $stmt = $db->prepare("SELECT id FROM properties WHERE id = ? OR name = ?");
+    $stmt->execute([$vehicle['property'], $vehicle['property']]);
     $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$propertyData) {
