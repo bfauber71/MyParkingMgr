@@ -46,8 +46,7 @@ try {
     }
     
     // Get database connection
-    $db = Database::getInstance();
-    $pdo = $db->getConnection();
+    $pdo = Database::getInstance();
     
     // Check if vehicle exists
     $stmt = $pdo->prepare("SELECT id FROM vehicles WHERE id = ?");
