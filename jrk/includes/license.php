@@ -95,10 +95,19 @@ class License {
         $installId = self::getInstallId();
         
         try {
+            // Try to find license by install_id first
             $license = Database::queryOne(
                 "SELECT * FROM license_instances WHERE install_id = ? LIMIT 1",
                 [$installId]
             );
+            
+            // If not found and install_id is empty, get the first available license
+            if (!$license && empty($installId)) {
+                $license = Database::queryOne(
+                    "SELECT * FROM license_instances ORDER BY created_at ASC LIMIT 1",
+                    []
+                );
+            }
             
             if (!$license) {
                 // Not initialized yet - should only happen during setup
