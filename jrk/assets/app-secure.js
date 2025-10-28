@@ -919,9 +919,16 @@ async function searchVehicles(query = '', property = '') {
         if (query) params.append('q', query);
         if (property) params.append('property', property);
         
+        // Add timestamp to prevent browser caching
+        params.append('_t', Date.now());
+        
         // Use v2 endpoint to bypass OPcache on production
         const response = await secureApiCall(`${API_BASE}/vehicles-search-v2?${params}`, {
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+            }
         });
         
         if (response.ok) {
