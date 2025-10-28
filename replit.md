@@ -8,17 +8,22 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ### October 28, 2025 - Version 2.3.7 Release - Production Ready
 - **Version Update:** Updated to v2.3.7 with comprehensive cleanup
+- **Critical Production Fixes:**
+  - **Login 401 Error Fixed:** Added missing $tableExists variable initialization (production strict mode issue)
+  - **Logout 500 Error Fixed:** Added missing includes in logout.php (database.php, session.php, helpers.php)
+  - **Vehicle Edit Modal Fixed:** Corrected field ID mismatch (vehicleReserved → vehicleSpace) preventing Reserved Space field from populating
+  - **setup-test-db.php 500 Error Fixed:** Recreated missing AJAX endpoint for database connectivity testing
 - **Deprecated Files Removed:**
   - Removed old API endpoints: vehicles-search.php, vehicles-update.php (superseded by v2 versions)
   - Removed development files: test_csrf.html, router.php (dev-only)
   - Removed temporary files: CLEANUP-INSTRUCTIONS.txt, PRODUCTION-FIXES.md
   - Cleaned up deployment directory
-- **Setup Utility Files Restored:**
-  - setup-test-db.php: AJAX endpoint for testing database connectivity from setup wizard
-- **Deployment Packages Created:**
-  - End-user deployment package (168K) - Ready for customer installations
+- **Setup Utility Files:**
+  - setup-test-db.php: AJAX endpoint for testing database connectivity from setup wizard (restored)
+- **Deployment Packages:**
+  - End-user deployment package (172K) - Ready for customer installations
   - License key creation package (12K) - Separate secure package for admin use only
-- **All Critical Fixes Included:**
+- **All Previously Fixed Features Included:**
   - Vehicle editing with proper field name mapping
   - Property editing without 500 errors
   - Printer settings save correctly
