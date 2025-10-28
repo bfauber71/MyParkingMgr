@@ -2584,6 +2584,10 @@ async function handleVehicleSubmit(e) {
     const vehicleId = form.querySelector('[name="vehicle_id"]')?.value;
     const isUpdate = vehicleId && vehicleId !== '';
     
+    console.log('=== Vehicle Submit ===');
+    console.log('isUpdate:', isUpdate);
+    console.log('vehicleId:', vehicleId);
+    
     const formData = {
         property_id: form.querySelector('[name="property"]')?.value || '',
         tag_number: form.querySelector('[name="tag_number"]')?.value || '',
@@ -2604,15 +2608,21 @@ async function handleVehicleSubmit(e) {
         formData.id = vehicleId;
     }
     
+    console.log('Form data:', formData);
+    
     try {
         // Use v2 endpoint to bypass OPcache on production
         const endpoint = isUpdate ? `${API_BASE}/vehicles-update-v2` : `${API_BASE}/vehicles-create`;
+        console.log('Calling endpoint:', endpoint);
+        
         const response = await secureApiCall(endpoint, {
             method: 'POST',
             body: JSON.stringify(formData)
         });
         
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (response.ok && data.success) {
             showToast(isUpdate ? 'Vehicle updated successfully' : 'Vehicle created successfully', 'success');
