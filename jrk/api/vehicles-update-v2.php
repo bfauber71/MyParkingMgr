@@ -35,12 +35,13 @@ try {
     $model = isset($input['model']) ? sanitizeInput($input['model']) : '';
     $color = isset($input['color']) ? sanitizeInput($input['color']) : '';
     $year = isset($input['year']) ? sanitizeInput($input['year']) : '';
-    $property = isset($input['property_id']) ? sanitizeInput($input['property_id']) : '';
+    $property = isset($input['property']) ? sanitizeInput($input['property']) : '';
     $owner_name = isset($input['owner_name']) ? sanitizeInput($input['owner_name']) : '';
     $apt_number = isset($input['apt_number']) ? sanitizeInput($input['apt_number']) : '';
     $owner_phone = isset($input['owner_phone']) ? sanitizeInput($input['owner_phone']) : '';
     $owner_email = isset($input['owner_email']) ? sanitizeInput($input['owner_email']) : '';
     $reserved_space = isset($input['reserved_space']) ? sanitizeInput($input['reserved_space']) : '';
+    $plate_number = isset($input['plate_number']) ? sanitizeInput($input['plate_number']) : '';
     
     // Validate tag number format
     if (!preg_match('/^[A-Z0-9\-]+$/i', $tag_number)) {
@@ -85,7 +86,7 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $tag_number,
-        $input['plate_number'] ?? '',
+        $plate_number,
         $state,
         $make,
         $model,
