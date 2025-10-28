@@ -435,7 +435,8 @@ async function showDashboard() {
 async function loadLicenseStatus() {
     console.log('loadLicenseStatus() called');
     try {
-        const response = await secureApiCall(`${API_BASE}/license-status`, {
+        // Use v2 endpoint to bypass OPcache on production
+        const response = await secureApiCall(`${API_BASE}/license-status-v2`, {
             method: 'GET'
         });
         
