@@ -32,14 +32,27 @@ rm -f "$BUILD_DIR/LICENSE-SYSTEM-GUIDE.md"
 # Remove development files
 echo "Removing development files..."
 rm -rf "$BUILD_DIR/.git"
+rm -rf "$BUILD_DIR/deployment"
 rm -f "$BUILD_DIR/.gitignore"
 rm -f "$BUILD_DIR/.replit"
 rm -f "$BUILD_DIR/replit.nix"
+rm -f "$BUILD_DIR/test_csrf.html"
+rm -f "$BUILD_DIR/setup-test-db.php"
+rm -f "$BUILD_DIR/CLEANUP-INSTRUCTIONS.txt"
+rm -f "$BUILD_DIR/PRODUCTION-FIXES.md"
+rm -f "$BUILD_DIR/router.php"
+
+# Remove deprecated API endpoints
+echo "Removing deprecated API files..."
+rm -f "$BUILD_DIR/api/vehicles-search.php"
+rm -f "$BUILD_DIR/api/vehicles-update.php"
 
 # Clean up any backup or temp files
 find "$BUILD_DIR" -name "*.bak" -delete
 find "$BUILD_DIR" -name "*~" -delete
 find "$BUILD_DIR" -name ".DS_Store" -delete
+find "$BUILD_DIR" -name "*.old" -delete
+find "$BUILD_DIR" -name "*.tmp" -delete
 
 # Create version info
 VERSION=$(grep -oP "v\d+\.\d+\.\d+" jrk/index.html | head -1)
