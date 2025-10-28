@@ -36,6 +36,13 @@
         Header set Pragma "no-cache"
         Header set Expires "0"
     </FilesMatch>
+    
+    # CRITICAL: Disable OPcache for PHP files (force fresh execution)
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
 </IfModule>
 
 # PHP Settings (for CGI/FastCGI, use php.ini or .user.ini instead)

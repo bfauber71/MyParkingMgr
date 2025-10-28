@@ -919,7 +919,8 @@ async function searchVehicles(query = '', property = '') {
         if (query) params.append('q', query);
         if (property) params.append('property', property);
         
-        const response = await secureApiCall(`${API_BASE}/vehicles-search?${params}`, {
+        // Use v2 endpoint to bypass OPcache on production
+        const response = await secureApiCall(`${API_BASE}/vehicles-search-v2?${params}`, {
             method: 'GET'
         });
         
