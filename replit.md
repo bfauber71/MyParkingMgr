@@ -6,7 +6,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
-### October 28, 2025 - Vehicle Edit, Violations, Import/Export & Bulk Operations Fixes
+### October 28, 2025 - Vehicle Edit, Violations, Import/Export, Bulk Operations & Form Field Fixes
 - **Vehicle Editing Complete Fix:**
   - Added `sanitizeInput()` function to helpers.php (was missing, causing fatal errors)
   - Created cache-busted API endpoints (vehicles-update-v2.php, vehicles-search-v2.php, vehicles-get.php)
@@ -47,6 +47,11 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - All API responses include no-cache headers
   - API calls include timestamp query parameters for unique URLs
   - Critical for shared hosting environments with aggressive PHP OPcache
+- **Vehicle Form Field Name Fix:**
+  - Fixed frontend/backend mismatch causing "Property is required" error
+  - Frontend was sending `property_id` but backend expected `property`
+  - Standardized all form field names to camelCase to match backend expectations
+  - Vehicle creation and editing now work correctly
 
 ### October 27, 2025 - Production Security & Deployment Fixes
 - **HTTPS Enforcement:** Production deployment package enforces HTTPS redirect for security
