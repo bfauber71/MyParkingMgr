@@ -469,7 +469,7 @@ async function loadLicenseStatus() {
             }
         }
     } catch (error) {
-        console.error('Error loading license status:', error);
+        // Silently fail - license status is not critical
     }
 }
 
@@ -1825,15 +1825,17 @@ async function loadSettingsSection() {
             });
 
             if (response.ok) {
+                const data = await response.json();
+                console.log('Printer settings saved:', data);
                 showToast('Printer settings saved successfully', 'success');
             } else {
-                const errorData = await response.json();
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
                 console.error('Printer settings error:', errorData);
                 showToast(errorData.error || 'Error saving printer settings', 'error');
             }
         } catch (error) {
             console.error('Error saving printer settings:', error);
-            showToast('Error saving printer settings', 'error');
+            showToast('Network error: Could not save printer settings', 'error');
         }
     });
 
