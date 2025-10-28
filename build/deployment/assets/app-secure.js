@@ -654,7 +654,50 @@ function switchSettingsTab(subTabName) {
     } else if (subTabName === 'violations') {
         loadViolationsManagementSection();
         setupViolationSearchHandlers();
+    } else if (subTabName === 'database-ops') {
+        setupDatabaseOpsHandlers();
     }
+}
+
+async function setupDatabaseOpsHandlers() {
+    // Import/Export buttons
+    const importBtn = document.getElementById('importBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importFileInput = document.getElementById('importFileInput');
+    
+    if (importBtn) {
+        importBtn.onclick = () => {
+            if (importFileInput) importFileInput.click();
+        };
+    }
+    
+    if (importFileInput) {
+        importFileInput.onchange = handleImportFile;
+    }
+    
+    if (exportBtn) {
+        exportBtn.onclick = handleExportVehicles;
+    }
+    
+    // Bulk operations
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
+    const clearDuplicatesBtn = document.getElementById('clearDuplicatesBtn');
+    
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.onclick = handleBulkDelete;
+    }
+    
+    if (findDuplicatesBtn) {
+        findDuplicatesBtn.onclick = handleFindDuplicates;
+    }
+    
+    if (clearDuplicatesBtn) {
+        clearDuplicatesBtn.onclick = handleClearDuplicates;
+    }
+    
+    // Populate dropdowns
+    await populateDatabaseDropdowns();
 }
 
 // Set up violation search event handlers
@@ -1030,9 +1073,6 @@ async function loadUsersSection() {
         addUserBtn.onclick = () => openUserModal();
     }
     
-    // Database page button handlers
-    setupDatabasePageHandlers();
-    
     try {
         const response = await secureApiCall(`${API_BASE}/users-list`, {
             method: 'GET'
@@ -1045,70 +1085,6 @@ async function loadUsersSection() {
     } catch (error) {
         console.error('Error loading users:', error);
     }
-}
-
-async function setupDatabasePageHandlers() {
-    // Import/Export buttons
-    const importBtn = document.getElementById('importBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const importFileInput = document.getElementById('importFileInput');
-    
-    if (importBtn) {
-        importBtn.onclick = () => {
-            if (importFileInput) importFileInput.click();
-        };
-    }
-    
-    if (importFileInput) {
-        importFileInput.onchange = handleImportFile;
-    }
-    
-    if (exportBtn) {
-        exportBtn.onclick = handleExportVehicles;
-    }
-    
-    // Bulk operations
-    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-    const findDuplicatesBtn = document.getElementById('findDuplicatesBtn');
-    
-    if (bulkDeleteBtn) {
-        bulkDeleteBtn.onclick = handleBulkDelete;
-    }
-    
-    if (findDuplicatesBtn) {
-        findDuplicatesBtn.onclick = handleFindDuplicates;
-    }
-    
-    // Violation search
-    const violationSearchBtn = document.getElementById('violationSearchBtn');
-    const violationPrintBtn = document.getElementById('violationPrintBtn');
-    const violationExportBtn = document.getElementById('violationExportBtn');
-    const clearViolationSearchBtn = document.getElementById('clearViolationSearchBtn');
-    
-    if (violationSearchBtn) {
-        violationSearchBtn.onclick = handleViolationSearch;
-    }
-    
-    if (violationPrintBtn) {
-        violationPrintBtn.onclick = handleViolationPrint;
-    }
-    
-    if (violationExportBtn) {
-        violationExportBtn.onclick = handleViolationExport;
-    }
-    
-    if (clearViolationSearchBtn) {
-        clearViolationSearchBtn.onclick = handleClearViolationSearch;
-    }
-    
-    // Clear duplicates button
-    const clearDuplicatesBtn = document.getElementById('clearDuplicatesBtn');
-    if (clearDuplicatesBtn) {
-        clearDuplicatesBtn.onclick = handleClearDuplicates;
-    }
-    
-    // Populate dropdowns with properties and violation types
-    await populateDatabaseDropdowns();
 }
 
 async function populateDatabaseDropdowns() {
