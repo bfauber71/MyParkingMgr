@@ -33,7 +33,7 @@ if (empty($propertyNames)) {
     jsonResponse(['violations' => [], 'total' => 0, 'debug' => 'No accessible properties']);
 }
 
-// Build SQL query with violation items
+// Build SQL query with violation items and fines
 $sql = "SELECT 
     vt.id,
     vt.vehicle_id,
@@ -48,10 +48,12 @@ $sql = "SELECT
     v.plate_number,
     v.tag_number,
     COALESCE(v.property, vt.property_name) as property,
-    GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') as violation_list
+    GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') as violation_list,
+    SUM(COALESCE(violations.fine_amount, 0)) as total_fine
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
+LEFT JOIN violations ON vti.violation_id = violations.id
 WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
    OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
 

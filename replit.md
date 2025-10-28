@@ -6,6 +6,26 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 28, 2025 - Vehicle Edit & Violations Fixes
+- **Vehicle Editing Complete Fix:**
+  - Added `sanitizeInput()` function to helpers.php (was missing, causing fatal errors)
+  - Created cache-busted API endpoints (vehicles-update-v2.php, vehicles-search-v2.php, vehicles-get.php)
+  - Fixed vehicle search to accept both property IDs and names (handles mixed data)
+  - Added State and Reserved Space columns to vehicle display table
+  - Edit modal now fetches fresh data from database instead of using cached objects
+  - Browser cache prevention: timestamp parameters + cache headers on all vehicle APIs
+- **Violations System Fixes:**
+  - Fixed violations-create.php property lookup to handle both UUID and name formats
+  - Made auditLog() function optional (safe error handling if function doesn't exist)
+  - Added Fines column to violation search results
+  - Violations search API now calculates total fine amount per ticket (SUM of violation fine_amount)
+  - Improved error handling in violation creation (commit happens before audit log failures)
+- **Cache Prevention Strategy:**
+  - .htaccess now includes PHP cache-control headers to prevent OPcache issues
+  - All API responses include no-cache headers
+  - API calls include timestamp query parameters for unique URLs
+  - Critical for shared hosting environments with aggressive PHP OPcache
+
 ### October 27, 2025 - Production Security & Deployment Fixes
 - **HTTPS Enforcement:** Production deployment package enforces HTTPS redirect for security
   - Development .htaccess: HTTPS redirect disabled (for local testing)

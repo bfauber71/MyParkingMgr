@@ -1370,7 +1370,7 @@ function displayViolationSearchResults(violations) {
     const table = createElement('table', { className: 'data-table' });
     const thead = createElement('thead');
     const headerRow = createElement('tr');
-    ['Date', 'Vehicle', 'Violation', 'Property', 'Status', 'Actions'].forEach(text => {
+    ['Date', 'Vehicle', 'Violation', 'Fines', 'Property', 'Status', 'Actions'].forEach(text => {
         const th = createElement('th', {}, text);
         headerRow.appendChild(th);
     });
@@ -1402,10 +1402,16 @@ function displayViolationSearchResults(violations) {
             vehicleDesc += ` (${vehicleParts.join(' ')})`;
         }
         
+        // Format fine amount
+        const fineAmount = violation.total_fine && parseFloat(violation.total_fine) > 0
+            ? `$${parseFloat(violation.total_fine).toFixed(2)}`
+            : '-';
+        
         [
             formatDate(violation.created_at),
             vehicleDesc,
             violation.violation_list || 'N/A',
+            fineAmount,
             violation.property || 'N/A',
             violation.status || 'Active'
         ].forEach(text => {
