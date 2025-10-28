@@ -62,16 +62,31 @@ chmod 755 assets/             # Web-accessible assets
 chmod 755 api/                # API endpoints
 ```
 
-## Step 5: Verify Installation
+## Step 5: Initialize License System (CRITICAL)
+
+**After running setup.php, you MUST run the license migration SQL:**
+
+1. Open **phpMyAdmin** in your hosting control panel
+2. Select your database from the left sidebar
+3. Click the **"SQL"** tab at the top
+4. **Copy and paste** the contents of `sql/migrate-license-system.sql`
+5. Click **"Go"** to execute
+6. ✅ You should see "Query OK" messages
+
+**This creates the license tables needed for the 30-day trial system.**
+
+## Step 6: Verify Installation
 
 1. Navigate to your website URL
 2. You should see the login page
 3. Default credentials (created during setup):
    - Username: `admin`
-   - Password: `admin123`
+   - Password: `admin`
    - **CHANGE THIS IMMEDIATELY after first login!**
+4. **Check that the "TRIAL" badge appears** in the top-right corner of the dashboard
+5. Navigate to **Settings > Violations** and verify all 10 violation types load
 
-## Step 6: Security Configuration
+## Step 7: Security Configuration
 
 ### For Production Servers with HTTPS:
 
@@ -106,6 +121,14 @@ The `.htaccess` file is included in the deployment. It provides:
 ### "500 Internal Server Error"
 - **Cause**: PHP configuration or file permissions
 - **Solution**: Check PHP error logs and file permissions
+
+### "Trial badge shows ERROR" or "License status: error"
+- **Cause**: License tables not created in database
+- **Solution**: Run `sql/migrate-license-system.sql` in phpMyAdmin (see Step 5)
+
+### "Violations page is empty"
+- **Cause**: Database schema missing tables
+- **Solution**: Re-run `setup.php` or manually import `sql/install.sql` in phpMyAdmin
 
 ## Support
 
