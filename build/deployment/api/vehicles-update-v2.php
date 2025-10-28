@@ -100,12 +100,14 @@ try {
         $id
     ]);
     
-    // Log the action
-    logAudit('update_vehicle', [
-        'vehicle_id' => $id,
-        'tag_number' => $tag_number,
-        'state' => $state
-    ]);
+    // Log the action (safe - function may not exist on all systems)
+    if (function_exists('logAudit')) {
+        logAudit('update_vehicle', [
+            'vehicle_id' => $id,
+            'tag_number' => $tag_number,
+            'state' => $state
+        ]);
+    }
     
     echo json_encode([
         'success' => true,
@@ -114,9 +116,16 @@ try {
     ]);
     
 } catch (Exception $e) {
-    http_response_code(400);
+    error_log("Vehicle update error: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
+    http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => $e->getMessage(),
+        'debug' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]
     ]);
 }
