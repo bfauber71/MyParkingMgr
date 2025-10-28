@@ -1,0 +1,82 @@
+# PRODUCTION FIX - Run This SQL File
+
+## Problem
+The previous SQL file used functions not available on your MySQL version.
+
+## Solution
+Use the NEW simple SQL file that's compatible with ALL MySQL/MariaDB versions.
+
+---
+
+## Step-by-Step Instructions:
+
+### Step 1: Download the NEW Deployment Package
+File: MyParkingManager-v2.3.3-Deployment.zip (500KB+)
+
+This package includes the fixed SQL file.
+
+---
+
+### Step 2: Open phpMyAdmin on Production
+1. Login to cPanel
+2. Click "phpMyAdmin"
+3. Select your database: "myparkingmanager"
+
+---
+
+### Step 3: Run the SIMPLE SQL File
+
+**IMPORTANT:** Use this file instead:
+- File: `sql/migrate-license-system-simple.sql`
+
+1. Click "SQL" tab in phpMyAdmin
+2. Open the file: `sql/migrate-license-system-simple.sql`
+3. Copy ALL contents
+4. Paste into the SQL box
+5. Click "Go"
+
+You should see GREEN checkmarks:
+✅ "Query OK, 0 rows affected" (creating tables)
+✅ "Query OK, 1 row affected" (inserting trial data)
+
+---
+
+### Step 4: Verify Tables Created
+
+In phpMyAdmin left sidebar, you should see:
+- license_instances (NEW)
+- license_attempts (NEW)
+- license_audit (NEW)
+
+Click on `license_instances` and verify there's 1 row with:
+- status: trial
+- trial_expires_at: 30 days from now
+
+---
+
+### Step 5: Test Your Website
+
+1. Go to: https://2clv.com
+2. Hard refresh: Ctrl+Shift+R (or Cmd+Shift+R)
+3. Login with: admin / admin
+4. ✅ "TRIAL" badge should appear in top-right!
+5. Go to Settings > Violations
+6. ✅ Should see all 10 violation types
+
+---
+
+## What's Different in This File?
+
+The simple version:
+- ✅ No JSON_OBJECT() function (not on older MySQL)
+- ✅ No UUID() function (generates IDs with MD5 instead)
+- ✅ Uses stored procedure for column check (100% compatible)
+- ✅ Works on MySQL 5.5, 5.6, 5.7, 8.0 and ALL MariaDB versions
+
+---
+
+## If You Still Get Errors:
+
+Send me a screenshot of the exact error message from phpMyAdmin.
+
+The error will show which line failed and why.
