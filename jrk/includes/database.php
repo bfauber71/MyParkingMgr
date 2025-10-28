@@ -8,6 +8,13 @@ class Database {
     private static $pdo = null;
     
     /**
+     * Get PDO connection (alias for connect)
+     */
+    public static function getPDO() {
+        return self::connect();
+    }
+    
+    /**
      * Get PDO connection
      */
     public static function connect() {

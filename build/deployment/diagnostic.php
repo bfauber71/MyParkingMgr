@@ -94,25 +94,12 @@ ini_set('display_errors', 1);
         
         if ($license) {
             echo "<div class='success'>✓ License record found</div>";
-            
-            // Check for install_id mismatch
-            $dbInstallId = $license['install_id'] ?? '';
-            $configInstallId = $config['install_id'] ?? '';
-            
             echo "<pre>";
-            echo "Database Install ID: " . (empty($dbInstallId) ? 'EMPTY' : htmlspecialchars($dbInstallId)) . "\n";
-            echo "Config Install ID: " . (empty($configInstallId) ? 'EMPTY' : htmlspecialchars($configInstallId)) . "\n";
+            echo "Install ID: " . ($license['install_id'] ?? 'NULL') . "\n";
             echo "Status: " . ($license['status'] ?? 'NULL') . "\n";
             echo "Trial Expires: " . ($license['trial_expires_at'] ?? 'NULL') . "\n";
             echo "Installed At: " . ($license['installed_at'] ?? 'NULL') . "\n";
             echo "</pre>";
-            
-            // Warn about mismatch
-            if ($dbInstallId !== $configInstallId) {
-                echo "<div class='error'>⚠️ MISMATCH DETECTED! Database install_id doesn't match config install_id.</div>";
-                echo "<div class='error'>This is why your license API returns empty data!</div>";
-                echo "<div class='success'>FIX: Run this SQL in phpMyAdmin:<br><code>UPDATE license_instances SET install_id = '' WHERE status = 'trial';</code></div>";
-            }
         } else {
             echo "<div class='error'>✗ No license record found in database</div>";
         }
