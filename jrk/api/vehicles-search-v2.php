@@ -18,6 +18,14 @@ $accessibleProperties = getAccessibleProperties();
 $propertyIds = array_column($accessibleProperties, 'id');
 $propertyNames = array_column($accessibleProperties, 'name');
 
+// DEBUG: Log what we're searching for
+error_log("VEHICLES SEARCH DEBUG:");
+error_log("Accessible properties count: " . count($accessibleProperties));
+error_log("Property IDs: " . json_encode($propertyIds));
+error_log("Property Names: " . json_encode($propertyNames));
+error_log("Search query: " . $query);
+error_log("Property filter: " . $propertyFilter);
+
 if (empty($propertyIds)) {
     jsonResponse(['vehicles' => []]);
 }
@@ -27,6 +35,9 @@ if (empty($propertyIds)) {
 $placeholders = implode(',', array_fill(0, count($propertyIds) + count($propertyNames), '?'));
 $sql = "SELECT * FROM vehicles WHERE property IN (" . $placeholders . ")";
 $params = array_merge($propertyIds, $propertyNames);
+
+error_log("SQL: " . $sql);
+error_log("Params: " . json_encode($params));
 
 // Add property filter
 if ($propertyFilter) {
@@ -55,6 +66,13 @@ if ($query) {
 $sql .= " ORDER BY created_at DESC LIMIT 1000";
 
 $vehicles = Database::query($sql, $params);
+
+// DEBUG: Log results
+error_log("Vehicles found: " . count($vehicles));
+if (count($vehicles) > 0) {
+    error_log("First vehicle property value: " . ($vehicles[0]['property'] ?? 'NULL'));
+    error_log("First vehicle data: " . json_encode($vehicles[0]));
+}
 
 // Add violation count to each vehicle
 try {
