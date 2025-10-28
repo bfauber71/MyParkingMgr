@@ -6,7 +6,7 @@
 
 requireAuth();
 
-auditLog('logout', 'user', Session::userId());
+if (function_exists('auditLog')) { try { auditLog('logout', 'user', Session::userId());
 
 Session::logout();
 

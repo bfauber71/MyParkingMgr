@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
         
         if (function_exists('auditLog')) {
-            auditLog('UPDATE', 'printer_settings', null, [
+            if (function_exists('auditLog')) { try { auditLog('UPDATE', 'printer_settings', null, [
                 'settings' => array_keys($data['settings'] ?? [])
             ]);
         }

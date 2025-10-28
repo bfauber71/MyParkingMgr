@@ -49,7 +49,7 @@ try {
         $details .= ", tow deadline: {$towDeadlineHours}hrs";
     }
     
-    auditLog('update_violation', 'violations', $id, $details);
+    if (function_exists('auditLog')) { try { auditLog('update_violation', 'violations', $id, $details); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {

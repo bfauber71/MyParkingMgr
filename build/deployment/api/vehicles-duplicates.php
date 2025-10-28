@@ -91,11 +91,17 @@ try {
         $sql = "DELETE FROM vehicles WHERE id IN ($placeholders)";
         Database::query($sql, $vehicleIds);
         
-        auditLog('vehicles_duplicates_delete', 'vehicle', null, [
-            'criteria' => $criteria,
-            'count' => count($vehicleIds),
-            'vehicle_ids' => $vehicleIds
-        ]);
+        if (function_exists('auditLog')) {
+            try {
+                auditLog('vehicles_duplicates_delete', 'vehicle', null, [
+                    'criteria' => $criteria,
+                    'count' => count($vehicleIds),
+                    'vehicle_ids' => $vehicleIds
+                ]);
+            } catch (Exception $e) {
+                error_log("Audit log error: " . $e->getMessage());
+            }
+        }
         
         jsonResponse([
             'success' => true,

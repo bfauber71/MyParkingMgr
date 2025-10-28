@@ -60,7 +60,7 @@ try {
     // Save assigned properties
     saveUserAssignedProperties($userId, $assignedProperties);
     
-    auditLog('create_user', 'users', $userId, "Created user: $username ($role)");
+    if (function_exists('auditLog')) { try { auditLog('create_user', 'users', $userId, "Created user: $username ($role)");
     
     echo json_encode([
         'success' => true,

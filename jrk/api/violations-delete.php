@@ -35,7 +35,7 @@ try {
     $stmt = $db->prepare("DELETE FROM violations WHERE id = ?");
     $stmt->execute([$id]);
     
-    auditLog('delete_violation', 'violations', $id, "Deleted violation: {$violation['name']}");
+    if (function_exists('auditLog')) { try { auditLog('delete_violation', 'violations', $id, "Deleted violation: {$violation['name']}"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     echo json_encode(['success' => true]);
 } catch (PDOException $e) {

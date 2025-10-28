@@ -39,10 +39,10 @@ try {
     Database::query($sql, [$property]);
     
     // Audit log
-    auditLog('vehicles_bulk_delete', 'vehicle', null, [
+    if (function_exists('auditLog')) { try { auditLog('vehicles_bulk_delete', 'vehicle', null, [
         'property' => $property,
         'count' => $count
-    ]);
+    ]); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     jsonResponse([
         'success' => true,

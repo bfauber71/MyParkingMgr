@@ -35,6 +35,12 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Fixed fatal error in printer-settings.php (was calling non-existent logAudit() instead of auditLog())
   - Made audit logging optional with function_exists() check to prevent crashes
   - Ticket settings now save successfully without 500 errors
+- **System-Wide Audit Log Protection:**
+  - Fixed all API endpoints to safely handle auditLog failures
+  - Wrapped all auditLog() calls with function_exists() + try/catch blocks
+  - Prevents "Unexpected end of JSON input" errors when audit logging fails
+  - Affected files: properties-update, properties-create, properties-delete, users-create, users-update, users-delete, vehicles-create, vehicles-delete, vehicles-bulk-delete, vehicles-duplicates, violations-create, violations-add, violations-update, violations-delete, login, logout, license-activate, printer-settings
+  - Database commits now always succeed even if audit logging fails
 - **Cache Prevention Strategy:**
   - .htaccess now includes PHP cache-control headers to prevent OPcache issues
   - All API responses include no-cache headers

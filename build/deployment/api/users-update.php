@@ -70,7 +70,7 @@ try {
     // Save assigned properties
     saveUserAssignedProperties($id, $assignedProperties);
     
-    auditLog('update_user', 'users', $id, "Updated user: $username ($role)");
+    if (function_exists('auditLog')) { try { auditLog('update_user', 'users', $id, "Updated user: $username ($role)");
     
     jsonResponse([
         'success' => true,

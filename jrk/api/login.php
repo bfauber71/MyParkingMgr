@@ -50,11 +50,11 @@ try {
                 $remainingSeconds = $lockedUntil->getTimestamp() - $now->getTimestamp();
                 $remainingMinutes = ceil($remainingSeconds / 60);
                 
-                auditLog('login_locked', 'user', null, [
+                if (function_exists('auditLog')) { try { auditLog('login_locked', 'user', null, [
                     'username' => $username,
                     'ip' => $ipAddress,
                     'remaining_seconds' => $remainingSeconds
-                ]);
+                ]); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
                 
                 jsonResponse([
                     'error' => 'Account temporarily locked',
@@ -122,10 +122,10 @@ if (!$user || !password_verify($password, $user['password'])) {
         error_log("Login attempt recording error: " . $e->getMessage());
     }
     
-    auditLog('login_failed', 'user', null, [
+    if (function_exists('auditLog')) { try { auditLog('login_failed', 'user', null, [
         'username' => $username,
         'ip' => $ipAddress
-    ]);
+    ]); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     jsonResponse(['error' => 'Invalid credentials'], 401);
 }
@@ -153,7 +153,7 @@ try {
 // Login successful
 Session::login($user);
 
-auditLog('login', 'user', $user['id']);
+if (function_exists('auditLog')) { try { auditLog('login', 'user', $user['id']); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
 
 jsonResponse([
     'user' => [

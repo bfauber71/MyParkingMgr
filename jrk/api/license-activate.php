@@ -24,7 +24,7 @@ $result = License::activateLicense($licenseKey, $customerEmail);
 
 if ($result['success']) {
     // Log successful activation
-    auditLog('license_activated', 'license', License::getInstallId(), [
+    if (function_exists('auditLog')) { try { auditLog('license_activated', 'license', License::getInstallId(), [
         'email' => $customerEmail,
         'key_prefix' => substr($licenseKey, 0, 10)
     ]);

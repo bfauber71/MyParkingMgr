@@ -45,7 +45,7 @@ try {
     $stmt = $db->prepare("DELETE FROM properties WHERE id = ?");
     $stmt->execute([$propertyId]);
     
-    auditLog('delete_property', 'properties', $propertyId, "Deleted property: {$property['name']}");
+    if (function_exists('auditLog')) { try { auditLog('delete_property', 'properties', $propertyId, "Deleted property: {$property['name']}"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     echo json_encode([
         'success' => true,

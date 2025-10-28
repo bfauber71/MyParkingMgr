@@ -41,7 +41,7 @@ try {
     $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     
-    auditLog('delete_user', 'users', $userId, "Deleted user: {$targetUser['username']}");
+    if (function_exists('auditLog')) { try { auditLog('delete_user', 'users', $userId, "Deleted user: {$targetUser['username']}"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     echo json_encode([
         'success' => true,

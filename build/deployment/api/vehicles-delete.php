@@ -36,7 +36,7 @@ try {
     $stmt->execute([$vehicleId]);
     
     $identifier = $vehicle['tag_number'] ?: $vehicle['plate_number'] ?: "ID $vehicleId";
-    auditLog('delete_vehicle', 'vehicles', $vehicleId, "Deleted vehicle: $identifier");
+    if (function_exists('auditLog')) { try { auditLog('delete_vehicle', 'vehicles', $vehicleId, "Deleted vehicle: $identifier"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
     
     echo json_encode([
         'success' => true,

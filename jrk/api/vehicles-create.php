@@ -88,7 +88,7 @@ try {
         ]);
         
         $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "ID $vehicleId";
-        auditLog('update_vehicle', 'vehicles', $vehicleId, "Updated vehicle: $identifier");
+        if (function_exists('auditLog')) { try { auditLog('update_vehicle', 'vehicles', $vehicleId, "Updated vehicle: $identifier"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
         
         echo json_encode([
             'success' => true,
@@ -123,7 +123,7 @@ try {
         ]);
         
         $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "New Vehicle";
-        auditLog('create_vehicle', 'vehicles', $newId, "Created vehicle: $identifier");
+        if (function_exists('auditLog')) { try { auditLog('create_vehicle', 'vehicles', $newId, "Created vehicle: $identifier"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
         
         echo json_encode([
             'success' => true,

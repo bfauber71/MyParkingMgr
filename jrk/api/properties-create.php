@@ -87,7 +87,7 @@ try {
     
     $db->commit();
     
-    auditLog('create_property', 'properties', $propertyId, "Created property: $name with " . count($contacts) . " contact(s)");
+    if (function_exists('auditLog')) { try { auditLog('create_property', 'properties', $propertyId, "Created property: $name with " . count($contacts) . " contact(s)");
     
     echo json_encode([
         'success' => true,
