@@ -2401,23 +2401,47 @@ async function deleteUser(id, username) {
     }
 }
 
-function openVehicleModal(vehicle = null) {
+async function openVehicleModal(vehicle = null) {
     const modal = document.getElementById('vehicleModal');
     const title = document.getElementById('vehicleModalTitle');
     const form = modal.querySelector('form');
     
     if (vehicle) {
         title.textContent = 'Edit Vehicle';
-        document.getElementById('vehicleId').value = vehicle.id;
-        document.getElementById('vehicleTag').value = vehicle.tag_number || '';
-        document.getElementById('vehiclePlate').value = vehicle.plate_number || '';
-        document.getElementById('vehicleOwner').value = vehicle.owner_name || '';
-        document.getElementById('vehicleApt').value = vehicle.apt_number || '';
-        document.getElementById('vehicleMake').value = vehicle.make || '';
-        document.getElementById('vehicleModel').value = vehicle.model || '';
-        document.getElementById('vehicleColor').value = vehicle.color || '';
-        document.getElementById('vehicleYear').value = vehicle.year || '';
-        document.getElementById('vehicleProperty').value = vehicle.property || '';
+        
+        // CRITICAL FIX: Fetch fresh data from database instead of using cached object
+        try {
+            const response = await secureApiCall(`${API_BASE}/vehicles-get?id=${vehicle.id}`, {
+                method: 'GET'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const freshVehicle = data.vehicle;
+                
+                document.getElementById('vehicleId').value = freshVehicle.id;
+                document.getElementById('vehicleTag').value = freshVehicle.tag_number || '';
+                document.getElementById('vehiclePlate').value = freshVehicle.plate_number || '';
+                document.getElementById('vehicleState').value = freshVehicle.state || '';
+                document.getElementById('vehicleOwner').value = freshVehicle.owner_name || '';
+                document.getElementById('vehicleApt').value = freshVehicle.apt_number || '';
+                document.getElementById('vehicleMake').value = freshVehicle.make || '';
+                document.getElementById('vehicleModel').value = freshVehicle.model || '';
+                document.getElementById('vehicleColor').value = freshVehicle.color || '';
+                document.getElementById('vehicleYear').value = freshVehicle.year || '';
+                document.getElementById('vehicleReserved').value = freshVehicle.reserved_space || '';
+                document.getElementById('vehicleProperty').value = freshVehicle.property || '';
+                document.getElementById('vehiclePhone').value = freshVehicle.owner_phone || '';
+                document.getElementById('vehicleEmail').value = freshVehicle.owner_email || '';
+            } else {
+                showToast('Error loading vehicle data', 'error');
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching vehicle:', error);
+            showToast('Error loading vehicle data', 'error');
+            return;
+        }
     } else {
         title.textContent = 'Add Vehicle';
         form.reset();
