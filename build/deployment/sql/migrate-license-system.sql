@@ -52,9 +52,24 @@ CREATE TABLE IF NOT EXISTS license_audit (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Add installation tracking to config
-ALTER TABLE users 
-ADD COLUMN IF NOT EXISTS can_manage_license BOOLEAN DEFAULT FALSE COMMENT 'Admin-only license management';
+-- Add installation tracking to config (skip if already exists)
+-- MySQL 5.7 compatible - no IF NOT EXISTS
+SET @column_exists = (
+    SELECT COUNT(*) 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_SCHEMA = DATABASE() 
+    AND TABLE_NAME = 'users' 
+    AND COLUMN_NAME = 'can_manage_license'
+);
+
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE users ADD COLUMN can_manage_license BOOLEAN DEFAULT FALSE COMMENT ''Admin-only license management''',
+    'SELECT ''Column can_manage_license already exists'' AS message'
+);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- Update admin permissions for license management
 UPDATE users 
