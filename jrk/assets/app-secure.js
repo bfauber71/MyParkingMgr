@@ -1181,8 +1181,14 @@ async function handleImportFile(e) {
     const file = e.target.files[0];
     if (!file) return;
     
+    if (!file.name.endsWith('.csv')) {
+        showToast('Please select a CSV file', 'error');
+        e.target.value = '';
+        return;
+    }
+    
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('csv', file);
     
     try {
         const response = await fetch(`${API_BASE}/vehicles-import`, {
@@ -1194,14 +1200,28 @@ async function handleImportFile(e) {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            showToast(`Successfully imported ${data.count || 0} vehicles`, 'success');
+            let message = `Successfully imported ${data.imported || 0} vehicles`;
+            if (data.errors && data.errors.length > 0) {
+                message += `\n\nWarnings:\n${data.errors.slice(0, 5).join('\n')}`;
+                if (data.errors.length > 5) {
+                    message += `\n... and ${data.errors.length - 5} more`;
+                }
+            }
+            showToast(message, 'success');
             searchVehicles('', '');
         } else {
-            showToast(data.error || 'Failed to import vehicles', 'error');
+            let errorMessage = data.error || 'Failed to import vehicles';
+            if (data.errors && data.errors.length > 0) {
+                errorMessage += `\n\nErrors:\n${data.errors.slice(0, 5).join('\n')}`;
+                if (data.errors.length > 5) {
+                    errorMessage += `\n... and ${data.errors.length - 5} more`;
+                }
+            }
+            showToast(errorMessage, 'error');
         }
     } catch (error) {
         console.error('Error importing vehicles:', error);
-        showToast('Error importing vehicles', 'error');
+        showToast('Error importing vehicles: ' + error.message, 'error');
     }
     
     e.target.value = '';
