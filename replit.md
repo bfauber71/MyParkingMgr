@@ -31,6 +31,10 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Fixed "Find Duplicates" button - now works when Database Ops tab is clicked
   - Created setupDatabaseOpsHandlers() function that initializes when Database Ops sub-tab is loaded
   - Removed duplicate/stale setupDatabasePageHandlers() function that was called at wrong time
+- **Printer Settings Fix:**
+  - Fixed fatal error in printer-settings.php (was calling non-existent logAudit() instead of auditLog())
+  - Made audit logging optional with function_exists() check to prevent crashes
+  - Ticket settings now save successfully without 500 errors
 - **Cache Prevention Strategy:**
   - .htaccess now includes PHP cache-control headers to prevent OPcache issues
   - All API responses include no-cache headers

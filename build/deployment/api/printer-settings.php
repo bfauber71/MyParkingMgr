@@ -88,9 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             Database::execute($sql, [$key, $value, $value]);
         }
         
-        logAudit('UPDATE', 'printer_settings', null, [
-            'settings' => array_keys($data['settings'] ?? [])
-        ]);
+        if (function_exists('auditLog')) {
+            auditLog('UPDATE', 'printer_settings', null, [
+                'settings' => array_keys($data['settings'] ?? [])
+            ]);
+        }
         
         jsonResponse([
             'success' => true,
