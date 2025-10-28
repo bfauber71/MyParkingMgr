@@ -2605,7 +2605,8 @@ async function handleVehicleSubmit(e) {
     }
     
     try {
-        const endpoint = isUpdate ? `${API_BASE}/vehicles-update` : `${API_BASE}/vehicles-create`;
+        // Use v2 endpoint to bypass OPcache on production
+        const endpoint = isUpdate ? `${API_BASE}/vehicles-update-v2` : `${API_BASE}/vehicles-create`;
         const response = await secureApiCall(endpoint, {
             method: 'POST',
             body: JSON.stringify(formData)
