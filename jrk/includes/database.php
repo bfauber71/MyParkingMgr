@@ -135,9 +135,14 @@ class Database {
     
     /**
      * Get PDO instance (alias for connect)
+     * Throws exception if database is not available
      */
     public static function getInstance() {
-        return self::connect();
+        $pdo = self::connect();
+        if ($pdo === null) {
+            throw new Exception('Database connection not available');
+        }
+        return $pdo;
     }
     
     /**
