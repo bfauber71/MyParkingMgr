@@ -18,13 +18,15 @@ $accessibleProperties = getAccessibleProperties();
 $propertyIds = array_column($accessibleProperties, 'id');
 $propertyNames = array_column($accessibleProperties, 'name');
 
-if (empty($propertyNames)) {
+if (empty($propertyIds)) {
     jsonResponse(['vehicles' => []]);
 }
 
-// Build SQL query
-$sql = "SELECT * FROM vehicles WHERE property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
-$params = $propertyNames;
+// Build SQL query - FIXED: Use property IDs instead of names
+// Vehicles can have EITHER property IDs (UUID) OR property names, so check both
+$placeholders = implode(',', array_fill(0, count($propertyIds) + count($propertyNames), '?'));
+$sql = "SELECT * FROM vehicles WHERE property IN (" . $placeholders . ")";
+$params = array_merge($propertyIds, $propertyNames);
 
 // Add property filter
 if ($propertyFilter) {
