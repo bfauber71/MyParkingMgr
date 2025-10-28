@@ -161,7 +161,13 @@ try {
     // Audit log (safe - function may not exist)
     if (function_exists('auditLog')) {
         try {
-            if (function_exists('auditLog')) { try { auditLog('create_violation', 'violation_tickets', $ticketId, "Created violation ticket for vehicle: {$vehicle['make']} {$vehicle['model']}");
+            if (function_exists('auditLog')) {
+                try {
+                    auditLog('create_violation', 'violation_tickets', $ticketId, "Created violation ticket for vehicle: {$vehicle['make']} {$vehicle['model']}");
+                } catch (Exception $e) {
+                    error_log("Audit log error: " . $e->getMessage());
+                }
+            }
         } catch (Exception $e) {
             error_log("Audit log failed: " . $e->getMessage());
         }

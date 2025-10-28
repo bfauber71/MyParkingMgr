@@ -116,7 +116,7 @@ try {
     
     if (function_exists('auditLog')) {
         try {
-            if (function_exists('auditLog')) { try { auditLog('update_property', 'properties', $propertyId, "Updated property: $name with " . count($contacts) . " contact(s)");
+            auditLog('update_property', 'properties', $propertyId, "Updated property: $name with " . count($contacts) . " contact(s)");
         } catch (Exception $e) {
             error_log("Audit log error: " . $e->getMessage());
         }
