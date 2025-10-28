@@ -158,16 +158,25 @@ try {
     
     $db->commit();
     
-    // Audit log
-    auditLog('create_violation', 'violation_tickets', $ticketId, "Created violation ticket for vehicle: {$vehicle['make']} {$vehicle['model']}");
+    // Audit log (safe - function may not exist)
+    if (function_exists('auditLog')) {
+        try {
+            auditLog('create_violation', 'violation_tickets', $ticketId, "Created violation ticket for vehicle: {$vehicle['make']} {$vehicle['model']}");
+        } catch (Exception $e) {
+            error_log("Audit log failed: " . $e->getMessage());
+        }
+    }
     
     echo json_encode([
         'success' => true,
         'ticketId' => $ticketId,
         'message' => 'Violation ticket created successfully'
     ]);
-} catch (PDOException $e) {
-    $db->rollBack();
+} catch (Exception $e) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+    error_log("Violation create error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['error' => 'Failed to create violation ticket']);
 }
