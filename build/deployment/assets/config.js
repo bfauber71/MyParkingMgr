@@ -6,31 +6,34 @@
 (function() {
     // Function to get the base path dynamically
     function detectBasePath() {
+        // For root installation, return empty string
+        // For subdirectory installation, return the subdirectory path
         const pathname = window.location.pathname;
-        const scriptTags = document.getElementsByTagName('script');
+        
+        // If we're at root or index.html, base path is empty
+        if (pathname === '/' || pathname === '/index.html' || pathname === '') {
+            return '';
+        }
         
         // Try to detect from script tags
+        const scriptTags = document.getElementsByTagName('script');
         for (let i = 0; i < scriptTags.length; i++) {
             const src = scriptTags[i].src;
-            if (src && src.includes('/assets/')) {
-                const match = src.match(/^https?:\/\/[^\/]+(.*)\/assets\//);
-                if (match) {
-                    return match[1] || '';
+            if (src && src.includes('/assets/config.js')) {
+                const match = src.match(/^https?:\/\/[^\/]+(.*)\/assets\/config\.js/);
+                if (match && match[1]) {
+                    return match[1];
                 }
             }
         }
         
-        // Fallback: detect from pathname
-        // Remove the filename and get the directory path
-        const pathParts = pathname.split('/');
-        pathParts.pop(); // Remove filename
-        
-        // If we're in /public or a known endpoint, go up one level
-        if (pathParts[pathParts.length - 1] === 'public') {
-            pathParts.pop();
+        // If pathname contains index.html, extract base path
+        if (pathname.includes('/index.html')) {
+            return pathname.replace('/index.html', '');
         }
         
-        return pathParts.join('/') || '';
+        // Default: assume root installation
+        return '';
     }
     
     // Set default configuration
