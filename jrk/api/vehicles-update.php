@@ -28,17 +28,19 @@ try {
         }
     }
     
-    $id = intval($input['id']);
+    $id = $input['id']; // Keep as string (UUID)
     $tag_number = sanitizeInput($input['tag_number']);
     $state = sanitizeInput($input['state']);
     $make = isset($input['make']) ? sanitizeInput($input['make']) : '';
     $model = isset($input['model']) ? sanitizeInput($input['model']) : '';
     $color = isset($input['color']) ? sanitizeInput($input['color']) : '';
-    $year = isset($input['year']) ? intval($input['year']) : null;
-    $property_id = isset($input['property_id']) && $input['property_id'] ? intval($input['property_id']) : null;
-    $resident_name = isset($input['resident_name']) ? sanitizeInput($input['resident_name']) : '';
-    $unit_number = isset($input['unit_number']) ? sanitizeInput($input['unit_number']) : '';
-    $notes = isset($input['notes']) ? sanitizeInput($input['notes']) : '';
+    $year = isset($input['year']) ? sanitizeInput($input['year']) : '';
+    $property = isset($input['property_id']) ? sanitizeInput($input['property_id']) : '';
+    $owner_name = isset($input['owner_name']) ? sanitizeInput($input['owner_name']) : '';
+    $apt_number = isset($input['apt_number']) ? sanitizeInput($input['apt_number']) : '';
+    $owner_phone = isset($input['owner_phone']) ? sanitizeInput($input['owner_phone']) : '';
+    $owner_email = isset($input['owner_email']) ? sanitizeInput($input['owner_email']) : '';
+    $reserved_space = isset($input['reserved_space']) ? sanitizeInput($input['reserved_space']) : '';
     
     // Validate tag number format
     if (!preg_match('/^[A-Z0-9\-]+$/i', $tag_number)) {
@@ -65,30 +67,36 @@ try {
     // Update the vehicle
     $sql = "UPDATE vehicles SET 
             tag_number = ?,
+            plate_number = ?,
             state = ?,
             make = ?,
             model = ?,
             color = ?,
             year = ?,
-            property_id = ?,
-            resident_name = ?,
-            unit_number = ?,
-            notes = ?,
+            property = ?,
+            owner_name = ?,
+            apt_number = ?,
+            owner_phone = ?,
+            owner_email = ?,
+            reserved_space = ?,
             updated_at = NOW()
             WHERE id = ?";
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $tag_number,
+        $input['plate_number'] ?? '',
         $state,
         $make,
         $model,
         $color,
         $year,
-        $property_id,
-        $resident_name,
-        $unit_number,
-        $notes,
+        $property,
+        $owner_name,
+        $apt_number,
+        $owner_phone,
+        $owner_email,
+        $reserved_space,
         $id
     ]);
     
