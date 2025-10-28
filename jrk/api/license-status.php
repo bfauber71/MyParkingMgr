@@ -15,6 +15,9 @@ header('Content-Type: application/json');
 try {
     $status = License::getStatus();
     
+    // Debug: Log the raw status for troubleshooting
+    error_log("License::getStatus() returned: " . json_encode($status));
+    
     // Add additional information for frontend
     $response = [
         'success' => true,
@@ -34,9 +37,12 @@ try {
     
     jsonResponse($response);
 } catch (Exception $e) {
+    error_log("License status error: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
     jsonResponse([
         'success' => false,
         'error' => 'Failed to retrieve license status',
-        'message' => $e->getMessage()
+        'message' => $e->getMessage(),
+        'debug' => $e->getTraceAsString()
     ], 500);
 }
