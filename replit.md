@@ -12,6 +12,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - **Login 401 Error Fixed:** Added missing $tableExists variable initialization (production strict mode issue)
   - **Logout 500 Error Fixed:** Added missing includes in logout.php (database.php, session.php, helpers.php)
   - **Vehicle Edit Modal Fixed:** Corrected field ID mismatch (vehicleReserved → vehicleSpace) preventing Reserved Space field from populating
+  - **Vehicle Save "Missing tag_number" Fixed:** Corrected field name mismatch - frontend was sending camelCase (tagNumber, plateNumber, etc.) but backend expects snake_case (tag_number, plate_number, etc.)
   - **setup-test-db.php 500 Error Fixed:** Recreated missing AJAX endpoint for database connectivity testing
 - **Deprecated Files Removed:**
   - Removed old API endpoints: vehicles-search.php, vehicles-update.php (superseded by v2 versions)
