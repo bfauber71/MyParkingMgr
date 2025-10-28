@@ -28,6 +28,9 @@ $username = sanitize($data['username']);
 $password = $data['password'];
 $ipAddress = getClientIp();
 
+// Check if login_attempts table exists (set default first)
+$tableExists = false;
+
 // Check login attempts and lockout status
 try {
     // Check if login_attempts table exists
