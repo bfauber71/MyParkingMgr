@@ -33,6 +33,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Removed duplicate/stale setupDatabasePageHandlers() function that was called at wrong time
 - **Printer Settings Fix:**
   - Fixed fatal error in printer-settings.php (was calling non-existent logAudit() instead of auditLog())
+  - Fixed duplicate if statement and missing braces in audit log wrapper (syntax error preventing saves)
   - Made audit logging optional with function_exists() check to prevent crashes
   - Ticket settings now save successfully without 500 errors
 - **System-Wide Audit Log Protection:**

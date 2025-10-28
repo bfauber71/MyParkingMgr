@@ -89,9 +89,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
         
         if (function_exists('auditLog')) {
-            if (function_exists('auditLog')) { try { auditLog('UPDATE', 'printer_settings', null, [
-                'settings' => array_keys($data['settings'] ?? [])
-            ]);
+            try {
+                auditLog('UPDATE', 'printer_settings', null, [
+                    'settings' => array_keys($data['settings'] ?? [])
+                ]);
+            } catch (Exception $e) {
+                error_log("Audit log error: " . $e->getMessage());
+            }
         }
         
         jsonResponse([
