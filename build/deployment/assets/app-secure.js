@@ -963,7 +963,7 @@ function displayVehicles(vehicles) {
     const thead = createElement('thead');
     const headerRow = createElement('tr');
     
-    ['Tag', 'Plate', 'Owner', 'Apt', 'Make/Model', 'Color', 'Year', 'Property', 'Violations', 'Actions'].forEach(header => {
+    ['Tag', 'State', 'Plate', 'Owner', 'Apt', 'Make/Model', 'Color', 'Year', 'Reserved', 'Property', 'Violations', 'Actions'].forEach(header => {
         const th = createElement('th', {}, header);
         headerRow.appendChild(th);
     });
@@ -976,12 +976,14 @@ function displayVehicles(vehicles) {
         
         [
             vehicle.tag_number || '-',
+            vehicle.state || '-',
             vehicle.plate_number || '-',
             vehicle.owner_name || '-',
             vehicle.apt_number || '-',
             `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '-',
             vehicle.color || '-',
             vehicle.year || '-',
+            vehicle.reserved_space || '-',
             vehicle.property || '-',
             vehicle.violation_count || '0'
         ].forEach(text => {
