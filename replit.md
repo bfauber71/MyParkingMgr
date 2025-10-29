@@ -13,6 +13,12 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Set zero margins on all printed pages (@page margin: 0)
   - Changed @page size to "auto" to respect user's printer/page setup
   - Enhanced border thickness on fine section and tow warning (3-4px solid borders)
+- **Print Ticket Layout Changes:**
+  - Changed intro message to "On the date and time below, the following violations have been found:"
+  - Date and time now display on same line for cleaner layout
+  - Tow warning simplified to single line with one warning triangle (⚠) and no box border
+  - Fine amount simplified to "Fine: $XX.XX" on one line with no box border
+  - Removed box border from property custom instructions for cleaner appearance
 
 ### October 28, 2025 - Version 2.3.7 Release - Production Ready
 - **Version Update:** Updated to v2.3.7 with comprehensive cleanup

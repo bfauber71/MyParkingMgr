@@ -92,20 +92,20 @@
             font-weight: 900;
             text-align: center;
             margin: 10px 0;
-            padding: 8px;
-            border: 4px solid #000;
-            background-color: #fff;
+            padding: 0;
+            border: none;
+            background-color: transparent;
         }
 
         .custom-property-text {
             font-size: 14px;
             font-weight: 700;
             margin: 10px 0;
-            padding: 8px;
-            border: 3px solid #000;
+            padding: 0;
+            border: none;
             text-align: center;
             line-height: 1.4;
-            background-color: #fff;
+            background-color: transparent;
         }
 
         .tow-warning {
@@ -113,11 +113,10 @@
             font-weight: 900;
             margin-bottom: 10px;
             text-align: center;
-            padding: 8px;
-            border: 4px double #000;
-            background-color: #fff;
+            padding: 0;
+            border: none;
+            background-color: transparent;
             color: #000;
-            text-decoration: underline;
         }
 
         .property-info {
@@ -300,7 +299,7 @@
                 const timeDisplay = hours === 1 ? 'IMMEDIATELY!' : `IN ${hours} HOUR${hours !== 1 ? 'S' : ''}`;
                 towWarningHtml = `
                     <div class="tow-warning">
-                        ⚠ SUBJECT TO TOW ${timeDisplay} ⚠
+                        ⚠ SUBJECT TO TOW ${timeDisplay}
                     </div>
                 `;
             }
@@ -310,7 +309,7 @@
             if (ticket.total_fine > 0) {
                 fineHtml = `
                     <div class="fine-section">
-                        FINE AMOUNT: $${ticket.total_fine.toFixed(2)}
+                        Fine: $${ticket.total_fine.toFixed(2)}
                     </div>
                 `;
             }
@@ -358,7 +357,11 @@
                     </div>
                     
                     <div class="violation-intro">
-                        <strong>THE FOLLOWING VIOLATION(S) HAVE BEEN ISSUED:</strong>
+                        <strong>On the date and time below, the following violations have been found:</strong>
+                    </div>
+                    
+                    <div class="ticket-details">
+                        <strong>Date:</strong> ${formattedDate} &nbsp;&nbsp; <strong>Time:</strong> ${formattedTime}
                     </div>
                     
                     <ul class="violations-list">
@@ -372,8 +375,6 @@
                     ` : ''}
                     
                     <div class="ticket-details">
-                        <strong>Date:</strong> ${formattedDate}<br>
-                        <strong>Time:</strong> ${formattedTime}<br>
                         <strong>Officer:</strong> ${ticket.issued_by_username}
                     </div>
                     
