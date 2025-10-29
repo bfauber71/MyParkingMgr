@@ -94,9 +94,10 @@ try {
         INSERT INTO violation_tickets (
             id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
             custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+            tag_number, plate_number,
             property_name, property_address, property_contact_name, property_contact_phone,
             property_contact_email
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     $stmt->execute([
@@ -111,6 +112,8 @@ try {
         $vehicle['color'],
         $vehicle['make'],
         $vehicle['model'],
+        $vehicle['tag_number'],
+        $vehicle['plate_number'],
         $property['name'],
         $property['address'],
         $property['contact_name'],

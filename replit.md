@@ -6,6 +6,13 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 29, 2025 - Print Ticket Enhancement & Tag/Plate Display
+- **Database Schema Update:**
+  - Added tag_number and plate_number columns to violation_tickets table
+  - Updated violations-create.php to snapshot tag/plate data when creating tickets
+  - Migration SQL: add-tag-plate-to-tickets.sql for existing installations
+  - Updated install.sql for new installations
+
 ### October 29, 2025 - Print Ticket Enhancement
 - **Print Ticket Improvements:**
   - Increased all font sizes significantly (32px headers, 16-18px content)

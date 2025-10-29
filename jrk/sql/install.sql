@@ -152,6 +152,8 @@ CREATE TABLE violation_tickets (
     vehicle_color VARCHAR(50),
     vehicle_make VARCHAR(100),
     vehicle_model VARCHAR(100),
+    tag_number VARCHAR(100),
+    plate_number VARCHAR(100),
     property_name VARCHAR(255),
     property_address TEXT,
     property_contact_name VARCHAR(255),
