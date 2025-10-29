@@ -31,7 +31,7 @@
 
         .logo-section {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .logo-section img {
@@ -42,9 +42,9 @@
 
         .ticket-header {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             border-bottom: 2px solid #000;
-            padding-bottom: 6px;
+            padding-bottom: 4px;
         }
 
         .ticket-header h1 {
@@ -56,42 +56,48 @@
         .vehicle-info {
             font-size: 16px;
             font-weight: 900;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             line-height: 1.3;
-            min-height: 28px;
+        }
+
+        .vehicle-tags {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            line-height: 1.2;
         }
 
         .violation-intro {
             font-size: 14px;
             font-weight: 900;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .violations-list {
             font-size: 14px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
             padding-left: 15px;
             flex: 1;
         }
 
         .violations-list li {
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             line-height: 1.2;
         }
 
         .ticket-details {
             font-size: 13px;
             font-weight: 700;
-            margin-bottom: 8px;
-            line-height: 1.4;
+            margin-bottom: 6px;
+            line-height: 1.3;
         }
 
         .fine-section {
             font-size: 18px;
             font-weight: 900;
             text-align: center;
-            margin: 10px 0;
+            margin: 6px 0;
             padding: 0;
             border: none;
             background-color: transparent;
@@ -100,31 +106,33 @@
         .custom-property-text {
             font-size: 14px;
             font-weight: 700;
-            margin: 10px 0;
+            margin: 6px 0;
             padding: 0;
             border: none;
             text-align: center;
-            line-height: 1.4;
+            line-height: 1.3;
             background-color: transparent;
         }
 
         .tow-warning {
-            font-size: 16px;
+            font-size: 12px;
             font-weight: 900;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
             padding: 0;
             border: none;
             background-color: transparent;
             color: #000;
+            line-height: 1.4;
         }
 
         .property-info {
             font-size: 12px;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.2;
             border-top: 1px solid #ccc;
-            padding-top: 6px;
+            padding-top: 4px;
+            margin-top: 4px;
         }
 
         .property-info strong {
@@ -344,6 +352,12 @@
                 `;
             }
 
+            // Build tag/plate line
+            const tagPlateInfo = [
+                ticket.tag_number ? `Tag: ${ticket.tag_number}` : '',
+                ticket.plate_number ? `Plate: ${ticket.plate_number}` : ''
+            ].filter(Boolean).join(' &nbsp; ');
+
             const html = `
                 <div class="ticket-container">
                     ${topLogoHtml}
@@ -355,18 +369,19 @@
                         ${ticket.vehicle_year || ''} ${ticket.vehicle_color || ''} 
                         ${ticket.vehicle_make || ''} ${ticket.vehicle_model || ''}
                     </div>
+                    ${tagPlateInfo ? `<div class="vehicle-tags">${tagPlateInfo}</div>` : ''}
                     
                     <div class="violation-intro">
                         <strong>On the date and time below, the following violations have been found:</strong>
                     </div>
                     
-                    <div class="ticket-details">
-                        <strong>Date:</strong> ${formattedDate} &nbsp;&nbsp; <strong>Time:</strong> ${formattedTime}
-                    </div>
-                    
                     <ul class="violations-list">
                         ${violationsHtml}
                     </ul>
+                    
+                    <div class="ticket-details">
+                        <strong>Date:</strong> ${formattedDate} &nbsp;&nbsp; <strong>Time:</strong> ${formattedTime}
+                    </div>
 
                     ${ticket.custom_note ? `
                         <div class="ticket-details">

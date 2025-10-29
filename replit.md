@@ -19,6 +19,10 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Tow warning simplified to single line with one warning triangle (⚠) and no box border
   - Fine amount simplified to "Fine: $XX.XX" on one line with no box border
   - Removed box border from property custom instructions for cleaner appearance
+  - Violations list now appears BEFORE date/time (better flow)
+  - Tag number and plate number now display on separate line below vehicle description
+  - Reduced tow warning horizontal size (12px font) while maintaining readability
+  - Reduced blank spaces throughout (margins: 10px→6px, 8px→4px) for shorter ticket length
 
 ### October 28, 2025 - Version 2.3.7 Release - Production Ready
 - **Version Update:** Updated to v2.3.7 with comprehensive cleanup
