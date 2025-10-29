@@ -6,6 +6,14 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 29, 2025 - Print Ticket Enhancement
+- **Print Ticket Improvements:**
+  - Increased all font sizes significantly (32px headers, 16-18px content)
+  - Made all text thicker with font-weight 700-900 for better thermal printer clarity
+  - Set zero margins on all printed pages (@page margin: 0)
+  - Changed @page size to "auto" to respect user's printer/page setup
+  - Enhanced border thickness on fine section and tow warning (3-4px solid borders)
+
 ### October 28, 2025 - Version 2.3.7 Release - Production Ready
 - **Version Update:** Updated to v2.3.7 with comprehensive cleanup
 - **Critical Production Fixes:**

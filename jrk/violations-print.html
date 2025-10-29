@@ -48,26 +48,28 @@
         }
 
         .ticket-header h1 {
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 2px;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 3px;
         }
 
         .vehicle-info {
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 900;
             margin-bottom: 8px;
             line-height: 1.3;
             min-height: 28px;
         }
 
         .violation-intro {
-            font-size: 10px;
+            font-size: 14px;
+            font-weight: 900;
             margin-bottom: 8px;
         }
 
         .violations-list {
-            font-size: 10px;
+            font-size: 14px;
+            font-weight: 700;
             margin-bottom: 10px;
             padding-left: 15px;
             flex: 1;
@@ -79,45 +81,48 @@
         }
 
         .ticket-details {
-            font-size: 9px;
+            font-size: 13px;
+            font-weight: 700;
             margin-bottom: 8px;
             line-height: 1.4;
         }
 
         .fine-section {
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 900;
             text-align: center;
             margin: 10px 0;
             padding: 8px;
-            border: 3px solid #000;
+            border: 4px solid #000;
             background-color: #fff;
         }
 
         .custom-property-text {
-            font-size: 10px;
+            font-size: 14px;
+            font-weight: 700;
             margin: 10px 0;
             padding: 8px;
-            border: 2px solid #000;
+            border: 3px solid #000;
             text-align: center;
             line-height: 1.4;
             background-color: #fff;
         }
 
         .tow-warning {
-            font-size: 11px;
-            font-weight: bold;
+            font-size: 16px;
+            font-weight: 900;
             margin-bottom: 10px;
             text-align: center;
             padding: 8px;
-            border: 3px double #000;
+            border: 4px double #000;
             background-color: #fff;
             color: #000;
             text-decoration: underline;
         }
 
         .property-info {
-            font-size: 9px;
+            font-size: 12px;
+            font-weight: 700;
             line-height: 1.3;
             border-top: 1px solid #ccc;
             padding-top: 6px;
@@ -148,13 +153,20 @@
         }
 
         @media print {
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
             body {
                 background: white;
                 padding: 0;
+                margin: 0;
             }
 
             .ticket-container {
                 margin: 0;
+                padding: 0.1in;
                 box-shadow: none;
                 page-break-after: avoid;
             }
@@ -164,7 +176,7 @@
             }
 
             @page {
-                size: 2.5in 6in;
+                size: auto;
                 margin: 0;
             }
         }
@@ -234,13 +246,10 @@
             const styleElement = document.getElementById('dynamicStyles');
             const existingStyles = styleElement.innerHTML;
             
-            // Update ticket container and @page sizes
+            // Update ticket container size (screen display only)
             const updatedStyles = existingStyles.replace(
                 /\.ticket-container\s*{\s*width:\s*[^;]+;\s*height:\s*[^;]+;/,
                 `.ticket-container { width: ${width}; height: ${height};`
-            ).replace(
-                /@page\s*{\s*size:\s*[^;]+;/,
-                `@page { size: ${width} ${height};`
             );
 
             styleElement.innerHTML = updatedStyles;
