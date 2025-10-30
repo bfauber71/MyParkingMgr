@@ -1352,7 +1352,7 @@ function displayDuplicatesResults(duplicates, criteria) {
                     title: 'Edit Vehicle'
                 });
                 editBtn.textContent = 'Edit';
-                editBtn.onclick = () => openEditVehicleModal(item.id);
+                editBtn.onclick = () => editDuplicateVehicle(item.id);
                 actionsDiv.appendChild(editBtn);
             }
             
@@ -1363,7 +1363,8 @@ function displayDuplicatesResults(duplicates, criteria) {
                     title: 'Delete Vehicle'
                 });
                 deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = () => deleteDuplicateVehicle(item.id, dupGroup.value);
+                const identifier = item.tag_number || item.plate_number || 'Unknown';
+                deleteBtn.onclick = () => deleteDuplicateVehicle(item.id, identifier);
                 actionsDiv.appendChild(deleteBtn);
             }
             
@@ -1379,8 +1380,26 @@ function displayDuplicatesResults(duplicates, criteria) {
     });
 }
 
-async function deleteDuplicateVehicle(vehicleId, duplicateValue) {
-    if (!confirm(`Are you sure you want to delete this vehicle from the duplicate list?`)) {
+async function editDuplicateVehicle(vehicleId) {
+    try {
+        // Fetch full vehicle details
+        const response = await secureApiCall(`${API_BASE}/vehicles-get?id=${vehicleId}`);
+        const data = await response.json();
+        
+        if (response.ok && data.vehicle) {
+            // Open the vehicle modal with full vehicle data
+            openVehicleModal(data.vehicle);
+        } else {
+            showToast(data.error || 'Failed to load vehicle details', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading vehicle:', error);
+        showToast('Error loading vehicle details', 'error');
+    }
+}
+
+async function deleteDuplicateVehicle(vehicleId, identifier) {
+    if (!confirm(`Are you sure you want to delete vehicle ${identifier}?`)) {
         return;
     }
     

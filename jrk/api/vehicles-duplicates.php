@@ -41,6 +41,8 @@ try {
         $sql = "SELECT {$column} as value, COUNT(*) as count, 
                        GROUP_CONCAT(id) as vehicle_ids,
                        GROUP_CONCAT(property) as properties,
+                       GROUP_CONCAT(tag_number) as tag_numbers,
+                       GROUP_CONCAT(plate_number) as plate_numbers,
                        GROUP_CONCAT(CONCAT(make, ' ', model)) as vehicles
                 FROM vehicles 
                 WHERE {$column} IS NOT NULL AND {$column} != ''
@@ -55,6 +57,8 @@ try {
         foreach ($duplicates as $dup) {
             $ids = explode(',', $dup['vehicle_ids']);
             $properties = explode(',', $dup['properties']);
+            $tagNumbers = explode(',', $dup['tag_numbers']);
+            $plateNumbers = explode(',', $dup['plate_numbers']);
             $vehicles = explode(',', $dup['vehicles']);
             
             $items = [];
@@ -62,6 +66,8 @@ try {
                 $items[] = [
                     'id' => $ids[$i],
                     'property' => $properties[$i] ?? '',
+                    'tag_number' => $tagNumbers[$i] ?? '',
+                    'plate_number' => $plateNumbers[$i] ?? '',
                     'vehicle' => $vehicles[$i] ?? ''
                 ];
             }
