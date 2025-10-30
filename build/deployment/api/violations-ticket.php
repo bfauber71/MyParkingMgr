@@ -107,6 +107,13 @@ try {
     
     echo json_encode(['ticket' => $ticket]);
 } catch (PDOException $e) {
+    error_log("Database error in violations-ticket.php: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
+} catch (Exception $e) {
+    error_log("General error in violations-ticket.php: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
+    http_response_code(500);
+    echo json_encode(['error' => 'Error: ' . $e->getMessage()]);
 }
