@@ -4,6 +4,25 @@
 
 ManageMyParking is a PHP-based vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide comprehensive parking violation tracking, vehicle management, and property administration with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, and detailed audit logging. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations.
 
+## Recent Changes
+
+### October 30, 2025 - Reprint Ticket Error Fixed
+- **Reprint Ticket Bug Fixed:**
+  - Fixed critical bug in violations-ticket.php API endpoint
+  - Issue: Ticket stores property ID (UUID), but code was querying by property name
+  - Changed query from `WHERE name = ?` to `WHERE id = ?`
+  - Reprint ticket now correctly loads property data and custom ticket text
+  - Fixes blank or failed ticket reprints
+
+### October 30, 2025 - Find Duplicates Auto-Refresh Fixed
+- **Duplicates Auto-Refresh After Edit/Delete:**
+  - Added isViewingDuplicates flag to track when user is viewing duplicates
+  - After editing a vehicle from duplicates list, automatically refreshes duplicates search
+  - After deleting a vehicle from duplicates list, automatically refreshes duplicates search
+  - Ensures duplicate list always shows current data (no stale results)
+  - Works correctly for both plate and tag duplicate searches
+  - Fixes issue where edited/deleted duplicates still appeared until manual refresh
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
