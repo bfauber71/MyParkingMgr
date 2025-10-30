@@ -39,25 +39,35 @@ try {
     $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$ticket) {
+        error_log("Ticket not found: $ticketId");
         http_response_code(404);
         echo json_encode(['error' => 'Ticket not found']);
         exit;
     }
     
+    error_log("Ticket found, property value: " . $ticket['property']);
+    
     // Check property access and get custom_ticket_text
     // Try by ID first (new tickets), then by name (old tickets for backward compatibility)
-    $stmt = $db->prepare("SELECT id, custom_ticket_text FROM properties WHERE id = ? OR name = ?");
+    $stmt = $db->prepare("SELECT id, name, custom_ticket_text FROM properties WHERE id = ? OR name = ?");
     $stmt->execute([$ticket['property'], $ticket['property']]);
     $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if ($propertyData && !canAccessProperty($propertyData['id'])) {
-        http_response_code(403);
-        echo json_encode(['error' => 'You do not have access to this ticket']);
-        exit;
-    }
-    
-    // Add custom ticket text to ticket data
-    if ($propertyData) {
+    if (!$propertyData) {
+        error_log("Property not found for ticket property value: " . $ticket['property']);
+        // Don't fail - just continue without custom text
+        $ticket['property_custom_ticket_text'] = null;
+    } else {
+        error_log("Property found: " . $propertyData['name'] . " (ID: " . $propertyData['id'] . ")");
+        
+        if (!canAccessProperty($propertyData['id'])) {
+            error_log("User does not have access to property: " . $propertyData['id']);
+            http_response_code(403);
+            echo json_encode(['error' => 'You do not have access to this ticket']);
+            exit;
+        }
+        
+        // Add custom ticket text to ticket data
         $ticket['property_custom_ticket_text'] = $propertyData['custom_ticket_text'];
     }
     

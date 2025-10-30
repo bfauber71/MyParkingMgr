@@ -278,14 +278,17 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load ticket');
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('API Error:', response.status, errorData);
+                    throw new Error(errorData.error || 'Failed to load ticket');
                 }
 
                 const data = await response.json();
+                console.log('Ticket data loaded:', data);
                 renderTicket(data.ticket);
             } catch (error) {
                 console.error('Error loading ticket:', error);
-                document.getElementById('ticketContent').innerHTML = '<div class="loading">Error loading ticket</div>';
+                document.getElementById('ticketContent').innerHTML = `<div class="loading">Error loading ticket: ${error.message}</div>`;
             }
         }
 
