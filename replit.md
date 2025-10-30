@@ -20,6 +20,11 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Displays time in 12-hour format with AM/PM
   - Respects selected timezone for all date/time displays
   - Clock automatically updates when timezone setting changes
+- **Violation Ticket Timestamp:**
+  - Violation tickets now use configured timezone at point of creation
+  - issued_at timestamp on tickets reflects the selected timezone
+  - Timestamps are stored correctly based on user's timezone preference
+  - No timezone display on printed tickets (corrected at creation time)
 
 ### October 30, 2025 - Reprint Ticket Error Fixed
 - **Reprint Ticket Bug Fixed:**

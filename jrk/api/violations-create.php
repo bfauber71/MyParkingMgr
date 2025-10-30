@@ -86,9 +86,23 @@ try {
     $stmt->execute([$propertyId]);
     $property = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Create violation ticket
+    // Get configured timezone for timestamp
+    $timezone = 'America/New_York'; // Default
+    try {
+        $stmt = $db->prepare("SELECT setting_value FROM printer_settings WHERE setting_key = 'timezone'");
+        $stmt->execute();
+        $tzResult = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($tzResult && !empty($tzResult['setting_value'])) {
+            $timezone = $tzResult['setting_value'];
+        }
+    } catch (Exception $e) {
+        error_log("Failed to fetch timezone setting: " . $e->getMessage());
+    }
+    
+    // Create violation ticket with timezone-aware timestamp
     $ticketId = Database::uuid();
-    $issuedAt = date('Y-m-d H:i:s');
+    $dt = new DateTime('now', new DateTimeZone($timezone));
+    $issuedAt = $dt->format('Y-m-d H:i:s');
     
     $stmt = $db->prepare("
         INSERT INTO violation_tickets (
