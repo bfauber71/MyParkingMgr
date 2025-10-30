@@ -440,6 +440,10 @@ async function handleLogout() {
         console.error('Logout error:', error);
     }
     
+    // Stop the clock on logout
+    if (clockInterval) clearInterval(clockInterval);
+    clockInterval = null;
+    
     currentUser = null;
     csrfToken = null; // Clear CSRF token on logout
     showLogin();

@@ -351,10 +351,8 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
     z-index: 1000;
     width: 100%;
 }
@@ -440,7 +438,6 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     width: 100%;
     margin: 0 auto;
     padding: 16px;
-    padding-top: 80px;
 }
 
 .page-header {
