@@ -33,9 +33,9 @@ $db = Database::getInstance();
 try {
     $db->beginTransaction();
     
-    // Fetch vehicle data
+    // Fetch vehicle data including tag and plate
     $stmt = $db->prepare("
-        SELECT id, property, year, color, make, model
+        SELECT id, property, year, color, make, model, tag_number, plate_number
         FROM vehicles
         WHERE id = ?
     ");
