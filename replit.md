@@ -6,12 +6,14 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
-### October 30, 2025 - Fixed Navbar Positioning and Timezone Persistence
-- **Navbar Sticky Positioning:**
-  - Changed navbar from `position: fixed` to `position: sticky` with `top: 0`, `z-index: 1000`
-  - Removed `padding-top: 80px` from `.container` (no longer needed with sticky positioning)
-  - Navbar stays at top when scrolling, within normal document flow
-  - Fixes navigation dropdown visibility issue (dropdown no longer hidden under navbar)
+### October 30, 2025 - Fixed Navigation Dropdown Visibility and Timezone Persistence
+- **Navigation Dropdown Architecture Fix:**
+  - Moved `.nav-dropdown-container` outside of `.container` element
+  - Dropdown is now sibling of container, not child
+  - Navbar uses `position: sticky` with `z-index: 1000`
+  - Dropdown uses `z-index: 1001` and appears in correct stacking order
+  - Dropdown fully visible below navbar without overlap issues
+  - Added padding to dropdown container to match page layout
 - **Timezone Persistence After Logout:**
   - Clock initialization deferred until timezone loads from database on login
   - Created `loadPrinterSettingsForClock()` function called in `showDashboard()`
@@ -25,8 +27,8 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Clock displays correct saved timezone from first render
   - No more reverting to default timezone on page reload
 - **Cache-Busting for CSS:**
-  - Added version query string to CSS reference: `assets/style.css?v=237`
-  - Forces browsers to fetch updated CSS after deployment
+  - Updated version query string to CSS reference: `assets/style.css?v=238`
+  - Forces browsers to fetch updated CSS and HTML after deployment
   - Critical for ensuring users see latest styling changes
 - **Production Deployment Instructions:**
   - Upload new deployment package to production (2clv.com)
