@@ -6,18 +6,27 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
-### October 30, 2025 - Fixed Navbar and Cache-Busting Implementation
+### October 30, 2025 - Fixed Navbar and Navigation Dropdown Positioning
 - **Navbar Fixed/Sticky Positioning:**
-  - Navbar now uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
-  - Container has `padding-top: 80px` to prevent content from hiding under fixed navbar
-  - Navbar stays at top of page on all devices and screen sizes
+  - Top header (brand/logo/clock) now uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
+  - Container has `padding-top: 80px` to prevent content from hiding under fixed header
+  - Header stays at top of page on all devices and screen sizes
+- **Navigation Dropdown Menu Fix:**
+  - Navigation dropdown menu z-index increased from 1000 to 1001
+  - Dropdown now appears ABOVE fixed header (not hidden underneath)
+  - Ensures navigation menu is fully visible and accessible below header
+- **Timezone Setting Improvements:**
+  - Added timezone to reset defaults function
+  - Enhanced console logging for timezone save debugging
+  - Clock automatically updates after saving timezone settings
+  - Timezone value properly saved and retrieved from database
 - **Cache-Busting for CSS:**
   - Added version query string to CSS reference: `assets/style.css?v=237`
   - Forces browsers to fetch updated CSS after deployment
   - Critical for ensuring users see latest styling changes
 - **Deployment Package Verified:**
-  - Confirmed deployment package includes all navbar fixes
-  - Verified CSS contains: `position: fixed`, `padding-top: 80px`, and cache-busting reference
+  - Confirmed deployment package includes all navbar and dropdown fixes
+  - Verified CSS contains: fixed header, dropdown z-index, padding-top, and cache-busting
 - **Production Deployment Instructions:**
   - Upload new deployment package to production (2clv.com)
   - Clear browser cache or hard-refresh (Ctrl+Shift+R / Cmd+Shift+R) to see changes
