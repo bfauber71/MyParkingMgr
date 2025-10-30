@@ -14,6 +14,7 @@ let properties = [];
 let currentSection = 'vehicles';
 let allUsers = [];
 let isViewingDuplicates = false;
+let appTimezone = 'America/New_York';
 
 // SECURITY: Remove sensitive debug logging
 // Only log errors in production
@@ -149,9 +150,58 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userInfo = document.getElementById('userInfo');
 
 // Initialize app
+// Real-time clock update function
+function updateClock() {
+    const navDate = document.getElementById('navDate');
+    const navTime = document.getElementById('navTime');
+    
+    if (!navDate || !navTime) return;
+    
+    try {
+        const now = new Date();
+        
+        // Format date
+        const dateOptions = { 
+            weekday: 'short', 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            timeZone: appTimezone 
+        };
+        const dateStr = now.toLocaleDateString('en-US', dateOptions);
+        
+        // Format time
+        const timeOptions = { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            hour12: true,
+            timeZone: appTimezone 
+        };
+        const timeStr = now.toLocaleTimeString('en-US', timeOptions);
+        
+        navDate.textContent = dateStr;
+        navTime.textContent = timeStr;
+    } catch (error) {
+        console.error('Error updating clock:', error);
+        // Fallback to default timezone
+        const now = new Date();
+        navDate.textContent = now.toLocaleDateString('en-US');
+        navTime.textContent = now.toLocaleTimeString('en-US');
+    }
+}
+
+// Start clock when page loads
+let clockInterval = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     setupEventListeners();
+    
+    // Start the real-time clock
+    updateClock(); // Update immediately
+    if (clockInterval) clearInterval(clockInterval);
+    clockInterval = setInterval(updateClock, 1000); // Update every second
 });
 
 function setupEventListeners() {
@@ -1877,8 +1927,13 @@ async function loadSettingsSection() {
         document.getElementById('ticketWidth').value = printerSettings.ticket_width;
         document.getElementById('ticketHeight').value = printerSettings.ticket_height;
         document.getElementById('ticketUnit').value = printerSettings.ticket_unit;
+        document.getElementById('timezone').value = printerSettings.timezone || 'America/New_York';
         document.getElementById('logoTopEnabled').checked = printerSettings.logo_top_enabled === 'true';
         document.getElementById('logoBottomEnabled').checked = printerSettings.logo_bottom_enabled === 'true';
+        
+        // Update global timezone and restart clock
+        appTimezone = printerSettings.timezone || 'America/New_York';
+        updateClock();
 
         // Show/hide logo upload sections
         document.getElementById('logoTopUpload').style.display = 
@@ -1939,8 +1994,12 @@ async function loadSettingsSection() {
             printerSettings.ticket_width = document.getElementById('ticketWidth').value;
             printerSettings.ticket_height = document.getElementById('ticketHeight').value;
             printerSettings.ticket_unit = document.getElementById('ticketUnit').value;
+            printerSettings.timezone = document.getElementById('timezone').value;
             printerSettings.logo_top_enabled = document.getElementById('logoTopEnabled').checked ? 'true' : 'false';
             printerSettings.logo_bottom_enabled = document.getElementById('logoBottomEnabled').checked ? 'true' : 'false';
+            
+            // Update global timezone immediately
+            appTimezone = printerSettings.timezone;
 
             console.log('Saving printer settings:', {
                 logo_top_length: printerSettings.logo_top ? printerSettings.logo_top.length : 'null',

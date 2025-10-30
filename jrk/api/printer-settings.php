@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $settings['logo_bottom'] = $settings['logo_bottom'] ?? null;
         $settings['logo_top_enabled'] = $settings['logo_top_enabled'] ?? 'false';
         $settings['logo_bottom_enabled'] = $settings['logo_bottom_enabled'] ?? 'false';
+        $settings['timezone'] = $settings['timezone'] ?? 'America/New_York';
         
         jsonResponse([
             'success' => true,
@@ -61,7 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'logo_top', 
             'logo_bottom',
             'logo_top_enabled',
-            'logo_bottom_enabled'
+            'logo_bottom_enabled',
+            'timezone'
         ];
         
         foreach ($data['settings'] ?? [] as $key => $value) {

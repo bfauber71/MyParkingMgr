@@ -280,7 +280,8 @@ INSERT INTO printer_settings (id, setting_key, setting_value) VALUES
 (UUID(), 'logo_top', NULL),
 (UUID(), 'logo_bottom', NULL),
 (UUID(), 'logo_top_enabled', 'false'),
-(UUID(), 'logo_bottom_enabled', 'false');
+(UUID(), 'logo_bottom_enabled', 'false'),
+(UUID(), 'timezone', 'America/New_York');
 
 -- ============================================
 -- INSTALLATION COMPLETE
