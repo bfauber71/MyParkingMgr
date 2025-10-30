@@ -4,132 +4,6 @@
 
 ManageMyParking is a PHP-based vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide comprehensive parking violation tracking, vehicle management, and property administration with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, and detailed audit logging. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations.
 
-## Recent Changes
-
-### October 30, 2025 - Find Duplicates Display Fixed
-- **Find Duplicates Feature Fixed:**
-  - Added displayDuplicatesResults() function to show detailed duplicate vehicle lists
-  - Each duplicate group now displays in a table with vehicle info and property
-  - Added Edit and Delete buttons for each vehicle in the duplicates list
-  - Edit button fetches full vehicle data via vehicles-get API then opens edit modal
-  - Delete button calls deleteDuplicateVehicle() function and refreshes results
-  - Fixed issue where duplicates were found but not displayed to user
-  - Duplicates now grouped by plate/tag number with expandable details
-  - Updated API to return tag_number and plate_number for proper identification
-
-### October 29, 2025 - Print Ticket Enhancement & Tag/Plate Display
-- **Database Schema Update:**
-  - Added tag_number and plate_number columns to violation_tickets table
-  - Updated violations-create.php to snapshot tag/plate data when creating tickets
-  - Migration SQL: add-tag-plate-to-tickets.sql for existing installations
-  - Updated install.sql for new installations
-
-### October 29, 2025 - Print Ticket Enhancement
-- **Print Ticket Improvements:**
-  - Increased all font sizes significantly (32px headers, 16-18px content)
-  - Made all text thicker with font-weight 700-900 for better thermal printer clarity
-  - Set zero margins on all printed pages (@page margin: 0)
-  - Changed @page size to "auto" to respect user's printer/page setup
-  - Enhanced border thickness on fine section and tow warning (3-4px solid borders)
-- **Print Ticket Layout Changes:**
-  - Changed intro message to "On the date and time below, the following violations have been found:"
-  - Date and time now display on same line for cleaner layout
-  - Tow warning simplified to single line with one warning triangle (⚠) and no box border
-  - Fine amount simplified to "Fine: $XX.XX" on one line with no box border
-  - Removed box border from property custom instructions for cleaner appearance
-  - Violations list now appears BEFORE date/time (better flow)
-  - Tag number and plate number now display on separate line below vehicle description
-  - Reduced tow warning horizontal size (12px font) while maintaining readability
-  - Reduced blank spaces throughout (margins: 10px→6px, 8px→4px) for shorter ticket length
-
-### October 28, 2025 - Version 2.3.7 Release - Production Ready
-- **Version Update:** Updated to v2.3.7 with comprehensive cleanup
-- **Critical Production Fixes:**
-  - **Login 401 Error Fixed:** Added missing $tableExists variable initialization (production strict mode issue)
-  - **Logout 500 Error Fixed:** Added missing includes in logout.php (database.php, session.php, helpers.php)
-  - **Vehicle Edit Modal Fixed:** Corrected field ID mismatch (vehicleReserved → vehicleSpace) preventing Reserved Space field from populating
-  - **Vehicle Save "Missing tag_number" Fixed:** Corrected field name mismatch - frontend was sending camelCase (tagNumber, plateNumber, etc.) but backend expects snake_case (tag_number, plate_number, etc.)
-  - **Vehicle Save "Integrity constraint violation" Fixed:** Corrected property field name mismatch - backend was expecting property_id but frontend sends property, causing empty string to violate foreign key constraint
-  - **setup-test-db.php 500 Error Fixed:** Recreated missing AJAX endpoint for database connectivity testing
-- **Deprecated Files Removed:**
-  - Removed old API endpoints: vehicles-search.php, vehicles-update.php (superseded by v2 versions)
-  - Removed development files: test_csrf.html, router.php (dev-only)
-  - Removed temporary files: CLEANUP-INSTRUCTIONS.txt, PRODUCTION-FIXES.md
-  - Cleaned up deployment directory
-- **Setup Utility Files:**
-  - setup-test-db.php: AJAX endpoint for testing database connectivity from setup wizard (restored)
-- **Deployment Packages:**
-  - End-user deployment package (172K) - Ready for customer installations
-  - License key creation package (12K) - Separate secure package for admin use only
-- **All Previously Fixed Features Included:**
-  - Vehicle editing with proper field name mapping
-  - Property editing without 500 errors
-  - Printer settings save correctly
-  - System-wide audit log protection
-  - All CRUD operations stable
-  - Import/Export CSV working
-  - Bulk operations functional
-
-### October 28, 2025 - Vehicle Edit, Violations, Import/Export, Bulk Operations & Form Field Fixes
-- **Vehicle Editing Complete Fix:**
-  - Added `sanitizeInput()` function to helpers.php (was missing, causing fatal errors)
-  - Created cache-busted API endpoints (vehicles-update-v2.php, vehicles-search-v2.php, vehicles-get.php)
-  - Fixed vehicle search to accept both property IDs and names (handles mixed data)
-  - Added State and Reserved Space columns to vehicle display table
-  - Edit modal now fetches fresh data from database instead of using cached objects
-  - Browser cache prevention: timestamp parameters + cache headers on all vehicle APIs
-- **Violations System Fixes:**
-  - Fixed violations-create.php property lookup to handle both UUID and name formats
-  - Made auditLog() function optional (safe error handling if function doesn't exist)
-  - Added Fines column to violation search results
-  - Violations search API now calculates total fine amount per ticket (SUM of violation fine_amount)
-  - Improved error handling in violation creation (commit happens before audit log failures)
-- **Import/Export CSV Fixes:**
-  - Fixed FormData key mismatch (JavaScript sent 'file', PHP expected 'csv')
-  - Added CSV file validation before upload
-  - Enhanced error reporting with detailed row-by-row import errors
-  - Added cache-control headers to vehicles-import.php to prevent caching issues
-  - Corrected data field references (imported vs count) between API and frontend
-- **Bulk Operations Fixes:**
-  - Fixed "Delete All Vehicles" button - event handlers now properly attached on Database Ops tab load
-  - Fixed "Find Duplicates" button - now works when Database Ops tab is clicked
-  - Created setupDatabaseOpsHandlers() function that initializes when Database Ops sub-tab is loaded
-  - Removed duplicate/stale setupDatabasePageHandlers() function that was called at wrong time
-- **Printer Settings Fix:**
-  - Fixed fatal error in printer-settings.php (was calling non-existent logAudit() instead of auditLog())
-  - Fixed duplicate if statement and missing braces in audit log wrapper (syntax error preventing saves)
-  - Made audit logging optional with function_exists() check to prevent crashes
-  - Ticket settings now save successfully without 500 errors
-- **System-Wide Audit Log Protection:**
-  - Fixed all API endpoints to safely handle auditLog failures
-  - Wrapped all auditLog() calls with function_exists() + try/catch blocks
-  - Prevents "Unexpected end of JSON input" errors when audit logging fails
-  - Affected files: properties-update, properties-create, properties-delete, users-create, users-update, users-delete, vehicles-create, vehicles-delete, vehicles-bulk-delete, vehicles-duplicates, violations-create, violations-add, violations-update, violations-delete, login, logout, license-activate, printer-settings
-  - Database commits now always succeed even if audit logging fails
-- **Cache Prevention Strategy:**
-  - .htaccess now includes PHP cache-control headers to prevent OPcache issues
-  - All API responses include no-cache headers
-  - API calls include timestamp query parameters for unique URLs
-  - Critical for shared hosting environments with aggressive PHP OPcache
-- **Vehicle Form Field Name Fix:**
-  - Fixed frontend/backend mismatch causing "Property is required" error
-  - Frontend was sending `property_id` but backend expected `property`
-  - Standardized all form field names to camelCase to match backend expectations
-  - Vehicle creation and editing now work correctly
-
-### October 27, 2025 - Production Security & Deployment Fixes
-- **HTTPS Enforcement:** Production deployment package enforces HTTPS redirect for security
-  - Development .htaccess: HTTPS redirect disabled (for local testing)
-  - Production .htaccess: HTTPS redirect enabled (required for security)
-- **Fixed API 500 Errors:** Violations and license status APIs now working correctly
-- **Deployment Package Fixes:**
-  - .htaccess file now included in deployment package
-  - Removed 14 /tmp debug writes from printer-settings.php (shared hosting incompatible)
-  - Production config.php uses template with placeholders (not hardcoded values)
-  - Trial badge display fixed (JavaScript error handling)
-  - Properties table rendering fixed (appendChild issue)
-  - Violations list loading with detailed error logging
-
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -143,7 +17,7 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions
 
-The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features a streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis.
+The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis.
 
 ### Technical Implementations
 
@@ -161,15 +35,16 @@ The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture
 ### Feature Specifications
 
 -   **License Status Display:** Dynamic "TRIAL" or "EXPIRED" badges in the app header based on license status.
--   **Deployment Packaging System:** Automated scripts (`build-deployment.sh`, `build-registration.sh`) for creating customer distribution and registration packages, ensuring separation of license management files for security.
+-   **Deployment Packaging System:** Automated scripts for creating customer distribution and registration packages, ensuring separation of license management files for security.
 -   **Navigation Consolidation:** Main navigation consolidated to 3 tabs (Vehicles, Properties, Settings), with Settings having 4 sub-tabs for improved organization and mobile responsiveness.
 -   **Violation Search:** Reorganized form with date range validation and improved styling.
 -   **MySQL Database Setup:** Automated MySQL server workflow in development environment, with a default admin user and pre-assigned properties.
--   **User Management:** Fixed user management with correct includes, standardized UI elements, and functional permission presets.
+-   **User Management:** Functional user management with correct includes, standardized UI elements, and permission presets.
 -   **User Property Assignment:** Admins can assign specific properties to users, enforcing data visibility based on assignments.
 -   **Property-Specific Ticket Text:** Custom text field for properties to display on violation tickets.
 -   **Black & White Ticket Design:** Optimized ticket designs for thermal printers by converting colors to black and white with enhanced borders and text.
 -   **Accessibility:** Improved contrast on text and elements for better readability.
+-   **Duplicate Vehicle Detection:** Functionality to find and display duplicate vehicles based on tag/plate number, with options to edit or delete duplicates.
 
 ### System Design Choices
 

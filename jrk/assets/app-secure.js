@@ -13,6 +13,7 @@ let currentUser = null;
 let properties = [];
 let currentSection = 'vehicles';
 let allUsers = [];
+let isViewingDuplicates = false;
 
 // SECURITY: Remove sensitive debug logging
 // Only log errors in production
@@ -1281,9 +1282,11 @@ async function handleFindDuplicates() {
         
         if (response.ok) {
             if (data.duplicates && data.duplicates.length > 0) {
+                isViewingDuplicates = true;
                 displayDuplicatesResults(data.duplicates, criteriaSelect.value);
                 showToast(`Found ${data.total_groups} duplicate group(s)`, 'info');
             } else {
+                isViewingDuplicates = false;
                 resultsDiv.innerHTML = '<p class="alert alert-success">No duplicates found</p>';
                 showToast('No duplicates found', 'success');
             }
@@ -1413,8 +1416,8 @@ async function deleteDuplicateVehicle(vehicleId, identifier) {
         
         if (response.ok && data.success) {
             showToast('Vehicle deleted successfully', 'success');
-            // Refresh duplicates search
-            handleFindDuplicates();
+            // Refresh duplicates search to show updated results
+            await handleFindDuplicates();
         } else {
             showToast(data.error || 'Failed to delete vehicle', 'error');
         }
@@ -1760,6 +1763,7 @@ function handleClearDuplicates() {
     if (resultsDiv) {
         resultsDiv.innerHTML = '';
     }
+    isViewingDuplicates = false;
     showToast('Results cleared', 'info');
 }
 
@@ -2794,7 +2798,13 @@ async function handleVehicleSubmit(e) {
             showToast(isUpdate ? 'Vehicle updated successfully' : 'Vehicle created successfully', 'success');
             closeModalByName('vehicle');
             form.reset();
-            searchVehicles('', '');
+            
+            // Refresh appropriate list based on current view
+            if (isViewingDuplicates) {
+                handleFindDuplicates();
+            } else {
+                searchVehicles('', '');
+            }
         } else {
             showToast(data.error || 'Failed to save vehicle', 'error');
         }
