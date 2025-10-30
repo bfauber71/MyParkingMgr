@@ -6,6 +6,21 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 30, 2025 - Timezone Setting and Real-Time Clock Added
+- **Timezone Configuration:**
+  - Added timezone setting to Printer Settings tab with dropdown selector
+  - Supports 8 US timezones: Eastern, Central, Mountain, Mountain-Arizona, Pacific, Alaska, Hawaii, and UTC
+  - Stored in printer_settings table with key 'timezone'
+  - Defaults to America/New_York (Eastern Time)
+  - Migration file: jrk/sql/add-timezone-setting.sql
+- **Real-Time Clock Display:**
+  - Added live clock to navbar showing current date and time
+  - Updates every second using JavaScript setInterval
+  - Displays date in "Day, Mon DD, YYYY" format
+  - Displays time in 12-hour format with AM/PM
+  - Respects selected timezone for all date/time displays
+  - Clock automatically updates when timezone setting changes
+
 ### October 30, 2025 - Reprint Ticket Error Fixed
 - **Reprint Ticket Bug Fixed:**
   - Fixed critical bug in violations-ticket.php API endpoint causing "error loading ticket"
