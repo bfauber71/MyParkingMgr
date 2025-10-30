@@ -198,10 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     setupEventListeners();
     
-    // Start the real-time clock
-    updateClock(); // Update immediately
-    if (clockInterval) clearInterval(clockInterval);
-    clockInterval = setInterval(updateClock, 1000); // Update every second
+    // Clock will be started after printer settings load with correct timezone
 });
 
 function setupEventListeners() {
@@ -1951,9 +1948,14 @@ async function loadSettingsSection() {
             document.getElementById('logoBottomEnabled').disabled = true;
         }
         
-        // Update global timezone and restart clock
+        // Update global timezone and start/restart clock
         appTimezone = printerSettings.timezone || 'America/New_York';
-        updateClock();
+        console.log('Timezone loaded from settings:', appTimezone);
+        
+        // Start or restart the clock with the correct timezone
+        if (clockInterval) clearInterval(clockInterval);
+        updateClock(); // Update immediately
+        clockInterval = setInterval(updateClock, 1000); // Update every second
 
         // Show/hide logo upload sections
         document.getElementById('logoTopUpload').style.display = 
