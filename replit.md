@@ -13,6 +13,8 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Stored in printer_settings table with key 'timezone'
   - Defaults to America/New_York (Eastern Time)
   - Migration file: jrk/sql/add-timezone-setting.sql
+  - All authenticated users can VIEW timezone setting
+  - Only administrators can MODIFY timezone setting (read-only for non-admins)
 - **Real-Time Clock Display:**
   - Added live clock to navbar showing current date and time
   - Updates every second using JavaScript setInterval
@@ -20,6 +22,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Displays time in 12-hour format with AM/PM
   - Respects selected timezone for all date/time displays
   - Clock automatically updates when timezone setting changes
+  - Navbar is now sticky/fixed at top of page on all devices
 - **Violation Ticket Timestamp:**
   - Violation tickets now use configured timezone at point of creation
   - issued_at timestamp on tickets reflects the selected timezone

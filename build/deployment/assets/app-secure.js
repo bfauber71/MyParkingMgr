@@ -1931,6 +1931,26 @@ async function loadSettingsSection() {
         document.getElementById('logoTopEnabled').checked = printerSettings.logo_top_enabled === 'true';
         document.getElementById('logoBottomEnabled').checked = printerSettings.logo_bottom_enabled === 'true';
         
+        // Make form fields read-only for non-admin users
+        const isAdmin = currentUser && currentUser.role === 'admin';
+        if (!isAdmin) {
+            // Disable save buttons for non-admins
+            const saveBtn = document.getElementById('savePrinterSettingsBtn');
+            const resetBtn = document.getElementById('resetPrinterSettingsBtn');
+            const permNote = document.getElementById('printerSettingsPermissionNote');
+            if (saveBtn) saveBtn.style.display = 'none';
+            if (resetBtn) resetBtn.style.display = 'none';
+            if (permNote) permNote.style.display = 'block';
+            
+            // Make all inputs disabled (view-only) for non-admins
+            document.getElementById('ticketWidth').disabled = true;
+            document.getElementById('ticketHeight').disabled = true;
+            document.getElementById('ticketUnit').disabled = true;
+            document.getElementById('timezone').disabled = true;
+            document.getElementById('logoTopEnabled').disabled = true;
+            document.getElementById('logoBottomEnabled').disabled = true;
+        }
+        
         // Update global timezone and restart clock
         appTimezone = printerSettings.timezone || 'America/New_York';
         updateClock();
