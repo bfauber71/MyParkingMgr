@@ -10,11 +10,15 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 - **Navigation Dropdown Architecture Fix:**
   - Moved `.nav-dropdown-container` outside of `.container` element
   - Dropdown is now sibling of container, not child
-  - Navbar uses `position: fixed` (not sticky) with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
+  - **CRITICAL FIX:** Moved navbar and dropdown OUTSIDE of `#dashboardPage` container
+  - Navbar and dropdown are now siblings of dashboardPage, not children
+  - This allows `position: fixed` to work correctly (flex container was preventing it)
+  - Navbar uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
   - Dropdown container has `margin-top: 80px` to prevent overlap with fixed navbar
   - Dropdown uses `z-index: 1001` and appears in correct stacking order
   - Dropdown fully visible below navbar without overlap issues
   - Navbar stays at top of screen on scroll (fixed positioning)
+  - JavaScript updated to show/hide navbar and dropdown on login/logout
 - **Timezone Persistence After Logout:**
   - Clock initialization deferred until timezone loads from database on login
   - Created `loadPrinterSettingsForClock()` function called in `showDashboard()`
@@ -28,7 +32,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Clock displays correct saved timezone from first render
   - No more reverting to default timezone on page reload
 - **Cache-Busting for CSS:**
-  - Updated version query string to CSS reference: `assets/style.css?v=239`
+  - Updated version query string to CSS reference: `assets/style.css?v=240`
   - Forces browsers to fetch updated CSS and HTML after deployment
   - Critical for ensuring users see latest styling changes
 - **Production Deployment Instructions:**
