@@ -2022,6 +2022,7 @@ async function loadSettingsSection() {
             appTimezone = printerSettings.timezone;
 
             console.log('Saving printer settings:', {
+                timezone: printerSettings.timezone,
                 logo_top_length: printerSettings.logo_top ? printerSettings.logo_top.length : 'null',
                 logo_bottom_length: printerSettings.logo_bottom ? printerSettings.logo_bottom.length : 'null',
                 logo_top_enabled: printerSettings.logo_top_enabled,
@@ -2038,6 +2039,8 @@ async function loadSettingsSection() {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Printer settings saved:', data);
+                console.log('New timezone applied:', appTimezone);
+                updateClock();
                 showToast('Printer settings saved successfully', 'success');
             } else {
                 const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
@@ -2059,7 +2062,8 @@ async function loadSettingsSection() {
             logo_top: null,
             logo_bottom: null,
             logo_top_enabled: 'false',
-            logo_bottom_enabled: 'false'
+            logo_bottom_enabled: 'false',
+            timezone: 'America/New_York'
         };
         applySettingsToForm();
         document.getElementById('logoTopPreview').innerHTML = '';
