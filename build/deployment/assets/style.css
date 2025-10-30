@@ -466,7 +466,9 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 /* Navigation Dropdown Menu */
 .nav-dropdown-container {
     position: relative;
+    padding: 0 16px;
     margin-bottom: 20px;
+    max-width: 100%;
 }
 
 .nav-dropdown-toggle {

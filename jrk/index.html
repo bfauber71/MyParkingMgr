@@ -6,7 +6,7 @@
     <title>MyParkingManager</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="assets/config.js"></script>
-    <link rel="stylesheet" href="assets/style.css?v=237">
+    <link rel="stylesheet" href="assets/style.css?v=238">
 </head>
 <body>
     <div id="app">
@@ -55,23 +55,23 @@
                 </div>
             </nav>
 
-            <div class="container">
-                <!-- Navigation Dropdown Menu -->
-                <div class="nav-dropdown-container">
-                    <button class="nav-dropdown-toggle" id="navDropdownToggle">
-                        <span id="currentSectionName">🚗 Vehicles</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="nav-dropdown-menu" id="navDropdownMenu">
-                        <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
-                        <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
-                        <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
-                        <div class="nav-dropdown-divider"></div>
-                        <div class="nav-dropdown-user" id="userInfo"></div>
-                        <button class="nav-dropdown-item nav-logout" id="logoutBtn">🚪 Logout</button>
-                    </div>
+            <!-- Navigation Dropdown Menu -->
+            <div class="nav-dropdown-container">
+                <button class="nav-dropdown-toggle" id="navDropdownToggle">
+                    <span id="currentSectionName">🚗 Vehicles</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="nav-dropdown-menu" id="navDropdownMenu">
+                    <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
+                    <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
+                    <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
+                    <div class="nav-dropdown-divider"></div>
+                    <div class="nav-dropdown-user" id="userInfo"></div>
+                    <button class="nav-dropdown-item nav-logout" id="logoutBtn">🚪 Logout</button>
                 </div>
+            </div>
 
+            <div class="container">
                 <!-- Vehicles Section -->
                 <div id="vehiclesSection" class="tab-content active">
                     <header class="page-header">
