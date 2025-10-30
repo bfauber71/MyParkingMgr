@@ -6,6 +6,33 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 30, 2025 - Fixed Navbar and Cache-Busting Implementation
+- **Navbar Fixed/Sticky Positioning:**
+  - Navbar now uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
+  - Container has `padding-top: 80px` to prevent content from hiding under fixed navbar
+  - Navbar stays at top of page on all devices and screen sizes
+- **Cache-Busting for CSS:**
+  - Added version query string to CSS reference: `assets/style.css?v=237`
+  - Forces browsers to fetch updated CSS after deployment
+  - Critical for ensuring users see latest styling changes
+- **Deployment Package Verified:**
+  - Confirmed deployment package includes all navbar fixes
+  - Verified CSS contains: `position: fixed`, `padding-top: 80px`, and cache-busting reference
+- **Production Deployment Instructions:**
+  - Upload new deployment package to production (2clv.com)
+  - Clear browser cache or hard-refresh (Ctrl+Shift+R / Cmd+Shift+R) to see changes
+  - CDN/server cache may need clearing for immediate visibility
+
+### October 30, 2025 - Violation Ticket Maximum Bold and Black
+- **Ticket Styling for Thermal Printers:**
+  - All text now uses `font-weight: 900` (maximum bold)
+  - All colors changed to solid black `#000` only (no grey or colors)
+  - Border box around ticket removed
+  - Header border increased to `3px solid #000`
+  - Property info border changed from `1px solid #ccc` to `2px solid #000`
+  - Print mode forces exact color printing with `print-color-adjust: exact`
+  - Optimized for maximum darkness and legibility on thermal printers
+
 ### October 30, 2025 - Timezone Setting and Real-Time Clock Added
 - **Timezone Configuration:**
   - Added timezone setting to Printer Settings tab with dropdown selector
