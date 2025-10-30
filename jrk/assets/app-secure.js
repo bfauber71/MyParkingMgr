@@ -477,10 +477,43 @@ async function showDashboard() {
     console.log('Step 6: About to call loadLicenseStatus()...');
     loadLicenseStatus().catch(err => console.error('Failed to load license status:', err));
     
-    console.log('Step 7: Switch to vehicles tab');
+    // Load printer settings to initialize timezone and start clock
+    console.log('Step 7: Loading printer settings for timezone...');
+    loadPrinterSettingsForClock().catch(err => console.error('Failed to load printer settings:', err));
+    
+    console.log('Step 8: Switch to vehicles tab');
     // Immediately show vehicles tab
     switchTab('vehicles');
     console.log('=== showDashboard() completed ===');
+}
+
+// Load printer settings to initialize timezone and start clock
+async function loadPrinterSettingsForClock() {
+    let timezone = 'America/New_York'; // Default fallback
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/printer-settings`, {
+            method: 'GET'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            timezone = data.settings?.timezone || 'America/New_York';
+            console.log('Timezone loaded from database:', timezone);
+        } else {
+            console.warn('Printer settings API returned error, using default timezone');
+        }
+    } catch (error) {
+        console.error('Error loading printer settings for clock:', error);
+        console.log('Using default timezone:', timezone);
+    }
+    
+    // ALWAYS start the clock, regardless of API success/failure
+    appTimezone = timezone;
+    if (clockInterval) clearInterval(clockInterval);
+    updateClock(); // Update immediately
+    clockInterval = setInterval(updateClock, 1000); // Update every second
+    console.log('Clock started with timezone:', appTimezone);
 }
 
 // Load and display license status badge

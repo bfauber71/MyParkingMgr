@@ -6,27 +6,28 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
-### October 30, 2025 - Fixed Navbar and Navigation Dropdown Positioning
-- **Navbar Fixed/Sticky Positioning:**
-  - Top header (brand/logo/clock) now uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
-  - Container has `padding-top: 80px` to prevent content from hiding under fixed header
-  - Header stays at top of page on all devices and screen sizes
-- **Navigation Dropdown Menu Fix:**
-  - Navigation dropdown menu z-index increased from 1000 to 1001
-  - Dropdown now appears ABOVE fixed header (not hidden underneath)
-  - Ensures navigation menu is fully visible and accessible below header
-- **Timezone Setting Improvements:**
-  - Added timezone to reset defaults function
-  - Enhanced console logging for timezone save debugging
-  - Clock automatically updates after saving timezone settings
-  - Timezone value properly saved and retrieved from database
+### October 30, 2025 - Fixed Navbar Positioning and Timezone Persistence
+- **Navbar Sticky Positioning:**
+  - Changed navbar from `position: fixed` to `position: sticky` with `top: 0`, `z-index: 1000`
+  - Removed `padding-top: 80px` from `.container` (no longer needed with sticky positioning)
+  - Navbar stays at top when scrolling, within normal document flow
+  - Fixes navigation dropdown visibility issue (dropdown no longer hidden under navbar)
+- **Timezone Persistence After Logout:**
+  - Clock initialization deferred until timezone loads from database on login
+  - Created `loadPrinterSettingsForClock()` function called in `showDashboard()`
+  - Clock always starts (with default or saved timezone) even if API fails
+  - Clock stops on logout to prevent showing incorrect time
+  - Timezone persists across logout/login cycles
+  - Enhanced console logging for debugging timezone load
+- **Clock Behavior:**
+  - Clock does not start until user logs in
+  - On login, timezone loaded from database immediately
+  - Clock displays correct saved timezone from first render
+  - No more reverting to default timezone on page reload
 - **Cache-Busting for CSS:**
   - Added version query string to CSS reference: `assets/style.css?v=237`
   - Forces browsers to fetch updated CSS after deployment
   - Critical for ensuring users see latest styling changes
-- **Deployment Package Verified:**
-  - Confirmed deployment package includes all navbar and dropdown fixes
-  - Verified CSS contains: fixed header, dropdown z-index, padding-top, and cache-busting
 - **Production Deployment Instructions:**
   - Upload new deployment package to production (2clv.com)
   - Clear browser cache or hard-refresh (Ctrl+Shift+R / Cmd+Shift+R) to see changes
