@@ -24,17 +24,41 @@ if (empty($ticketId)) {
 $db = Database::getInstance();
 
 try {
-    // Fetch ticket data
-    $stmt = $db->prepare("
-        SELECT 
-            id, vehicle_id, property, issued_by_username, issued_at,
-            custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
-            tag_number, plate_number,
-            property_name, property_address, property_contact_name, 
-            property_contact_phone, property_contact_email
-        FROM violation_tickets
-        WHERE id = ?
-    ");
+    // Check if tag_number and plate_number columns exist (for backward compatibility)
+    $columnsExist = false;
+    try {
+        $checkStmt = $db->query("SHOW COLUMNS FROM violation_tickets LIKE 'tag_number'");
+        $columnsExist = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        // Assume columns don't exist
+        $columnsExist = false;
+    }
+    
+    // Fetch ticket data - conditionally include tag_number and plate_number
+    if ($columnsExist) {
+        $stmt = $db->prepare("
+            SELECT 
+                id, vehicle_id, property, issued_by_username, issued_at,
+                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+                tag_number, plate_number,
+                property_name, property_address, property_contact_name, 
+                property_contact_phone, property_contact_email
+            FROM violation_tickets
+            WHERE id = ?
+        ");
+    } else {
+        // Old schema without tag_number/plate_number
+        $stmt = $db->prepare("
+            SELECT 
+                id, vehicle_id, property, issued_by_username, issued_at,
+                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+                property_name, property_address, property_contact_name, 
+                property_contact_phone, property_contact_email
+            FROM violation_tickets
+            WHERE id = ?
+        ");
+    }
+    
     $stmt->execute([$ticketId]);
     $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -43,6 +67,12 @@ try {
         http_response_code(404);
         echo json_encode(['error' => 'Ticket not found']);
         exit;
+    }
+    
+    // Add empty tag/plate fields if columns don't exist
+    if (!$columnsExist) {
+        $ticket['tag_number'] = null;
+        $ticket['plate_number'] = null;
     }
     
     error_log("Ticket found, property value: " . $ticket['property']);

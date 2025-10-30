@@ -13,6 +13,12 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Added backward compatibility: query checks both ID and name (WHERE id = ? OR name = ?)
   - Reprint ticket now works for both old and new tickets
   - Correctly loads property data and custom ticket text for all tickets
+- **Database Migration Compatibility:**
+  - Code now checks if tag_number/plate_number columns exist before querying
+  - Works on databases with or without the migration applied
+  - Old tickets (without tag/plate snapshot) show ticket without tag/plate info
+  - New tickets (after migration) show tag/plate info on reprint
+  - **To enable tag/plate on tickets:** Run `jrk/sql/add-tag-plate-to-tickets.sql` on production database
 
 ### October 30, 2025 - Find Duplicates Auto-Refresh Fixed
 - **Duplicates Auto-Refresh After Edit/Delete:**
