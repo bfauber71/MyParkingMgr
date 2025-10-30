@@ -348,7 +348,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     flex-wrap: wrap;
     gap: 12px;
     position: fixed;
@@ -439,6 +439,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 .container {
     width: 100%;
     margin: 0 auto;
+    margin-top: 140px;
     padding: 16px;
 }
 
@@ -468,10 +469,8 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 /* Navigation Dropdown Menu */
 .nav-dropdown-container {
     position: relative;
-    padding: 0 16px;
-    margin-top: 80px;
-    margin-bottom: 20px;
-    max-width: 100%;
+    width: 100%;
+    order: 10;
 }
 
 .nav-dropdown-toggle {
@@ -507,8 +506,8 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 .nav-dropdown-menu {
     position: absolute;
     top: calc(100% + 8px);
-    left: 0;
-    right: 0;
+    left: 16px;
+    right: 16px;
     background: #1e293b;
     border: 2px solid #334155;
     border-radius: 8px;
