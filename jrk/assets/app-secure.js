@@ -1281,7 +1281,7 @@ async function handleFindDuplicates() {
         
         if (response.ok) {
             if (data.duplicates && data.duplicates.length > 0) {
-                resultsDiv.innerHTML = `<p class="alert alert-warning">Found ${data.total_groups} duplicate group(s)</p>`;
+                displayDuplicatesResults(data.duplicates, criteriaSelect.value);
                 showToast(`Found ${data.total_groups} duplicate group(s)`, 'info');
             } else {
                 resultsDiv.innerHTML = '<p class="alert alert-success">No duplicates found</p>';
@@ -1293,6 +1293,115 @@ async function handleFindDuplicates() {
     } catch (error) {
         console.error('Error finding duplicates:', error);
         showToast('Error finding duplicates', 'error');
+    }
+}
+
+function displayDuplicatesResults(duplicates, criteria) {
+    const resultsDiv = document.getElementById('duplicatesResults');
+    if (!resultsDiv) return;
+    
+    resultsDiv.innerHTML = '';
+    
+    // Add summary header
+    const summary = createElement('div', { className: 'alert alert-warning' });
+    summary.textContent = `Found ${duplicates.length} duplicate ${criteria === 'plate' ? 'plate' : 'tag'} number(s)`;
+    resultsDiv.appendChild(summary);
+    
+    // Display each duplicate group
+    duplicates.forEach((dupGroup, index) => {
+        const groupDiv = createElement('div', { className: 'duplicate-group', style: 'margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;' });
+        
+        // Group header
+        const groupHeader = createElement('h4', { style: 'margin: 0 0 10px 0; color: #d32f2f;' });
+        groupHeader.textContent = `${criteria === 'plate' ? 'Plate' : 'Tag'}: ${dupGroup.value} (${dupGroup.count} vehicles)`;
+        groupDiv.appendChild(groupHeader);
+        
+        // Create table for this group
+        const table = createElement('table', { className: 'data-table', style: 'margin-top: 10px;' });
+        const thead = createElement('thead');
+        const headerRow = createElement('tr');
+        ['Vehicle', 'Property', 'Actions'].forEach(text => {
+            const th = createElement('th', {}, text);
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        
+        const tbody = createElement('tbody');
+        dupGroup.items.forEach(item => {
+            const row = createElement('tr');
+            
+            // Vehicle column
+            const vehicleCell = createElement('td');
+            vehicleCell.textContent = item.vehicle || 'Unknown Vehicle';
+            row.appendChild(vehicleCell);
+            
+            // Property column
+            const propertyCell = createElement('td');
+            propertyCell.textContent = item.property || 'Unknown Property';
+            row.appendChild(propertyCell);
+            
+            // Actions column
+            const actionsCell = createElement('td');
+            const actionsDiv = createElement('div', { style: 'display: flex; gap: 5px;' });
+            
+            // Edit button
+            if (canEditVehicles()) {
+                const editBtn = createElement('button', { 
+                    className: 'btn btn-sm btn-secondary',
+                    title: 'Edit Vehicle'
+                });
+                editBtn.textContent = 'Edit';
+                editBtn.onclick = () => openEditVehicleModal(item.id);
+                actionsDiv.appendChild(editBtn);
+            }
+            
+            // Delete button
+            if (canDeleteVehicles()) {
+                const deleteBtn = createElement('button', { 
+                    className: 'btn btn-sm btn-danger',
+                    title: 'Delete Vehicle'
+                });
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = () => deleteDuplicateVehicle(item.id, dupGroup.value);
+                actionsDiv.appendChild(deleteBtn);
+            }
+            
+            actionsCell.appendChild(actionsDiv);
+            row.appendChild(actionsCell);
+            
+            tbody.appendChild(row);
+        });
+        
+        table.appendChild(tbody);
+        groupDiv.appendChild(table);
+        resultsDiv.appendChild(groupDiv);
+    });
+}
+
+async function deleteDuplicateVehicle(vehicleId, duplicateValue) {
+    if (!confirm(`Are you sure you want to delete this vehicle from the duplicate list?`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/vehicles-delete`, {
+            method: 'POST',
+            body: JSON.stringify({ id: vehicleId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast('Vehicle deleted successfully', 'success');
+            // Refresh duplicates search
+            handleFindDuplicates();
+        } else {
+            showToast(data.error || 'Failed to delete vehicle', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting vehicle:', error);
+        showToast('Error deleting vehicle', 'error');
     }
 }
 

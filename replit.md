@@ -6,6 +6,15 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 30, 2025 - Find Duplicates Display Fixed
+- **Find Duplicates Feature Fixed:**
+  - Added displayDuplicatesResults() function to show detailed duplicate vehicle lists
+  - Each duplicate group now displays in a table with vehicle info and property
+  - Added Edit and Delete buttons for each vehicle in the duplicates list
+  - Delete button calls new deleteDuplicateVehicle() function and refreshes results
+  - Fixed issue where duplicates were found but not displayed to user
+  - Duplicates now grouped by plate/tag number with expandable details
+
 ### October 29, 2025 - Print Ticket Enhancement & Tag/Plate Display
 - **Database Schema Update:**
   - Added tag_number and plate_number columns to violation_tickets table
