@@ -8,17 +8,19 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ### October 30, 2025 - Fixed Navigation Dropdown Visibility and Navbar Sticky Positioning
 - **Navigation Dropdown Architecture Fix:**
-  - Moved `.nav-dropdown-container` outside of `.container` element
-  - Dropdown is now sibling of container, not child
-  - **CRITICAL FIX:** Moved navbar and dropdown OUTSIDE of `#dashboardPage` container
-  - Navbar and dropdown are now siblings of dashboardPage, not children
+  - **CRITICAL FIX:** Moved navbar OUTSIDE of `#dashboardPage` container
+  - Navbar is now sibling of dashboardPage, not child
   - This allows `position: fixed` to work correctly (flex container was preventing it)
+  - **INTEGRATED DROPDOWN:** Dropdown menu now integrated INTO navbar structure
+  - Dropdown is part of navbar, not separate element below it
   - Navbar uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
-  - Dropdown container has `margin-top: 80px` to prevent overlap with fixed navbar
+  - Navbar contains: brand/logo/version, clock, and dropdown toggle/menu
+  - Dropdown menu appears below navbar with `position: absolute`
   - Dropdown uses `z-index: 1001` and appears in correct stacking order
-  - Dropdown fully visible below navbar without overlap issues
+  - Dropdown fully visible when opened
   - Navbar stays at top of screen on scroll (fixed positioning)
-  - JavaScript updated to show/hide navbar and dropdown on login/logout
+  - Container has `margin-top: 140px` to prevent content from hiding under navbar
+  - JavaScript updated to show/hide navbar on login/logout
 - **Timezone Persistence After Logout:**
   - Clock initialization deferred until timezone loads from database on login
   - Created `loadPrinterSettingsForClock()` function called in `showDashboard()`
@@ -32,7 +34,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Clock displays correct saved timezone from first render
   - No more reverting to default timezone on page reload
 - **Cache-Busting for CSS:**
-  - Updated version query string to CSS reference: `assets/style.css?v=240`
+  - Updated version query string to CSS reference: `assets/style.css?v=241`
   - Forces browsers to fetch updated CSS and HTML after deployment
   - Critical for ensuring users see latest styling changes
 - **Production Deployment Instructions:**
