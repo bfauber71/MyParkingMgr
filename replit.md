@@ -8,11 +8,11 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ### October 30, 2025 - Reprint Ticket Error Fixed
 - **Reprint Ticket Bug Fixed:**
-  - Fixed critical bug in violations-ticket.php API endpoint
-  - Issue: Ticket stores property ID (UUID), but code was querying by property name
-  - Changed query from `WHERE name = ?` to `WHERE id = ?`
-  - Reprint ticket now correctly loads property data and custom ticket text
-  - Fixes blank or failed ticket reprints
+  - Fixed critical bug in violations-ticket.php API endpoint causing "error loading ticket"
+  - Issue: Old tickets stored property name, new tickets store property ID
+  - Added backward compatibility: query checks both ID and name (WHERE id = ? OR name = ?)
+  - Reprint ticket now works for both old and new tickets
+  - Correctly loads property data and custom ticket text for all tickets
 
 ### October 30, 2025 - Find Duplicates Auto-Refresh Fixed
 - **Duplicates Auto-Refresh After Edit/Delete:**

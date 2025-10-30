@@ -45,8 +45,9 @@ try {
     }
     
     // Check property access and get custom_ticket_text
-    $stmt = $db->prepare("SELECT id, custom_ticket_text FROM properties WHERE id = ?");
-    $stmt->execute([$ticket['property']]);
+    // Try by ID first (new tickets), then by name (old tickets for backward compatibility)
+    $stmt = $db->prepare("SELECT id, custom_ticket_text FROM properties WHERE id = ? OR name = ?");
+    $stmt->execute([$ticket['property'], $ticket['property']]);
     $propertyData = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($propertyData && !canAccessProperty($propertyData['id'])) {
