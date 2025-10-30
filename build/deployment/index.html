@@ -6,7 +6,7 @@
     <title>MyParkingManager</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <script src="assets/config.js"></script>
-    <link rel="stylesheet" href="assets/style.css?v=239">
+    <link rel="stylesheet" href="assets/style.css?v=240">
 </head>
 <body>
     <div id="app">
@@ -39,38 +39,39 @@
             </div>
         </div>
 
+        <!-- Navbar (outside dashboard page for fixed positioning) -->
+        <nav class="navbar" id="navbar" style="display: none;">
+            <div class="nav-brand">
+                <div class="brand-content">
+                    <span class="brand-name">MyParkingManager <span id="licenseStatusBadge" class="license-badge"></span></span>
+                    <span class="brand-version">v2.3.7</span>
+                </div>
+                <img src="assets/logo.png" alt="Logo" class="brand-logo">
+            </div>
+            <div class="nav-clock">
+                <div id="navDate" class="nav-date"></div>
+                <div id="navTime" class="nav-time"></div>
+            </div>
+        </nav>
+
+        <!-- Navigation Dropdown Menu (outside dashboard page) -->
+        <div class="nav-dropdown-container" id="navDropdownContainer" style="display: none;">
+            <button class="nav-dropdown-toggle" id="navDropdownToggle">
+                <span id="currentSectionName">🚗 Vehicles</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="nav-dropdown-menu" id="navDropdownMenu">
+                <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
+                <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
+                <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
+                <div class="nav-dropdown-divider"></div>
+                <div class="nav-dropdown-user" id="userInfo"></div>
+                <button class="nav-dropdown-item nav-logout" id="logoutBtn">🚪 Logout</button>
+            </div>
+        </div>
+
         <!-- Dashboard Page -->
         <div id="dashboardPage" class="page" style="display: none;">
-            <nav class="navbar">
-                <div class="nav-brand">
-                    <div class="brand-content">
-                        <span class="brand-name">MyParkingManager <span id="licenseStatusBadge" class="license-badge"></span></span>
-                        <span class="brand-version">v2.3.7</span>
-                    </div>
-                    <img src="assets/logo.png" alt="Logo" class="brand-logo">
-                </div>
-                <div class="nav-clock">
-                    <div id="navDate" class="nav-date"></div>
-                    <div id="navTime" class="nav-time"></div>
-                </div>
-            </nav>
-
-            <!-- Navigation Dropdown Menu -->
-            <div class="nav-dropdown-container">
-                <button class="nav-dropdown-toggle" id="navDropdownToggle">
-                    <span id="currentSectionName">🚗 Vehicles</span>
-                    <span class="dropdown-arrow">▼</span>
-                </button>
-                <div class="nav-dropdown-menu" id="navDropdownMenu">
-                    <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
-                    <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
-                    <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
-                    <div class="nav-dropdown-divider"></div>
-                    <div class="nav-dropdown-user" id="userInfo"></div>
-                    <button class="nav-dropdown-item nav-logout" id="logoutBtn">🚪 Logout</button>
-                </div>
-            </div>
-
             <div class="container">
                 <!-- Vehicles Section -->
                 <div id="vehiclesSection" class="tab-content active">

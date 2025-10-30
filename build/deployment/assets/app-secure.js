@@ -452,6 +452,8 @@ async function handleLogout() {
 function showLogin() {
     loginPage.style.display = 'block';
     dashboardPage.style.display = 'none';
+    document.getElementById('navbar').style.display = 'none';
+    document.getElementById('navDropdownContainer').style.display = 'none';
     loginForm.reset();
     loginError.classList.remove('show');
 }
@@ -460,8 +462,10 @@ async function showDashboard() {
     console.log('=== showDashboard() called ===');
     console.log('Step 1: Hide login page');
     loginPage.style.display = 'none';
-    console.log('Step 2: Show dashboard');
+    console.log('Step 2: Show dashboard, navbar, and dropdown');
     dashboardPage.style.display = 'block';
+    document.getElementById('navbar').style.display = 'flex';
+    document.getElementById('navDropdownContainer').style.display = 'block';
     
     console.log('Step 3: Set user info');
     userInfo.textContent = `${currentUser.username} (${currentUser.role})`;
