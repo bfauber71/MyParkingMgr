@@ -1254,10 +1254,21 @@ async function handleImportFile(e) {
     formData.append('csv', file);
     
     try {
+        // Get CSRF token for file upload
+        const token = await getCsrfToken();
+        if (!token) {
+            showToast('Security token unavailable. Please refresh and try again.', 'error');
+            e.target.value = '';
+            return;
+        }
+        
         const response = await fetch(`${API_BASE}/vehicles-import`, {
             method: 'POST',
             body: formData,
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'X-CSRF-Token': token
+            }
         });
         
         const data = await response.json();

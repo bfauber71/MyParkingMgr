@@ -7,6 +7,7 @@
 require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // Prevent caching
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -15,6 +16,9 @@ header('Expires: 0');
 header('Content-Type: application/json');
 
 Session::start();
+
+// Validate CSRF token
+validateCsrfToken();
 
 // Require authentication and create/delete permission for vehicles
 requirePermission(MODULE_VEHICLES, ACTION_CREATE_DELETE);

@@ -5,7 +5,17 @@
  * Export violation tickets as CSV
  */
 
-requireAuth();
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
+
+// Prevent caching
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
+Session::start();
+
 requirePermission(MODULE_DATABASE, ACTION_VIEW);
 
 $input = json_decode(file_get_contents('php://input'), true);
