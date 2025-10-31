@@ -6,6 +6,22 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### October 31, 2025 - Fixed Import Vehicles CSRF Token and Export Tickets
+
+- **Import Vehicles CSRF Token Fix:**
+  - Added CSRF token to file upload request in `handleImportFile()`
+  - Function now calls `getCsrfToken()` before uploading
+  - CSRF token sent in `X-CSRF-Token` header with FormData
+  - Added `validateCsrfToken()` call in `vehicles-import.php` API endpoint
+  - Import now works correctly without "invalid CSRF token" error
+
+- **Export Tickets (Violations) Fix:**
+  - Added missing required includes to `violations-export.php`:
+    - `database.php`, `session.php`, `helpers.php`
+  - Added cache-control headers for consistency
+  - Added `Session::start()` before permission check
+  - Export tickets now works correctly (previously failed due to missing includes)
+
 ### October 30, 2025 - Fixed Navigation Dropdown Visibility and Navbar Sticky Positioning
 - **Navigation Dropdown Architecture Fix:**
   - **CRITICAL FIX:** Moved navbar OUTSIDE of `#dashboardPage` container
