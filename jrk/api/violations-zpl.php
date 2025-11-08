@@ -179,15 +179,10 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $zpl .= "~jc^xa^jus^xz\n";
     $zpl .= "^XA\n";
     
-    // Set label length to 0 for continuous media (auto-detect length based on content)
-    $zpl .= "^LL0\n";
-    
-    // Set media type to continuous (non-label stock)
-    $zpl .= "^MNN\n";
-    
     // Add 1/2" paper advance at the beginning (since printer prints inverted)
     // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
     // This blank space at the start of ZPL will print at the END of the physical ticket
+    // Continuous roll paper will expand automatically based on content
     $yPos = 120;
     
     // Include header logo if enabled and ZPL version exists
