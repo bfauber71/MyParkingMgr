@@ -124,9 +124,13 @@ try {
     // Generate ZPL code
     $zpl = generateZPL($ticket, $violations, $totalFine, $minTowDeadline);
     
-    // Return as plain text (let JavaScript handle download)
-    header('Content-Type: text/plain; charset=utf-8');
+    // Force download with proper headers for iOS
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename="violation-ticket-' . $ticketId . '.zpl"');
+    header('Content-Length: ' . strlen($zpl));
     header('Cache-Control: no-cache, no-store, must-revalidate');
+    header('Pragma: no-cache');
+    header('Expires: 0');
     echo $zpl;
     
 } catch (Exception $e) {
