@@ -83,6 +83,12 @@ BUG FIXES
    - Removed 1/2" paper advance space (cleaner ticket output)
    - Tickets now end immediately after property contact info
 
+12. ZPL PRINTING: Reduced Vehicle Info Font Size
+   - Reduced vehicle information font size by 10% (39 → 35)
+   - Reduced tag/plate number font size by 10% (35 → 32)
+   - Reduced "following violations..." text by 10% (35 → 32)
+   - More compact, cleaner thermal ticket layout
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

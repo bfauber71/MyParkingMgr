@@ -223,7 +223,7 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $yPos += 10;
     
     // Vehicle info - use FB for wrapping (tighter spacing)
-    // Font size increased 75%: 22 -> 39 (38.5 rounded up)
+    // Font size reduced 10%: 39 -> 35
     $vehicleInfo = trim(
         ($ticket['vehicle_year'] ?? '') . ' ' . 
         ($ticket['vehicle_color'] ?? '') . ' ' . 
@@ -232,12 +232,12 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     );
     
     if (!empty($vehicleInfo)) {
-        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,39,39^FD" . escapeZPL($vehicleInfo) . "^FS\n";
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,35,35^FD" . escapeZPL($vehicleInfo) . "^FS\n";
         $yPos += 60;
     }
     
     // Tag/Plate info - use FB for wrapping (tighter spacing)
-    // Font size increased 75%: 20 -> 35
+    // Font size reduced 10%: 35 -> 32
     $tagPlateInfo = [];
     if (!empty($ticket['tag_number'])) {
         $tagPlateInfo[] = "Tag: " . $ticket['tag_number'];
@@ -246,17 +246,18 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
         $tagPlateInfo[] = "Plate: " . $ticket['plate_number'];
     }
     if (!empty($tagPlateInfo)) {
-        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,35,35^FD" . escapeZPL(implode(' / ', $tagPlateInfo)) . "^FS\n";
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,32,32^FD" . escapeZPL(implode(' / ', $tagPlateInfo)) . "^FS\n";
         $yPos += 50;
     }
     
     // Guest Pass indicator (if guest vehicle)
+    // Font size reduced 10%: 35 -> 32
     if ($ticket['guest']) {
         $guestText = "Guest Pass";
         if (!empty($ticket['guest_of'])) {
             $guestText .= " - APT " . $ticket['guest_of'];
         }
-        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,35,35^FD" . escapeZPL($guestText) . "^FS\n";
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,32,32^FD" . escapeZPL($guestText) . "^FS\n";
         $yPos += 50;
     }
     
@@ -265,8 +266,8 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $yPos += 10;
     
     // Violation intro text - use FB for wrapping
-    // Font size increased 75%: 20 -> 35 (exactly 75%)
-    $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,35,35^FDThe following violations have been observed on this vehicle:^FS\n";
+    // Font size reduced 10%: 35 -> 32
+    $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,32,32^FDThe following violations have been observed on this vehicle:^FS\n";
     $yPos += 84;
     
     // Violation list - use FB for wrapping long descriptions (allow up to 5 lines)
