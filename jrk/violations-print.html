@@ -382,11 +382,15 @@
                 ticket.plate_number ? `Plate: ${ticket.plate_number}` : ''
             ].filter(Boolean).join(' &nbsp; ');
 
+            // Format ticket type
+            const ticketType = ticket.ticket_type || 'VIOLATION';
+            const ticketTypeDisplay = ticketType === 'WARNING' ? 'WARNING' : 'VIOLATION';
+            
             const html = `
                 <div class="ticket-container">
                     ${topLogoHtml}
                     <div class="ticket-header">
-                        <h1>VIOLATION</h1>
+                        <h1>${ticketTypeDisplay}</h1>
                     </div>
                     
                     <div class="vehicle-info">
