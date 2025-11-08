@@ -53,11 +53,9 @@ BUG FIXES
    - Added clear instructions to prevent accidental ZPL downloads
    - Print button now larger, blue, and clearly labeled for paper printers
 
-6. ZPL PRINTING: Paper Advance (Inverted Print Fix)
-   - Added 1/2" paper feed accounting for inverted printing
-   - Space added at beginning of ZPL code (prints at end of physical ticket)
-   - Compensates for Zebra ZQ510 printing QR code first
-   - Makes tickets easier to tear off from thermal printer
+6. ZPL PRINTING: Paper Advance (Removed in v11)
+   - Initially added 1/2" paper feed for easier ticket tearing
+   - Removed per user request (see fix #11)
 
 7. ZPL PRINTING: Larger Headline
    - Increased WARNING/VIOLATION headline size by 50%
@@ -79,6 +77,11 @@ BUG FIXES
    - Removed "Would you like to print it now?" confirmation dialog
    - Print window now opens automatically after ticket creation
    - Smoother, faster workflow for ticket printing
+
+11. ZPL PRINTING: Removed QR Code and Paper Advance
+   - Removed QR code from bottom of thermal tickets
+   - Removed 1/2" paper advance space (cleaner ticket output)
+   - Tickets now end immediately after property contact info
 
 ====================================================================
 DATABASE CHANGES
