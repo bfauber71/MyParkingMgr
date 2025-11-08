@@ -216,10 +216,10 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     }
     
     // Ticket type header (WARNING or VIOLATION) - use safe centered width
-    // Font size increased 75%: 40 -> 70
+    // Font size increased 162.5%: 40 -> 70 -> 105 (50% larger)
     $ticketType = $ticket['ticket_type'] ?? 'VIOLATION';
-    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,70,70^FD" . strtoupper($ticketType) . "^FS\n";
-    $yPos += 88;
+    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,105,105^FD" . strtoupper($ticketType) . "^FS\n";
+    $yPos += 120;
     
     // Border line
     $zpl .= "^FO20," . $yPos . "^GB536,3,3^FS\n";
