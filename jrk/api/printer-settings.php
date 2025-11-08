@@ -3,6 +3,7 @@ require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/security.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/zpl-image-converter.php';
 
 Session::start();
 
@@ -78,6 +79,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 if (!preg_match('/^data:image\/(png|jpg|jpeg|gif|webp);base64,/', $value)) {
                     error_log("Printer settings: Invalid logo format for $key");
                     continue;
+                }
+                
+                // Convert image to ZPL format for Zebra printer
+                $zplKey = $key . '_zpl';
+                $zplHeightKey = $key . '_zpl_height';
+                $convertedData = ZPLImageConverter::convertToZPL($value);
+                
+                if ($convertedData !== false) {
+                    // Save ZPL version alongside original
+                    $sqlZpl = "INSERT INTO printer_settings (id, setting_key, setting_value) 
+                            VALUES (UUID(), ?, ?)
+                            ON DUPLICATE KEY UPDATE 
+                                setting_value = ?,
+                                updated_at = CURRENT_TIMESTAMP";
+                    
+                    Database::execute($sqlZpl, [$zplKey, $convertedData['zpl'], $convertedData['zpl']]);
+                    
+                    // Save logo height for proper spacing in tickets
+                    Database::execute($sqlZpl, [$zplHeightKey, $convertedData['height'], $convertedData['height']]);
+                    
+                    error_log("Printer settings: Successfully converted $key to ZPL format (height: " . $convertedData['height'] . " dots)");
+                } else {
+                    error_log("Printer settings: Failed to convert $key to ZPL format, will use original for paper only");
                 }
             }
             

@@ -181,9 +181,36 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     
     $yPos = 20;
     
-    // NOTE: Logo printing in ZPL requires image-to-hex conversion (^GF command)
-    // Future enhancement: Download logo, convert to monochrome bitmap, encode as hex, emit with ^GF
-    // For now, ZPL output does not include the header logo (paper printing still shows logo)
+    // Include header logo if enabled and ZPL version exists
+    try {
+        $db = Database::getInstance();
+        $stmt = $db->prepare("SELECT setting_value FROM printer_settings WHERE setting_key = 'logo_top_enabled'");
+        $stmt->execute();
+        $logoEnabled = $stmt->fetchColumn();
+        
+        if ($logoEnabled === 'true') {
+            $stmt = $db->prepare("SELECT setting_value FROM printer_settings WHERE setting_key = 'logo_top_zpl'");
+            $stmt->execute();
+            $logoZpl = $stmt->fetchColumn();
+            
+            // Get logo height for proper spacing
+            $stmt = $db->prepare("SELECT setting_value FROM printer_settings WHERE setting_key = 'logo_top_zpl_height'");
+            $stmt->execute();
+            $logoHeight = $stmt->fetchColumn();
+            
+            if (!empty($logoZpl)) {
+                // Position logo centered horizontally
+                $zpl .= "^FO20," . $yPos . $logoZpl . "^FS\n";
+                
+                // Use actual logo height for spacing, fallback to 100 dots if not found
+                $spacing = !empty($logoHeight) ? (int)$logoHeight + 20 : 100;
+                $yPos += $spacing;
+            }
+        }
+    } catch (Exception $e) {
+        // If logo loading fails, continue without logo
+        error_log("ZPL logo loading error: " . $e->getMessage());
+    }
     
     // Ticket type header (WARNING or VIOLATION) - use safe centered width
     // Font size increased 75%: 40 -> 70
