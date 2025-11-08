@@ -295,6 +295,32 @@ function setupEventListeners() {
         }
     });
     
+    // Guest Pass event listeners
+    const saveGuestPassBtn = document.getElementById('saveGuestPassBtn');
+    if (saveGuestPassBtn) {
+        saveGuestPassBtn.addEventListener('click', handleGuestPassSubmit);
+    }
+    
+    const clearGuestPassBtn = document.getElementById('clearGuestPassBtn');
+    if (clearGuestPassBtn) {
+        clearGuestPassBtn.addEventListener('click', clearGuestPassForm);
+    }
+    
+    // Ticket Status event listeners
+    const ticketStatusSearchBtn = document.getElementById('ticketStatusSearchBtn');
+    if (ticketStatusSearchBtn) {
+        ticketStatusSearchBtn.addEventListener('click', loadTicketStatusSection);
+    }
+    
+    const ticketStatusClearBtn = document.getElementById('ticketStatusClearBtn');
+    if (ticketStatusClearBtn) {
+        ticketStatusClearBtn.addEventListener('click', () => {
+            document.getElementById('ticketStatusFilter').value = '';
+            document.getElementById('ticketPropertyFilter').value = '';
+            loadTicketStatusSection();
+        });
+    }
+    
     secureLog('Event listeners setup complete');
 }
 
@@ -690,6 +716,10 @@ function switchTab(tabName) {
             loadVehiclesSection();
         } else if (tabName === 'properties') {
             loadPropertiesSection();
+        } else if (tabName === 'guest-pass') {
+            loadGuestPassSection();
+        } else if (tabName === 'ticket-status') {
+            loadTicketStatusSection();
         } else if (tabName === 'database') {
             // Redirect to settings > users
             secureLog('Database tab accessed - redirecting to settings > users');
@@ -705,6 +735,46 @@ function switchTab(tabName) {
         }
     } catch (error) {
         console.error('Error loading section:', tabName, error);
+    }
+}
+
+// Guest Pass Section
+async function loadGuestPassSection() {
+    // Populate property dropdown
+    try {
+        const response = await secureApiCall(`${API_BASE}/properties-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const properties = data.properties || [];
+            
+            const gpProperty = document.getElementById('gpProperty');
+            const ticketPropertyFilter = document.getElementById('ticketPropertyFilter');
+            
+            if (gpProperty) {
+                gpProperty.innerHTML = '<option value="">Select Property</option>';
+                properties.forEach(property => {
+                    const option = document.createElement('option');
+                    option.value = property.name;
+                    option.textContent = property.name;
+                    gpProperty.appendChild(option);
+                });
+            }
+            
+            if (ticketPropertyFilter) {
+                ticketPropertyFilter.innerHTML = '<option value="">All Properties</option>';
+                properties.forEach(property => {
+                    const option = document.createElement('option');
+                    option.value = property.name;
+                    option.textContent = property.name;
+                    ticketPropertyFilter.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading properties for guest pass:', error);
     }
 }
 
@@ -1119,7 +1189,7 @@ function displayVehicles(vehicles, searchQuery = '') {
     const thead = createElement('thead');
     const headerRow = createElement('tr');
     
-    ['Tag', 'State', 'Plate', 'Owner', 'Apt', 'Make/Model', 'Color', 'Year', 'Reserved', 'Property', 'Violations', 'Actions'].forEach(header => {
+    ['Tag', 'State', 'Plate', 'Owner', 'Apt', 'Make/Model', 'Color', 'Year', 'Guest Pass', 'Property', 'Violations', 'Actions'].forEach(header => {
         const th = createElement('th', {}, header);
         headerRow.appendChild(th);
     });
@@ -1130,6 +1200,22 @@ function displayVehicles(vehicles, searchQuery = '') {
     vehicles.forEach(vehicle => {
         const row = createElement('tr');
         
+        // Check guest pass expiration
+        let guestPassStatus = '-';
+        if (vehicle.expiration_date) {
+            const expirationDate = new Date(vehicle.expiration_date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            expirationDate.setHours(0, 0, 0, 0);
+            
+            if (expirationDate < today) {
+                guestPassStatus = 'EXPIRED';
+            } else {
+                const expiryString = vehicle.expiration_date;
+                guestPassStatus = `Expires ${expiryString}`;
+            }
+        }
+        
         [
             vehicle.tag_number || '-',
             vehicle.state || '-',
@@ -1139,11 +1225,16 @@ function displayVehicles(vehicles, searchQuery = '') {
             `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '-',
             vehicle.color || '-',
             vehicle.year || '-',
-            vehicle.reserved_space || '-',
+            guestPassStatus,
             vehicle.property || '-',
             vehicle.violation_count || '0'
-        ].forEach(text => {
+        ].forEach((text, index) => {
             const td = createElement('td', {}, text);
+            // Add red styling for EXPIRED status
+            if (index === 8 && text === 'EXPIRED') {
+                td.style.color = '#d9534f';
+                td.style.fontWeight = 'bold';
+            }
             row.appendChild(td);
         });
         
@@ -3110,6 +3201,241 @@ const rateLimiter = {
         return true;
     }
 };
+
+// Guest Pass Functions
+async function clearGuestPassForm() {
+    document.getElementById('gpProperty').value = '';
+    document.getElementById('gpPlateNumber').value = '';
+    document.getElementById('gpState').value = '';
+    document.getElementById('gpMake').value = '';
+    document.getElementById('gpModel').value = '';
+    document.getElementById('gpColor').value = '';
+    document.getElementById('gpYear').value = '';
+    document.getElementById('gpAptNumber').value = '';
+    document.getElementById('gpOwnerName').value = '';
+    document.getElementById('gpGuestOf').value = '';
+}
+
+async function handleGuestPassSubmit() {
+    const property = document.getElementById('gpProperty').value;
+    const plateNumber = document.getElementById('gpPlateNumber').value;
+    
+    if (!property || !plateNumber) {
+        showToast('Property and Plate Number are required', 'error');
+        return;
+    }
+    
+    // Calculate expiration date (7 days from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 7);
+    const expirationString = expirationDate.toISOString().split('T')[0];
+    
+    const formData = {
+        property: property,
+        plateNumber: document.getElementById('gpPlateNumber').value || '',
+        state: document.getElementById('gpState').value || '',
+        make: document.getElementById('gpMake').value || '',
+        model: document.getElementById('gpModel').value || '',
+        color: document.getElementById('gpColor').value || '',
+        year: document.getElementById('gpYear').value || '',
+        aptNumber: document.getElementById('gpAptNumber').value || '',
+        ownerName: document.getElementById('gpOwnerName').value || '',
+        tagNumber: document.getElementById('gpPlateNumber').value || '',
+        guest: true,
+        guestOf: document.getElementById('gpGuestOf').value || '',
+        expirationDate: expirationString
+    };
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/guest-pass-create`, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast('Guest pass created successfully', 'success');
+            
+            // Open print window with guest pass
+            printGuestPass(data.vehicle, data.property);
+            
+            // Clear form
+            clearGuestPassForm();
+        } else {
+            showToast(data.error || 'Failed to create guest pass', 'error');
+        }
+    } catch (error) {
+        console.error('Error creating guest pass:', error);
+        showToast('Error creating guest pass', 'error');
+    }
+}
+
+function printGuestPass(vehicle, property) {
+    // Format expiration date
+    const expDate = new Date(vehicle.expiration_date);
+    const formattedExpDate = expDate.toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+    });
+    
+    // Build URL with parameters
+    const params = new URLSearchParams({
+        propertyName: property.name || '',
+        propertyAddress: property.address || '',
+        propertyContact: property.contact1_name ? `Contact: ${property.contact1_name} ${property.contact1_phone || ''}` : '',
+        plateNumber: vehicle.plate_number || '',
+        state: vehicle.state || '',
+        make: vehicle.make || '',
+        model: vehicle.model || '',
+        color: vehicle.color || '',
+        year: vehicle.year || '',
+        guestName: vehicle.owner_name || '',
+        guestOf: vehicle.guest_of ? `Apt/Unit ${vehicle.guest_of}` : '',
+        expirationDate: formattedExpDate,
+        logoUrl: property.logo_url || '../assets/logo.png'
+    });
+    
+    // Open print window
+    window.open(`guest-pass-print.html?${params.toString()}`, '_blank');
+}
+
+// Ticket Status Functions
+async function loadTicketStatusSection() {
+    const status = document.getElementById('ticketStatusFilter').value;
+    const property = document.getElementById('ticketPropertyFilter').value;
+    
+    try {
+        const params = new URLSearchParams();
+        if (status) params.append('status', status);
+        if (property) params.append('property', property);
+        
+        const response = await secureApiCall(`${API_BASE}/tickets-list?${params}`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            displayTicketStatus(data.tickets || []);
+        } else {
+            showToast('Failed to load tickets', 'error');
+        }
+    } catch (error) {
+        console.error('Error loading tickets:', error);
+        showToast('Error loading tickets', 'error');
+    }
+}
+
+function displayTicketStatus(tickets) {
+    const container = document.getElementById('ticketStatusResults');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    if (tickets.length === 0) {
+        container.innerHTML = '<div class="no-results"><p>No tickets found.</p></div>';
+        return;
+    }
+    
+    const dataTable = createElement('div', { className: 'data-table' });
+    const table = createElement('table');
+    const thead = createElement('thead');
+    const headerRow = createElement('tr');
+    
+    ['Ticket ID', 'Vehicle', 'Property', 'Issued Date', 'Status', 'Disposition', 'Actions'].forEach(header => {
+        const th = createElement('th', {}, header);
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    
+    const tbody = createElement('tbody');
+    tickets.forEach(ticket => {
+        const row = createElement('tr');
+        
+        const vehicleInfo = `${ticket.plate_number || ticket.tag_number || 'N/A'}`;
+        const issuedDate = new Date(ticket.issued_at).toLocaleDateString();
+        const statusBadge = ticket.status === 'active' ? 
+            '<span style="color: #28a745; font-weight: bold;">ACTIVE</span>' :
+            '<span style="color: #6c757d;">CLOSED</span>';
+        const disposition = ticket.fine_disposition || '-';
+        
+        [
+            ticket.id.substring(0, 8),
+            vehicleInfo,
+            ticket.property || '-',
+            issuedDate,
+            statusBadge,
+            disposition
+        ].forEach((text, index) => {
+            const td = createElement('td');
+            if (index === 4) {
+                td.innerHTML = text;
+            } else {
+                td.textContent = text;
+            }
+            row.appendChild(td);
+        });
+        
+        const actionsTd = createElement('td');
+        const actionsDiv = createElement('div', { className: 'actions' });
+        
+        if (ticket.status === 'active') {
+            const collectedBtn = createElement('button', { className: 'btn btn-sm btn-success' }, 'Collected');
+            const dismissedBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Dismissed');
+            
+            safeAddEventListener(collectedBtn, 'click', () => {
+                closeTicket(ticket.id, 'collected');
+            });
+            
+            safeAddEventListener(dismissedBtn, 'click', () => {
+                closeTicket(ticket.id, 'dismissed');
+            });
+            
+            actionsDiv.appendChild(collectedBtn);
+            actionsDiv.appendChild(dismissedBtn);
+        } else {
+            actionsDiv.textContent = 'Closed';
+        }
+        
+        actionsTd.appendChild(actionsDiv);
+        row.appendChild(actionsTd);
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    dataTable.appendChild(table);
+    container.appendChild(dataTable);
+}
+
+async function closeTicket(ticketId, disposition) {
+    if (!confirm(`Mark this ticket as ${disposition}?`)) {
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/ticket-close`, {
+            method: 'POST',
+            body: JSON.stringify({
+                ticketId: ticketId,
+                disposition: disposition
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(`Ticket marked as ${disposition}`, 'success');
+            loadTicketStatusSection();
+        } else {
+            showToast(data.error || 'Failed to close ticket', 'error');
+        }
+    } catch (error) {
+        console.error('Error closing ticket:', error);
+        showToast('Error closing ticket', 'error');
+    }
+}
 
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
