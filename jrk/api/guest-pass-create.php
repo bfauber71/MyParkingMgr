@@ -78,7 +78,7 @@ try {
         $stmt->execute([
             $newId,
             $property,
-            $input['tagNumber'] ?? $plateNumber,
+            'GUEST', // Always set tag_number to GUEST for guest passes
             $plateNumber,
             $input['state'] ?? null,
             $input['make'] ?? null,
@@ -108,7 +108,7 @@ try {
         $stmt->execute([
             $newId,
             $property,
-            $input['tagNumber'] ?? $plateNumber,
+            'GUEST', // Always set tag_number to GUEST for guest passes
             $plateNumber,
             $input['state'] ?? null,
             $input['make'] ?? null,
@@ -136,7 +136,7 @@ try {
         $stmt->execute([
             $newId,
             $property,
-            $input['tagNumber'] ?? $plateNumber,
+            'GUEST', // Always set tag_number to GUEST for guest passes
             $plateNumber,
             $input['state'] ?? null,
             $input['make'] ?? null,

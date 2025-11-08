@@ -64,6 +64,11 @@ BUG FIXES
    - Font size now 105 (up from 70) for better visibility
    - More prominent ticket type identification
 
+8. GUEST PASS: Auto-Set Tag Number
+   - Tag number automatically set to "GUEST" when creating guest passes
+   - No need to manually enter tag number for guest vehicles
+   - Consistent identification of all guest vehicles
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================
