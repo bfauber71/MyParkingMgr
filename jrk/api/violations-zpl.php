@@ -179,6 +179,12 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $zpl .= "~jc^xa^jus^xz\n";
     $zpl .= "^XA\n";
     
+    // Set label length to 0 for continuous media (auto-detect length based on content)
+    $zpl .= "^LL0\n";
+    
+    // Set media type to continuous (non-label stock)
+    $zpl .= "^MNN\n";
+    
     // Add 1/2" paper advance at the beginning (since printer prints inverted)
     // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
     // This blank space at the start of ZPL will print at the END of the physical ticket
@@ -341,12 +347,12 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
         $yPos += 35;
     }
     
-    // QR code with ticket ID (centered and sized appropriately)
-    // Model 2, Magnification 2 (smaller), Error correction H (high)
-    // Centered horizontally: (576 - ~150) / 2 = ~213
+    // QR code with ticket ID - full size
+    // Model 2, Magnification 4, Error correction H (high)
+    // Centered horizontally for 3" label (576 dots)
     $yPos += 10;
-    $zpl .= "^FO213," . $yPos . "^BQN,2,3^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
-    $yPos += 160;
+    $zpl .= "^FO150," . $yPos . "^BQN,2,4^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
+    $yPos += 200;  // QR code at mag 4 is ~180-200 dots tall
     
     // End ZPL
     $zpl .= "^XZ\n";
