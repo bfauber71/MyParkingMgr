@@ -462,61 +462,6 @@
             document.getElementById('ticketContent').innerHTML = html;
         }
 
-        // ZPL download function
-        async function downloadZPL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const ticketId = urlParams.get('id');
-            
-            if (!ticketId) {
-                alert('No ticket ID found');
-                return;
-            }
-            
-            console.log('Starting ZPL download for ticket:', ticketId);
-            
-            try {
-                console.log('Fetching ZPL from API...');
-                const response = await fetch(`${API_BASE}/violations-zpl?id=${ticketId}`, {
-                    credentials: 'include'
-                });
-                
-                console.log('API response status:', response.status);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API error response:', errorText);
-                    throw new Error('Failed to generate ZPL: ' + response.status);
-                }
-                
-                const zplContent = await response.text();
-                console.log('ZPL content received, length:', zplContent.length);
-                
-                // Method 1: Try data URI (works on mobile browsers)
-                const dataUri = 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent(zplContent);
-                const a = document.createElement('a');
-                a.href = dataUri;
-                a.download = `violation-ticket-${ticketId}.zpl`;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                
-                console.log('Triggering download...');
-                a.click();
-                
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    console.log('Download complete');
-                }, 100);
-                
-                setTimeout(() => {
-                    alert('ZPL file downloaded to your Downloads folder!\n\nFile: violation-ticket-' + ticketId + '.zpl\n\nOpen this file with the Zebra Utilities app on your iOS/Android device to print.');
-                }, 200);
-                
-            } catch (error) {
-                console.error('Error downloading ZPL:', error);
-                alert('Error downloading ZPL file: ' + error.message + '\n\nTry using "View ZPL Code" button instead and copy the code manually.');
-            }
-        }
-        
         // Show ZPL code in modal
         async function showZPLCode() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -586,7 +531,7 @@
             if (ticketId) {
                 const downloadLink = document.getElementById('downloadZPLLink');
                 downloadLink.href = `${API_BASE}/violations-zpl?id=${ticketId}`;
-                downloadLink.download = `violation-ticket-${ticketId}.zpl`;
+                downloadLink.download = `ticket-${ticketId}.zpl`;
             }
             
             await loadSettings();
