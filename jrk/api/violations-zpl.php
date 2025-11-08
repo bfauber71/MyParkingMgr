@@ -153,16 +153,22 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     
     $yPos = 20;
     
+    // NOTE: Logo printing in ZPL requires image-to-hex conversion (^GF command)
+    // Future enhancement: Download logo, convert to monochrome bitmap, encode as hex, emit with ^GF
+    // For now, ZPL output does not include the header logo (paper printing still shows logo)
+    
     // Ticket type header (WARNING or VIOLATION) - use safe centered width
+    // Font size increased 75%: 40 -> 70
     $ticketType = $ticket['ticket_type'] ?? 'VIOLATION';
-    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,40,40^FD" . strtoupper($ticketType) . "^FS\n";
-    $yPos += 50;
+    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,70,70^FD" . strtoupper($ticketType) . "^FS\n";
+    $yPos += 88;
     
     // Border line
     $zpl .= "^FO20," . $yPos . "^GB536,3,3^FS\n";
     $yPos += 15;
     
     // Vehicle info - use FB for wrapping
+    // Font size increased 75%: 22 -> 39 (38.5 rounded up)
     $vehicleInfo = trim(
         ($ticket['vehicle_year'] ?? '') . ' ' . 
         ($ticket['vehicle_color'] ?? '') . ' ' . 
@@ -171,11 +177,12 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     );
     
     if (!empty($vehicleInfo)) {
-        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,22,22^FD" . escapeZPL($vehicleInfo) . "^FS\n";
-        $yPos += 50;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,39,39^FD" . escapeZPL($vehicleInfo) . "^FS\n";
+        $yPos += 88;
     }
     
     // Tag/Plate info - use FB for wrapping
+    // Font size increased 75%: 20 -> 35
     $tagPlateInfo = [];
     if (!empty($ticket['tag_number'])) {
         $tagPlateInfo[] = "Tag: " . $ticket['tag_number'];
@@ -184,8 +191,8 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
         $tagPlateInfo[] = "Plate: " . $ticket['plate_number'];
     }
     if (!empty($tagPlateInfo)) {
-        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,20,20^FD" . escapeZPL(implode(' / ', $tagPlateInfo)) . "^FS\n";
-        $yPos += 44;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,35,35^FD" . escapeZPL(implode(' / ', $tagPlateInfo)) . "^FS\n";
+        $yPos += 77;
     }
     
     // Border line
@@ -193,51 +200,57 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $yPos += 15;
     
     // Violation intro text - use FB for wrapping
-    $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,20,20^FDThe following violations have been observed on this vehicle:^FS\n";
-    $yPos += 48;
+    // Font size increased 75%: 20 -> 35 (exactly 75%)
+    $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,35,35^FDThe following violations have been observed on this vehicle:^FS\n";
+    $yPos += 84;
     
     // Violation list - use FB for wrapping long descriptions (allow up to 5 lines)
+    // Font size increased 75%: 18 -> 32 (31.5 rounded up)
     foreach ($violations as $index => $violation) {
         $violationText = ($index + 1) . ". " . $violation['description'];
-        $zpl .= "^FO30," . $yPos . "^FB506,5,0,L,0^A0N,18,18^FD" . escapeZPL($violationText) . "^FS\n";
-        // Assume up to 5 lines per violation
-        $yPos += 96;
+        $zpl .= "^FO30," . $yPos . "^FB506,5,0,L,0^A0N,32,32^FD" . escapeZPL($violationText) . "^FS\n";
+        // Assume up to 5 lines per violation (increased spacing for larger font)
+        $yPos += 168;
     }
     
     $yPos += 10;
     
     // Date and time
+    // Font size increased 75%: 18 -> 32 (31.5 rounded up)
     $issuedDate = new DateTime($ticket['issued_at']);
-    $zpl .= "^FO20," . $yPos . "^A0N,18,18^FDDate: " . $issuedDate->format('m/d/Y') . "^FS\n";
-    $yPos += 22;
-    $zpl .= "^FO20," . $yPos . "^A0N,18,18^FDTime: " . $issuedDate->format('h:i A') . "^FS\n";
-    $yPos += 30;
+    $zpl .= "^FO20," . $yPos . "^A0N,32,32^FDDate: " . $issuedDate->format('m/d/Y') . "^FS\n";
+    $yPos += 39;
+    $zpl .= "^FO20," . $yPos . "^A0N,32,32^FDTime: " . $issuedDate->format('h:i A') . "^FS\n";
+    $yPos += 53;
     
     // Fine amount (if any) - use safe centered width
+    // Font size increased 75%: 28 -> 49
     if ($totalFine > 0) {
-        $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,28,28^FDFINE: $" . number_format($totalFine, 2) . "^FS\n";
-        $yPos += 40;
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,49,49^FDFINE: $" . number_format($totalFine, 2) . "^FS\n";
+        $yPos += 70;
     }
     
     // Custom property text - use FB for wrapping (allow up to 4 lines per custom line)
+    // Font size increased 75%: 18 -> 32 (31.5 rounded up)
     if (!empty($ticket['property_custom_ticket_text'])) {
         $customLines = explode("\n", $ticket['property_custom_ticket_text']);
         foreach ($customLines as $line) {
             $line = trim($line);
             if (!empty($line)) {
-                $zpl .= "^FO20," . $yPos . "^FB536,4,0,C,0^A0N,18,18^FD" . escapeZPL($line) . "^FS\n";
-                $yPos += 76;
+                $zpl .= "^FO20," . $yPos . "^FB536,4,0,C,0^A0N,32,32^FD" . escapeZPL($line) . "^FS\n";
+                $yPos += 133;
             }
         }
         $yPos += 10;
     }
     
     // Tow warning - use FB for wrapping with safe centered width
+    // Font size increased 75%: 16 -> 28
     if ($minTowDeadline !== null && $minTowDeadline > 0) {
-        $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,16,16^FD** TOW WARNING **^FS\n";
-        $yPos += 20;
-        $zpl .= "^FO20," . $yPos . "^FB536,2,0,C,0^A0N,16,16^FDVehicle subject to tow in " . $minTowDeadline . " hours^FS\n";
-        $yPos += 40;
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,28,28^FD** TOW WARNING **^FS\n";
+        $yPos += 35;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,C,0^A0N,28,28^FDVehicle subject to tow in " . $minTowDeadline . " hours^FS\n";
+        $yPos += 70;
     }
     
     // Border line
@@ -245,17 +258,19 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $yPos += 15;
     
     // Property info - use FB for wrapping
+    // Font size increased 75%: 16 -> 28 (exactly 75%)
     if (!empty($ticket['property_name'])) {
-        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,16,16^FDProperty: " . escapeZPL($ticket['property_name']) . "^FS\n";
-        $yPos += 36;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,28,28^FDProperty: " . escapeZPL($ticket['property_name']) . "^FS\n";
+        $yPos += 63;
     }
+    // Font size increased 75%: 14 -> 25 (24.5 rounded up)
     if (!empty($ticket['property_address'])) {
-        $zpl .= "^FO20," . $yPos . "^FB536,3,0,L,0^A0N,14,14^FD" . escapeZPL($ticket['property_address']) . "^FS\n";
-        $yPos += 48;
+        $zpl .= "^FO20," . $yPos . "^FB536,3,0,L,0^A0N,25,25^FD" . escapeZPL($ticket['property_address']) . "^FS\n";
+        $yPos += 84;
     }
     if (!empty($ticket['property_contact_phone'])) {
-        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,14,14^FDPhone: " . escapeZPL($ticket['property_contact_phone']) . "^FS\n";
-        $yPos += 18;
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,25,25^FDPhone: " . escapeZPL($ticket['property_contact_phone']) . "^FS\n";
+        $yPos += 32;
     }
     
     // QR code with ticket ID (optional - for tracking)
