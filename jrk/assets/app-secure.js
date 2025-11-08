@@ -1072,18 +1072,18 @@ async function searchVehicles(query = '', property = '') {
         
         if (response.ok) {
             const data = await response.json();
-            displayVehicles(data.vehicles);
+            displayVehicles(data.vehicles, query);
         } else {
             console.error('Vehicle search failed:', response.status);
-            displayVehicles([]);
+            displayVehicles([], query);
         }
     } catch (error) {
         console.error('Error searching vehicles:', error);
-        displayVehicles([]);
+        displayVehicles([], query);
     }
 }
 
-function displayVehicles(vehicles) {
+function displayVehicles(vehicles, searchQuery = '') {
     const container = document.getElementById('vehiclesResults');
     if (!container) return;
     
@@ -1092,8 +1092,25 @@ function displayVehicles(vehicles) {
     }
     
     if (vehicles.length === 0) {
-        const noResults = createElement('div', { className: 'no-results' }, 'No vehicles found. Try adjusting your search or add a new vehicle.');
-        container.appendChild(noResults);
+        const noResultsContainer = createElement('div', { className: 'no-results' });
+        const message = createElement('p', {}, 'No vehicles found. Try adjusting your search or add a new vehicle.');
+        noResultsContainer.appendChild(message);
+        
+        // If search query looks like a plate/tag number, offer to create ticket
+        if (searchQuery && searchQuery.trim().length > 0) {
+            const createTicketBtn = createElement('button', { 
+                className: 'btn btn-primary',
+                style: 'margin-top: 15px;'
+            }, `Create Ticket for "${searchQuery.trim()}"`);
+            
+            safeAddEventListener(createTicketBtn, 'click', () => {
+                createTicketForUnknownPlate(searchQuery.trim());
+            });
+            
+            noResultsContainer.appendChild(createTicketBtn);
+        }
+        
+        container.appendChild(noResultsContainer);
         return;
     }
     
