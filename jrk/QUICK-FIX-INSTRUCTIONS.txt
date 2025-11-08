@@ -1,0 +1,45 @@
+=================================================================
+MyParkingManager v2.3.8 - CRITICAL FIX FOR 500 ERRORS
+=================================================================
+
+PROBLEM: Your site shows 500 Internal Server Error after updating
+
+SOLUTION: Replace your .htaccess file with the corrected version
+
+=================================================================
+STEP 1: Fix .htaccess (This will fix the 500 errors)
+=================================================================
+
+On your 2clv.com server:
+1. Open File Manager in cPanel
+2. Navigate to your parking manager directory
+3. Find the .htaccess file
+4. Edit it and replace line 24
+
+CHANGE THIS LINE:
+    RewriteRule ^ index.php [L]
+
+TO THIS:
+    RewriteRule ^ index.html [L]
+
+5. Save the file
+6. Your site should work immediately
+
+=================================================================
+STEP 2: Upload the 3 new API files
+=================================================================
+
+After .htaccess is fixed, upload these 3 new files to /api/ folder:
+- api/guest-pass-create.php
+- api/tickets-list.php  
+- api/ticket-close.php
+
+These files are in the MyParkingManager-v2.3.8-Update.zip package.
+
+=================================================================
+FULL .htaccess FILE (if you want to replace entirely)
+=================================================================
+
+See FIXED-HTACCESS.txt in this same folder.
+
+=================================================================
