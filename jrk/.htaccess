@@ -1,8 +1,5 @@
 # ManageMyParking - Apache Configuration
 # This file enables URL rewriting for the application
-# 
-# Works automatically for root or subdirectory installations
-# No RewriteBase needed - uses relative paths
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -20,9 +17,12 @@
     RewriteRule ^api/(.+)\.php$ - [L]
     RewriteRule ^api/(.+)$ api/$1.php [L,QSA]
     
-    # Route everything else through index.php (for SPA routing)
-    RewriteRule ^ index.php [L]
+    # Serve index.html for SPA routing (NOT index.php)
+    RewriteRule ^ index.html [L]
 </IfModule>
+
+# Set DirectoryIndex to prefer index.html
+DirectoryIndex index.html index.php
 
 # Security Headers
 <IfModule mod_headers.c>
@@ -44,14 +44,6 @@
         Header set Expires "0"
     </FilesMatch>
 </IfModule>
-
-# PHP Settings (for CGI/FastCGI, use php.ini or .user.ini instead)
-# <IfModule mod_php.c>
-#     php_value upload_max_filesize 50M
-#     php_value post_max_size 50M
-#     php_value memory_limit 256M
-#     php_value max_execution_time 300
-# </IfModule>
 
 # Disable directory browsing
 Options -Indexes
