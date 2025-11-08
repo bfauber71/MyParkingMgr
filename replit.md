@@ -6,6 +6,33 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
+### November 08, 2025 - Non-Resident/Guest Tracking and Ticket Type System
+
+- **Non-Resident and Guest Vehicle Tracking:**
+  - Added `resident` (BOOLEAN/TINYINT) field to vehicles table - defaults to TRUE for residents
+  - Added `guest` (BOOLEAN/TINYINT) field to vehicles table - defaults to FALSE
+  - Added `guest_of` (VARCHAR 50) field to vehicles table - stores apartment/unit number for guests
+  - Migration file: `jrk/sql/add-resident-guest-fields.sql`
+  - Vehicle create/edit forms now include checkboxes for Resident and Guest status
+  - Guest checkbox toggles visibility of "Guest Of" input field for apartment number
+  - All API endpoints handle new fields with backward compatibility
+  - Column existence checks ensure compatibility with databases at different migration states
+
+- **WARNING vs VIOLATION Ticket Types:**
+  - Added `ticket_type` (VARCHAR 20) field to violation_tickets table - defaults to 'VIOLATION'
+  - Migration file: `jrk/sql/add-ticket-type-field.sql`
+  - Violation creation form includes dropdown selector for WARNING or VIOLATION
+  - Ticket type displayed in violation search results with visual indicators (⚠️ WARNING, 🚫 VIOLATION)
+  - Printed tickets dynamically show "WARNING" or "VIOLATION" header based on ticket_type
+  - Export CSV includes ticket_type column
+  - All API endpoints (create, search, export, ticket) handle ticket_type with fallback to 'VIOLATION'
+  - Backward compatible with existing tickets and databases without migration applied
+
+- **Naming Convention Consistency:**
+  - Database fields use snake_case: `resident`, `guest`, `guest_of`, `ticket_type`
+  - API payloads and JavaScript use camelCase: `resident`, `guest`, `guestOf`, `ticketType`
+  - All spelling and capitalization verified across database, API, JavaScript, and HTML layers
+
 ### October 31, 2025 - Fixed Import Vehicles CSRF Token and Export Tickets
 
 - **Import Vehicles CSRF Token Fix:**
