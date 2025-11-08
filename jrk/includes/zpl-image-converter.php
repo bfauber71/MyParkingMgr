@@ -12,9 +12,10 @@ class ZPLImageConverter {
      * @param string $dataUrl Base64 encoded image data URL (e.g., data:image/png;base64,...)
      * @param int $maxWidth Maximum width in dots (default 536 for ZQ510 3" width with margins)
      * @param int $threshold Brightness threshold for black/white conversion (0-255, default 128)
+     * @param bool $compress Whether to use ZPL compression (default false for reliability)
      * @return array|false Array with 'zpl' and 'height' keys, or false on error
      */
-    public static function convertToZPL($dataUrl, $maxWidth = 536, $threshold = 128) {
+    public static function convertToZPL($dataUrl, $maxWidth = 536, $threshold = 128, $compress = false) {
         try {
             // Extract base64 data from data URL
             if (!preg_match('/^data:image\/(\w+);base64,(.*)$/', $dataUrl, $matches)) {
@@ -86,7 +87,7 @@ class ZPLImageConverter {
             imagedestroy($resized);
             
             // Convert bitmap to ZPL hex format
-            $zplHex = self::bitmapToZPLHex($bitmap, $newWidth, $newHeight);
+            $zplHex = self::bitmapToZPLHex($bitmap, $newWidth, $newHeight, $compress);
             
             // Calculate bytes per row (width rounded up to nearest byte)
             $bytesPerRow = (int)ceil($newWidth / 8);
@@ -115,10 +116,12 @@ class ZPLImageConverter {
      * @param array $bitmap 2D array of 1s (black) and 0s (white)
      * @param int $width Image width
      * @param int $height Image height
+     * @param bool $compress Whether to use ZPL compression
      * @return string Hex encoded bitmap data
      */
-    private static function bitmapToZPLHex($bitmap, $width, $height) {
+    private static function bitmapToZPLHex($bitmap, $width, $height, $compress = false) {
         $hex = '';
+        $bytesPerRow = (int)ceil($width / 8);
         
         for ($y = 0; $y < $height; $y++) {
             $bits = '';
@@ -126,21 +129,24 @@ class ZPLImageConverter {
                 $bits .= $bitmap[$y][$x];
             }
             
-            // Pad to multiple of 8 bits
+            // Pad to multiple of 8 bits (must match bytesPerRow * 8)
             $remainder = strlen($bits) % 8;
             if ($remainder > 0) {
                 $bits .= str_repeat('0', 8 - $remainder);
             }
             
-            // Convert bits to hex
+            // Convert bits to hex bytes
             for ($i = 0; $i < strlen($bits); $i += 8) {
                 $byte = substr($bits, $i, 8);
                 $hex .= sprintf('%02X', bindec($byte));
             }
         }
         
-        // Compress hex using ZPL run-length encoding
-        $hex = self::compressZPLHex($hex);
+        // Optionally compress hex using ZPL run-length encoding
+        // Compression disabled by default for reliability - uncompressed is more stable
+        if ($compress) {
+            $hex = self::compressZPLHex($hex);
+        }
         
         return $hex;
     }
