@@ -219,7 +219,22 @@
 </head>
 <body>
     <div class="no-print">
-        <button onclick="window.print()">Print Ticket</button>
+        <button onclick="window.print()">Print Ticket (Paper)</button>
+        <button onclick="downloadZPL()">Download for Zebra Printer</button>
+        <button onclick="showZPLCode()">View ZPL Code</button>
+    </div>
+
+    <div id="zplModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);">
+        <div style="background-color: white; margin: 5% auto; padding: 30px; width: 90%; max-width: 800px; border-radius: 8px;">
+            <span onclick="closeZPLModal()" style="color: #aaa; float: right; font-size: 32px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h2 style="margin-top: 0;">ZPL Code for Zebra Printer</h2>
+            <p>Copy this code or save the downloaded .zpl file and open it with the Zebra Utilities app on your iOS/Android device.</p>
+            <textarea id="zplCode" readonly style="width: 100%; height: 400px; font-family: monospace; font-size: 12px; padding: 10px; border: 1px solid #ccc;"></textarea>
+            <div style="margin-top: 15px;">
+                <button onclick="copyZPLCode()" style="background: #000; color: white; border: 2px solid #000; padding: 12px 30px; font-size: 16px; font-weight: 900; border-radius: 4px; cursor: pointer; margin: 0 5px;">Copy to Clipboard</button>
+                <button onclick="closeZPLModal()" style="background: #666; color: white; border: 2px solid #666; padding: 12px 30px; font-size: 16px; font-weight: 900; border-radius: 4px; cursor: pointer; margin: 0 5px;">Close</button>
+            </div>
+        </div>
     </div>
 
     <div id="ticketContent" class="loading">Loading ticket...</div>
@@ -437,6 +452,99 @@
             `;
 
             document.getElementById('ticketContent').innerHTML = html;
+        }
+
+        // ZPL download function
+        async function downloadZPL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticketId = urlParams.get('id');
+            
+            if (!ticketId) {
+                alert('No ticket ID found');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/violations-zpl?id=${ticketId}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate ZPL');
+                }
+                
+                const zplContent = await response.text();
+                
+                // Create download link
+                const blob = new Blob([zplContent], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `violation-ticket-${ticketId}.zpl`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                alert('ZPL file downloaded! Open this file with the Zebra Utilities app on your iOS/Android device to print to your Zebra ZQ510 printer.');
+            } catch (error) {
+                console.error('Error downloading ZPL:', error);
+                alert('Error downloading ZPL file: ' + error.message);
+            }
+        }
+        
+        // Show ZPL code in modal
+        async function showZPLCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticketId = urlParams.get('id');
+            
+            if (!ticketId) {
+                alert('No ticket ID found');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/violations-zpl?id=${ticketId}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate ZPL');
+                }
+                
+                const zplContent = await response.text();
+                document.getElementById('zplCode').value = zplContent;
+                document.getElementById('zplModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading ZPL:', error);
+                alert('Error loading ZPL code: ' + error.message);
+            }
+        }
+        
+        // Close ZPL modal
+        function closeZPLModal() {
+            document.getElementById('zplModal').style.display = 'none';
+        }
+        
+        // Copy ZPL code to clipboard
+        async function copyZPLCode() {
+            const textarea = document.getElementById('zplCode');
+            textarea.select();
+            
+            try {
+                await navigator.clipboard.writeText(textarea.value);
+                alert('ZPL code copied to clipboard! You can now paste it into the Zebra Utilities app.');
+            } catch (error) {
+                console.error('Error copying to clipboard:', error);
+                
+                // Fallback for older browsers
+                try {
+                    document.execCommand('copy');
+                    alert('ZPL code copied to clipboard! You can now paste it into the Zebra Utilities app.');
+                } catch (err) {
+                    alert('Failed to copy to clipboard. Please manually select and copy the code.');
+                }
+            }
         }
 
         // Initialize on page load
