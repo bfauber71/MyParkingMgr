@@ -64,12 +64,6 @@ BUG FIXES
    - Font size now 105 (up from 70) for better visibility
    - More prominent ticket type identification
 
-8. ZPL PRINTING: QR Code & Continuous Paper
-   - QR code centered and at full size (magnification 4, positioned at 150)
-   - Proper spacing added after QR code (200 dots) to prevent cutoff
-   - Simplified ZPL structure for reliable printing
-   - Tickets expand naturally on continuous roll paper (Zebra ZQ510)
-
 ====================================================================
 DATABASE CHANGES
 ====================================================================
