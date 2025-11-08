@@ -6,7 +6,7 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
 
 ## Recent Changes
 
-### November 08, 2025 - Non-Resident/Guest Tracking and Ticket Type System
+### November 08, 2025 - Non-Resident/Guest Tracking, Ticket Type System, and Zebra Printer Integration
 
 - **Non-Resident and Guest Vehicle Tracking:**
   - Added `resident` (BOOLEAN/TINYINT) field to vehicles table - defaults to TRUE for residents
@@ -27,6 +27,19 @@ ManageMyParking is a PHP-based vehicle and property management system designed f
   - Export CSV includes ticket_type column
   - All API endpoints (create, search, export, ticket) handle ticket_type with fallback to 'VIOLATION'
   - Backward compatible with existing tickets and databases without migration applied
+
+- **Zebra ZQ510 Mobile Printer Integration:**
+  - New API endpoint: `violations-zpl.php` generates ZPL (Zebra Programming Language) code
+  - Optimized for Zebra ZQ510 printer (3" / 2.75" width thermal printer)
+  - Print page now offers three options:
+    1. Traditional paper printing (existing functionality)
+    2. Download ZPL file for Zebra Utilities app (iOS/Android)
+    3. View/copy ZPL code to clipboard
+  - ZPL format includes ticket type header, vehicle info, violations, QR code for tracking
+  - Users can download .zpl file and open with Zebra Utilities app on mobile device
+  - Bluetooth printing to ZQ510 via Zebra app on iOS/Android devices
+  - ZPL code automatically sets printer to ZPL mode and calibrates media
+  - All ticket data (WARNING/VIOLATION, vehicle info, violations, fines) included in ZPL output
 
 - **Naming Convention Consistency:**
   - Database fields use snake_case: `resident`, `guest`, `guest_of`, `ticket_type`
