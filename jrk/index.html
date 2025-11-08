@@ -61,6 +61,8 @@
                 </button>
                 <div class="nav-dropdown-menu" id="navDropdownMenu">
                     <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
+                    <button class="nav-dropdown-item" data-tab="guest-pass" id="guestPassTab">🎫 Guest Pass</button>
+                    <button class="nav-dropdown-item" data-tab="ticket-status" id="ticketStatusTab">📋 Ticket Status</button>
                     <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
                     <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
                     <div class="nav-dropdown-divider"></div>
@@ -92,6 +94,104 @@
                     </div>
 
                     <div id="vehiclesResults"></div>
+                </div>
+
+                <!-- Guest Pass Section -->
+                <div id="guest-passSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Guest Pass Generation</h2>
+                    </header>
+
+                    <div class="info-card" style="margin-bottom: 20px;">
+                        <p>Create guest vehicle records with 7-day expiration passes. Fill in vehicle information and print a guest pass.</p>
+                    </div>
+
+                    <div id="guestPassForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpProperty">Property *</label>
+                                <select id="gpProperty" required>
+                                    <option value="">Select Property</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gpPlateNumber">Plate Number *</label>
+                                <input type="text" id="gpPlateNumber" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpState">State</label>
+                                <input type="text" id="gpState" maxlength="2" style="text-transform: uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpMake">Make</label>
+                                <input type="text" id="gpMake">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpModel">Model</label>
+                                <input type="text" id="gpModel">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpColor">Color</label>
+                                <input type="text" id="gpColor">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpYear">Year</label>
+                                <input type="text" id="gpYear" maxlength="4">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpAptNumber">Apartment / Unit</label>
+                                <input type="text" id="gpAptNumber">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpOwnerName">Guest Name</label>
+                                <input type="text" id="gpOwnerName">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpGuestOf">Guest Of (Apt/Unit)</label>
+                                <input type="text" id="gpGuestOf" placeholder="Visiting apartment number">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="saveGuestPassBtn" class="btn btn-primary">Save & Print Guest Pass</button>
+                            <button id="clearGuestPassBtn" class="btn btn-secondary">Clear Form</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Status Section -->
+                <div id="ticket-statusSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Ticket Status Management</h2>
+                    </header>
+
+                    <div class="info-card" style="margin-bottom: 20px;">
+                        <p>Manage ticket statuses. Close tickets by marking fines as collected or dismissed.</p>
+                    </div>
+
+                    <div class="search-bar">
+                        <select id="ticketStatusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <select id="ticketPropertyFilter">
+                            <option value="">All Properties</option>
+                        </select>
+                        <button id="ticketStatusSearchBtn" class="btn btn-primary">Filter</button>
+                        <button id="ticketStatusClearBtn" class="btn btn-secondary">Show All</button>
+                    </div>
+
+                    <div id="ticketStatusResults"></div>
                 </div>
 
                 <!-- Properties Section -->
