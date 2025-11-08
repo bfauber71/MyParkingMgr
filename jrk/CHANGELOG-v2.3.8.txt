@@ -53,6 +53,11 @@ BUG FIXES
    - Added clear instructions to prevent accidental ZPL downloads
    - Print button now larger, blue, and clearly labeled for paper printers
 
+6. ZPL PRINTING: Paper Advance
+   - Added 1/2" paper feed at end of each ZPL ticket
+   - Makes tickets easier to tear off from thermal printer
+   - Advances paper automatically after printing completes
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================
