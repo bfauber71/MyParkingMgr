@@ -179,10 +179,7 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $zpl .= "~jc^xa^jus^xz\n";
     $zpl .= "^XA\n";
     
-    // Add 1/2" paper advance at the beginning (since printer prints inverted)
-    // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
-    // This blank space at the start of ZPL will print at the END of the physical ticket
-    $yPos = 120;
+    $yPos = 20;
     
     // Include header logo if enabled and ZPL version exists
     try {
@@ -216,10 +213,10 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     }
     
     // Ticket type header (WARNING or VIOLATION) - use safe centered width
-    // Font size increased 162.5%: 40 -> 70 -> 105 (50% larger)
+    // Font size increased 75%: 40 -> 70
     $ticketType = $ticket['ticket_type'] ?? 'VIOLATION';
-    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,105,105^FD" . strtoupper($ticketType) . "^FS\n";
-    $yPos += 120;
+    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,70,70^FD" . strtoupper($ticketType) . "^FS\n";
+    $yPos += 88;
     
     // Border line
     $zpl .= "^FO20," . $yPos . "^GB536,3,3^FS\n";
@@ -341,12 +338,14 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
         $yPos += 35;
     }
     
-    // QR code with ticket ID - full size
-    // Model 2, Magnification 4, Error correction H (high)
-    // Centered horizontally for 3" label (576 dots)
+    // QR code with ticket ID (optional - for tracking)
     $yPos += 10;
-    $zpl .= "^FO150," . $yPos . "^BQN,2,4^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
-    $yPos += 200;  // QR code at mag 4 is ~180-200 dots tall
+    $zpl .= "^FO200," . $yPos . "^BQN,2,4^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
+    
+    // Add 1/2" paper advance (feed) after ticket
+    // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
+    $yPos += 100;
+    $zpl .= "^FO0," . $yPos . "^FS\n";
     
     // End ZPL
     $zpl .= "^XZ\n";
