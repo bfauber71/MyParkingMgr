@@ -75,6 +75,11 @@ BUG FIXES
    - Changed JavaScript field names from camelCase to snake_case
    - Tag number field now properly populated and validated
 
+10. TICKET PRINTING: Removed Confirmation Popup
+   - Removed "Would you like to print it now?" confirmation dialog
+   - Print window now opens automatically after ticket creation
+   - Smoother, faster workflow for ticket printing
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

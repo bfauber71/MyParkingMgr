@@ -2568,10 +2568,8 @@ async function handleCreateViolation(event) {
             form.reset();
             
             if (data.ticketId) {
-                const shouldPrint = confirm('Ticket created! Would you like to print it now?');
-                if (shouldPrint) {
-                    window.open(`violations-print.html?id=${data.ticketId}`, '_blank');
-                }
+                window.open(`violations-print.html?id=${data.ticketId}`, '_blank');
+                showToast('Opening ticket for printing', 'info');
             }
             
             // Hide search results after ticket creation
