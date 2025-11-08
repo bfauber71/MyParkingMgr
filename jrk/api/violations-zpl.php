@@ -148,16 +148,16 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     
     $yPos = 20;
     
-    // Ticket type header (WARNING or VIOLATION)
+    // Ticket type header (WARNING or VIOLATION) - use safe centered width
     $ticketType = $ticket['ticket_type'] ?? 'VIOLATION';
-    $zpl .= "^FO0," . $yPos . "^FB576,1,0,C,0^A0N,40,40^FD" . strtoupper($ticketType) . "^FS\n";
+    $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,40,40^FD" . strtoupper($ticketType) . "^FS\n";
     $yPos += 50;
     
     // Border line
     $zpl .= "^FO20," . $yPos . "^GB536,3,3^FS\n";
     $yPos += 15;
     
-    // Vehicle info
+    // Vehicle info - use FB for wrapping
     $vehicleInfo = trim(
         ($ticket['vehicle_year'] ?? '') . ' ' . 
         ($ticket['vehicle_color'] ?? '') . ' ' . 
@@ -166,11 +166,11 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     );
     
     if (!empty($vehicleInfo)) {
-        $zpl .= "^FO20," . $yPos . "^A0N,22,22^FD" . escapeZPL($vehicleInfo) . "^FS\n";
-        $yPos += 28;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,22,22^FD" . escapeZPL($vehicleInfo) . "^FS\n";
+        $yPos += 50;
     }
     
-    // Tag/Plate info
+    // Tag/Plate info - use FB for wrapping
     $tagPlateInfo = [];
     if (!empty($ticket['tag_number'])) {
         $tagPlateInfo[] = "Tag: " . $ticket['tag_number'];
@@ -179,25 +179,24 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
         $tagPlateInfo[] = "Plate: " . $ticket['plate_number'];
     }
     if (!empty($tagPlateInfo)) {
-        $zpl .= "^FO20," . $yPos . "^A0N,20,20^FD" . escapeZPL(implode(' / ', $tagPlateInfo)) . "^FS\n";
-        $yPos += 26;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,20,20^FD" . escapeZPL(implode(' / ', $tagPlateInfo)) . "^FS\n";
+        $yPos += 44;
     }
     
     // Border line
     $zpl .= "^FO20," . $yPos . "^GB536,2,2^FS\n";
     $yPos += 15;
     
-    // Violation intro text
-    $zpl .= "^FO20," . $yPos . "^A0N,20,20^FDThe following violations have been^FS\n";
-    $yPos += 24;
-    $zpl .= "^FO20," . $yPos . "^A0N,20,20^FDobserved on this vehicle:^FS\n";
-    $yPos += 30;
+    // Violation intro text - use FB for wrapping
+    $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,20,20^FDThe following violations have been observed on this vehicle:^FS\n";
+    $yPos += 48;
     
-    // Violation list
+    // Violation list - use FB for wrapping long descriptions (allow up to 5 lines)
     foreach ($violations as $index => $violation) {
         $violationText = ($index + 1) . ". " . $violation['description'];
-        $zpl .= "^FO30," . $yPos . "^A0N,18,18^FD" . escapeZPL($violationText) . "^FS\n";
-        $yPos += 24;
+        $zpl .= "^FO30," . $yPos . "^FB506,5,0,L,0^A0N,18,18^FD" . escapeZPL($violationText) . "^FS\n";
+        // Assume up to 5 lines per violation
+        $yPos += 96;
     }
     
     $yPos += 10;
@@ -209,48 +208,48 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $zpl .= "^FO20," . $yPos . "^A0N,18,18^FDTime: " . $issuedDate->format('h:i A') . "^FS\n";
     $yPos += 30;
     
-    // Fine amount (if any)
+    // Fine amount (if any) - use safe centered width
     if ($totalFine > 0) {
-        $zpl .= "^FO0," . $yPos . "^FB576,1,0,C,0^A0N,28,28^FDFINE: $" . number_format($totalFine, 2) . "^FS\n";
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,28,28^FDFINE: $" . number_format($totalFine, 2) . "^FS\n";
         $yPos += 40;
     }
     
-    // Custom property text
+    // Custom property text - use FB for wrapping (allow up to 4 lines per custom line)
     if (!empty($ticket['property_custom_ticket_text'])) {
         $customLines = explode("\n", $ticket['property_custom_ticket_text']);
         foreach ($customLines as $line) {
             $line = trim($line);
             if (!empty($line)) {
-                $zpl .= "^FO0," . $yPos . "^FB556,1,0,C,0^A0N,18,18^FD" . escapeZPL($line) . "^FS\n";
-                $yPos += 22;
+                $zpl .= "^FO20," . $yPos . "^FB536,4,0,C,0^A0N,18,18^FD" . escapeZPL($line) . "^FS\n";
+                $yPos += 76;
             }
         }
         $yPos += 10;
     }
     
-    // Tow warning
+    // Tow warning - use FB for wrapping with safe centered width
     if ($minTowDeadline !== null && $minTowDeadline > 0) {
-        $zpl .= "^FO0," . $yPos . "^FB576,1,0,C,0^A0N,16,16^FD** TOW WARNING **^FS\n";
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,C,0^A0N,16,16^FD** TOW WARNING **^FS\n";
         $yPos += 20;
-        $zpl .= "^FO0," . $yPos . "^FB576,1,0,C,0^A0N,16,16^FDVehicle subject to tow in " . $minTowDeadline . " hours^FS\n";
-        $yPos += 26;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,C,0^A0N,16,16^FDVehicle subject to tow in " . $minTowDeadline . " hours^FS\n";
+        $yPos += 40;
     }
     
     // Border line
     $zpl .= "^FO20," . $yPos . "^GB536,2,2^FS\n";
     $yPos += 15;
     
-    // Property info
+    // Property info - use FB for wrapping
     if (!empty($ticket['property_name'])) {
-        $zpl .= "^FO20," . $yPos . "^A0N,16,16^FDProperty: " . escapeZPL($ticket['property_name']) . "^FS\n";
-        $yPos += 20;
+        $zpl .= "^FO20," . $yPos . "^FB536,2,0,L,0^A0N,16,16^FDProperty: " . escapeZPL($ticket['property_name']) . "^FS\n";
+        $yPos += 36;
     }
     if (!empty($ticket['property_address'])) {
-        $zpl .= "^FO20," . $yPos . "^A0N,14,14^FD" . escapeZPL($ticket['property_address']) . "^FS\n";
-        $yPos += 18;
+        $zpl .= "^FO20," . $yPos . "^FB536,3,0,L,0^A0N,14,14^FD" . escapeZPL($ticket['property_address']) . "^FS\n";
+        $yPos += 48;
     }
     if (!empty($ticket['property_contact_phone'])) {
-        $zpl .= "^FO20," . $yPos . "^A0N,14,14^FDPhone: " . escapeZPL($ticket['property_contact_phone']) . "^FS\n";
+        $zpl .= "^FO20," . $yPos . "^FB536,1,0,L,0^A0N,14,14^FDPhone: " . escapeZPL($ticket['property_contact_phone']) . "^FS\n";
         $yPos += 18;
     }
     
