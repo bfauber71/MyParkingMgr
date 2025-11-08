@@ -1,0 +1,134 @@
+====================================================================
+MyParkingManager v2.3.8 - CHANGELOG
+====================================================================
+
+RELEASE DATE: November 8, 2024
+
+====================================================================
+NEW FEATURES
+====================================================================
+
+1. GUEST PASS GENERATION SYSTEM
+   - Create temporary guest vehicle records with 7-day auto-expiration
+   - Professional letter-size guest pass printing with property logo
+   - Displays vehicle details and expiration date
+   - EXPIRED status shown in red for expired guest passes in search
+
+2. TICKET STATUS MANAGEMENT
+   - Close parking tickets by marking fines as "collected" or "dismissed"
+   - Dedicated Ticket Status screen with status filters (Active/Closed)
+   - Property-based filtering for multi-property deployments
+   - Comprehensive audit logging of all status changes
+   - Database tracks: status, fine_disposition, closed_at, closed_by_user_id
+
+====================================================================
+BUG FIXES
+====================================================================
+
+1. CRITICAL SECURITY FIX: Ticket Access Control
+   - Fixed unauthorized ticket access vulnerability in tickets-list.php
+   - Added property membership verification for both vehicle records AND bare tickets
+   - WHERE clause now requires: (v.id IS NOT NULL AND v.property IN (...)) OR 
+     (v.id IS NULL AND vt.property_name IN (...))
+
+2. PRODUCTION DEPLOYMENT FIX: .htaccess Redirect Loop
+   - Fixed infinite redirect loop causing 500 errors on shared hosting
+   - Changed routing from index.php to index.html (line 24)
+   - Prevents redirect loops on production servers like 2clv.com
+
+3. GUEST PASS FORM: Duplicate Apartment Field
+   - Removed duplicate "Apartment / Unit" field from guest pass form
+   - Now only asks once for "Visiting Apt/Unit" (where guest is visiting)
+   - Cleaner, less confusing user interface
+
+====================================================================
+DATABASE CHANGES
+====================================================================
+
+New SQL migrations included (backward compatible):
+
+1. add-guest-pass-expiration.sql
+   - Adds expiration_date DATE field to vehicles table
+   - Includes index for performance
+   - Compatible with MySQL 5.7+ and MariaDB 10.2+
+
+2. add-ticket-status.sql
+   - Adds status ENUM('active','closed') to violation_tickets
+   - Adds fine_disposition ENUM('collected','dismissed')
+   - Adds closed_at DATETIME and closed_by_user_id INT
+   - Includes foreign key to users table for accountability
+
+====================================================================
+DEPLOYMENT PACKAGES
+====================================================================
+
+Two packages available:
+
+1. MyParkingManager-v2.3.8-Full.zip (~188 KB)
+   - Complete installation package
+   - All application files included
+   - For new installations or complete replacements
+
+2. MyParkingManager-v2.3.8-Update.zip (~42 KB)
+   - Update package with only changed files
+   - Includes: .htaccess, index.html, guest-pass-print.html,
+     app-secure.js, styles.css, 3 API files, 2 SQL migrations
+   - For upgrading from v2.3.7
+
+====================================================================
+UPGRADE INSTRUCTIONS
+====================================================================
+
+FROM v2.3.7 TO v2.3.8:
+
+1. Backup your current installation and database
+2. Upload files from Update package (replace existing)
+3. Run SQL migrations:
+   - sql/add-guest-pass-expiration.sql
+   - sql/add-ticket-status.sql
+4. Clear browser cache (Ctrl+Shift+R)
+5. Test guest pass creation and ticket status features
+
+FRESH INSTALLATION:
+
+1. Extract Full package to your web directory
+2. Copy config.example.php to config.php
+3. Edit config.php with your database credentials
+4. Import sql/schema.sql to create database
+5. Run both migration SQL files
+6. Access via HTTPS (required for production)
+7. Default login: admin / admin123 (change immediately)
+
+====================================================================
+SYSTEM REQUIREMENTS
+====================================================================
+
+- PHP: 7.4+ (8.3+ recommended)
+- MySQL: 5.7+ or MariaDB: 10.2+
+- Web Server: Apache with mod_rewrite or Nginx
+- HTTPS: Required for production
+- PHP Extensions: pdo, pdo_mysql, json, session, mbstring, gd
+
+====================================================================
+SECURITY NOTES
+====================================================================
+
+- This release includes critical security fixes
+- Immediate upgrade recommended for all installations
+- HTTPS enforcement recommended for all production deployments
+- Change default admin credentials immediately after installation
+
+====================================================================
+KNOWN ISSUES
+====================================================================
+
+None at this time.
+
+====================================================================
+SUPPORT
+====================================================================
+
+For issues or questions, refer to the included README.txt or
+contact your system administrator.
+
+====================================================================

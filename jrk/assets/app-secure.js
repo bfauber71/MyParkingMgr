@@ -3211,7 +3211,6 @@ async function clearGuestPassForm() {
     document.getElementById('gpModel').value = '';
     document.getElementById('gpColor').value = '';
     document.getElementById('gpYear').value = '';
-    document.getElementById('gpAptNumber').value = '';
     document.getElementById('gpOwnerName').value = '';
     document.getElementById('gpGuestOf').value = '';
 }
@@ -3238,7 +3237,6 @@ async function handleGuestPassSubmit() {
         model: document.getElementById('gpModel').value || '',
         color: document.getElementById('gpColor').value || '',
         year: document.getElementById('gpYear').value || '',
-        aptNumber: document.getElementById('gpAptNumber').value || '',
         ownerName: document.getElementById('gpOwnerName').value || '',
         tagNumber: document.getElementById('gpPlateNumber').value || '',
         guest: true,
