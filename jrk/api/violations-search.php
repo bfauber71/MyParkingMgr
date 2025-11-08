@@ -33,7 +33,17 @@ if (empty($propertyNames)) {
     jsonResponse(['violations' => [], 'total' => 0, 'debug' => 'No accessible properties']);
 }
 
+// Check if ticket_type column exists
+$hasTicketType = false;
+try {
+    $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM violation_tickets LIKE 'ticket_type'");
+    $hasTicketType = $checkStmt->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasTicketType = false;
+}
+
 // Build SQL query with violation items and fines
+$ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_type,";
 $sql = "SELECT 
     vt.id,
     vt.vehicle_id,
@@ -48,6 +58,7 @@ $sql = "SELECT
     v.plate_number,
     v.tag_number,
     COALESCE(v.property, vt.property_name) as property,
+    $ticketTypeField
     GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') as violation_list,
     SUM(COALESCE(violations.fine_amount, 0)) as total_fine
 FROM violation_tickets vt

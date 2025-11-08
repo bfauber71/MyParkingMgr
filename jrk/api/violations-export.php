@@ -38,11 +38,22 @@ if (empty($propertyNames)) {
     jsonResponse(['error' => 'No accessible properties'], 403);
 }
 
+// Check if ticket_type column exists
+$hasTicketType = false;
+try {
+    $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM violation_tickets LIKE 'ticket_type'");
+    $hasTicketType = $checkStmt->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasTicketType = false;
+}
+
 // Build SQL query with violation items
+$ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_type,";
 $sql = "SELECT 
     vt.id,
     vt.created_at as ticket_date,
     COALESCE(v.property, vt.property_name) as property,
+    $ticketTypeField
     vt.vehicle_year as year,
     vt.vehicle_make as make,
     vt.vehicle_model as model,
@@ -135,6 +146,7 @@ try {
         'Ticket ID',
         'Date/Time',
         'Property',
+        'Ticket Type',
         'Year',
         'Make',
         'Model',
@@ -152,6 +164,7 @@ try {
             $violation['id'],
             $violation['ticket_date'],
             $violation['property'],
+            $violation['ticket_type'] ?? 'VIOLATION',
             $violation['year'],
             $violation['make'],
             $violation['model'],

@@ -428,6 +428,26 @@
                     </div>
                 </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="vehicleResident" name="resident" checked>
+                            Resident Vehicle
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="vehicleGuest" name="guest">
+                            Guest Vehicle
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="guestOfContainer" style="display: none;">
+                    <label for="vehicleGuestOf">Guest Of (Apartment Number)</label>
+                    <input type="text" id="vehicleGuestOf" name="guest_of">
+                </div>
+
                 <div class="form-group">
                     <label for="vehicleOwner">Owner Name</label>
                     <input type="text" id="vehicleOwner" name="owner_name">
@@ -675,6 +695,14 @@
                 
                 <div class="violation-vehicle-info">
                     <strong>Vehicle:</strong> <span id="violationVehicleInfo"></span>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Ticket Type *</label>
+                    <select id="ticketType" name="ticketType" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #1e293b; color: #f1f5f9;">
+                        <option value="VIOLATION">Violation</option>
+                        <option value="WARNING">Warning</option>
+                    </select>
                 </div>
 
                 <div class="form-group">

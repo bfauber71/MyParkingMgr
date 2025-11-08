@@ -33,6 +33,15 @@ $db = Database::getInstance();
 try {
     $db->beginTransaction();
     
+    // Check if ticket_type column exists (for backward compatibility)
+    $hasTicketType = false;
+    try {
+        $checkStmt = $db->query("SHOW COLUMNS FROM violation_tickets LIKE 'ticket_type'");
+        $hasTicketType = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasTicketType = false;
+    }
+    
     // Fetch vehicle data including tag and plate
     $stmt = $db->prepare("
         SELECT id, property, year, color, make, model, tag_number, plate_number
@@ -104,36 +113,78 @@ try {
     $dt = new DateTime('now', new DateTimeZone($timezone));
     $issuedAt = $dt->format('Y-m-d H:i:s');
     
-    $stmt = $db->prepare("
-        INSERT INTO violation_tickets (
-            id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
-            custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
-            tag_number, plate_number,
-            property_name, property_address, property_contact_name, property_contact_phone,
-            property_contact_email
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
+    // Get ticket type from input (default to VIOLATION)
+    $ticketType = strtoupper(trim($input['ticketType'] ?? 'VIOLATION'));
+    if (!in_array($ticketType, ['VIOLATION', 'WARNING'])) {
+        $ticketType = 'VIOLATION';
+    }
     
-    $stmt->execute([
-        $ticketId,
-        $vehicleId,
-        $vehicle['property'],
-        $user['id'],
-        $user['username'],
-        $issuedAt,
-        $customNote ?: null,
-        $vehicle['year'],
-        $vehicle['color'],
-        $vehicle['make'],
-        $vehicle['model'],
-        $vehicle['tag_number'],
-        $vehicle['plate_number'],
-        $property['name'],
-        $property['address'],
-        $property['contact_name'],
-        $property['contact_phone'],
-        $property['contact_email']
-    ]);
+    if ($hasTicketType) {
+        // New schema with ticket_type field
+        $stmt = $db->prepare("
+            INSERT INTO violation_tickets (
+                id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
+                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+                tag_number, plate_number,
+                property_name, property_address, property_contact_name, property_contact_phone,
+                property_contact_email, ticket_type
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $ticketId,
+            $vehicleId,
+            $vehicle['property'],
+            $user['id'],
+            $user['username'],
+            $issuedAt,
+            $customNote ?: null,
+            $vehicle['year'],
+            $vehicle['color'],
+            $vehicle['make'],
+            $vehicle['model'],
+            $vehicle['tag_number'],
+            $vehicle['plate_number'],
+            $property['name'],
+            $property['address'],
+            $property['contact_name'],
+            $property['contact_phone'],
+            $property['contact_email'],
+            $ticketType
+        ]);
+    } else {
+        // Old schema without ticket_type field
+        $stmt = $db->prepare("
+            INSERT INTO violation_tickets (
+                id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
+                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+                tag_number, plate_number,
+                property_name, property_address, property_contact_name, property_contact_phone,
+                property_contact_email
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $ticketId,
+            $vehicleId,
+            $vehicle['property'],
+            $user['id'],
+            $user['username'],
+            $issuedAt,
+            $customNote ?: null,
+            $vehicle['year'],
+            $vehicle['color'],
+            $vehicle['make'],
+            $vehicle['model'],
+            $vehicle['tag_number'],
+            $vehicle['plate_number'],
+            $property['name'],
+            $property['address'],
+            $property['contact_name'],
+            $property['contact_phone'],
+            $property['contact_email']
+        ]);
+    }
     
     // Insert violation items
     $displayOrder = 0;

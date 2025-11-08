@@ -34,30 +34,34 @@ try {
         $columnsExist = false;
     }
     
-    // Fetch ticket data - conditionally include tag_number and plate_number
-    if ($columnsExist) {
-        $stmt = $db->prepare("
-            SELECT 
-                id, vehicle_id, property, issued_by_username, issued_at,
-                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
-                tag_number, plate_number,
-                property_name, property_address, property_contact_name, 
-                property_contact_phone, property_contact_email
-            FROM violation_tickets
-            WHERE id = ?
-        ");
-    } else {
-        // Old schema without tag_number/plate_number
-        $stmt = $db->prepare("
-            SELECT 
-                id, vehicle_id, property, issued_by_username, issued_at,
-                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
-                property_name, property_address, property_contact_name, 
-                property_contact_phone, property_contact_email
-            FROM violation_tickets
-            WHERE id = ?
-        ");
+    // Check if ticket_type column exists (for backward compatibility)
+    $hasTicketType = false;
+    try {
+        $checkStmt = $db->query("SHOW COLUMNS FROM violation_tickets LIKE 'ticket_type'");
+        $hasTicketType = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasTicketType = false;
     }
+    
+    // Build SELECT statement based on which columns exist
+    $selectFields = "id, vehicle_id, property, issued_by_username, issued_at,
+                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+                property_name, property_address, property_contact_name, 
+                property_contact_phone, property_contact_email";
+    
+    if ($columnsExist) {
+        $selectFields .= ", tag_number, plate_number";
+    }
+    
+    if ($hasTicketType) {
+        $selectFields .= ", ticket_type";
+    }
+    
+    $stmt = $db->prepare("
+        SELECT $selectFields
+        FROM violation_tickets
+        WHERE id = ?
+    ");
     
     $stmt->execute([$ticketId]);
     $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -73,6 +77,11 @@ try {
     if (!$columnsExist) {
         $ticket['tag_number'] = null;
         $ticket['plate_number'] = null;
+    }
+    
+    // Add default ticket_type if column doesn't exist
+    if (!$hasTicketType) {
+        $ticket['ticket_type'] = 'VIOLATION';
     }
     
     error_log("Ticket found, property value: " . $ticket['property']);

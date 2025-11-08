@@ -207,6 +207,15 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
     
+    // Guest checkbox handler - show/hide guest_of field
+    const guestCheckbox = document.getElementById('vehicleGuest');
+    const guestOfContainer = document.getElementById('guestOfContainer');
+    if (guestCheckbox && guestOfContainer) {
+        guestCheckbox.addEventListener('change', function() {
+            guestOfContainer.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+    
     // Set up dropdown menu handlers
     const dropdownToggle = document.getElementById('navDropdownToggle');
     const dropdownMenu = document.getElementById('navDropdownMenu');
@@ -1594,7 +1603,7 @@ function displayViolationSearchResults(violations) {
     const table = createElement('table', { className: 'data-table' });
     const thead = createElement('thead');
     const headerRow = createElement('tr');
-    ['Date', 'Vehicle', 'Violation', 'Fines', 'Property', 'Status', 'Actions'].forEach(text => {
+    ['Date', 'Vehicle', 'Ticket Type', 'Violation', 'Fines', 'Property', 'Status', 'Actions'].forEach(text => {
         const th = createElement('th', {}, text);
         headerRow.appendChild(th);
     });
@@ -1631,9 +1640,14 @@ function displayViolationSearchResults(violations) {
             ? `$${parseFloat(violation.total_fine).toFixed(2)}`
             : '-';
         
+        // Format ticket type with styling
+        const ticketType = violation.ticket_type || 'VIOLATION';
+        const ticketTypeText = ticketType === 'WARNING' ? '⚠️ WARNING' : '🚫 VIOLATION';
+        
         [
             formatDate(violation.created_at),
             vehicleDesc,
+            ticketTypeText,
             violation.violation_list || 'N/A',
             fineAmount,
             violation.property || 'N/A',
@@ -2423,10 +2437,13 @@ async function handleCreateViolation(event) {
         return;
     }
     
+    const ticketType = form.querySelector('[name="ticketType"]')?.value || 'VIOLATION';
+    
     const requestData = {
         vehicleId: vehicleId,
         violations: violationIds,
-        customNote: customNote.trim()
+        customNote: customNote.trim(),
+        ticketType: ticketType
     };
     
     try {
@@ -2704,6 +2721,21 @@ async function openVehicleModal(vehicle = null) {
                 document.getElementById('vehicleProperty').value = freshVehicle.property || '';
                 document.getElementById('vehiclePhone').value = freshVehicle.owner_phone || '';
                 document.getElementById('vehicleEmail').value = freshVehicle.owner_email || '';
+                
+                // Set resident, guest, and guestOf fields
+                const residentCheckbox = document.getElementById('vehicleResident');
+                const guestCheckbox = document.getElementById('vehicleGuest');
+                const guestOfField = document.getElementById('vehicleGuestOf');
+                const guestOfContainer = document.getElementById('guestOfContainer');
+                
+                if (residentCheckbox) residentCheckbox.checked = freshVehicle.resident !== undefined ? Boolean(freshVehicle.resident) : true;
+                if (guestCheckbox) guestCheckbox.checked = freshVehicle.guest !== undefined ? Boolean(freshVehicle.guest) : false;
+                if (guestOfField) guestOfField.value = freshVehicle.guest_of || '';
+                
+                // Show/hide guest_of field based on guest checkbox
+                if (guestOfContainer && guestCheckbox) {
+                    guestOfContainer.style.display = guestCheckbox.checked ? 'block' : 'none';
+                }
             } else {
                 showToast('Error loading vehicle data', 'error');
                 return;
@@ -2717,6 +2749,17 @@ async function openVehicleModal(vehicle = null) {
         title.textContent = 'Add Vehicle';
         form.reset();
         document.getElementById('vehicleId').value = '';
+        
+        // Reset new fields to defaults
+        const residentCheckbox = document.getElementById('vehicleResident');
+        const guestCheckbox = document.getElementById('vehicleGuest');
+        const guestOfField = document.getElementById('vehicleGuestOf');
+        const guestOfContainer = document.getElementById('guestOfContainer');
+        
+        if (residentCheckbox) residentCheckbox.checked = true;
+        if (guestCheckbox) guestCheckbox.checked = false;
+        if (guestOfField) guestOfField.value = '';
+        if (guestOfContainer) guestOfContainer.style.display = 'none';
     }
     
     modal.classList.add('show');
@@ -2895,18 +2938,21 @@ async function handleVehicleSubmit(e) {
     
     const formData = {
         property: form.querySelector('[name="property"]')?.value || '',
-        tag_number: form.querySelector('[name="tag_number"]')?.value || '',
-        plate_number: form.querySelector('[name="plate_number"]')?.value || '',
+        tagNumber: form.querySelector('[name="tag_number"]')?.value || '',
+        plateNumber: form.querySelector('[name="plate_number"]')?.value || '',
         state: form.querySelector('[name="state"]')?.value || '',
         make: form.querySelector('[name="make"]')?.value || '',
         model: form.querySelector('[name="model"]')?.value || '',
         color: form.querySelector('[name="color"]')?.value || '',
         year: form.querySelector('[name="year"]')?.value || '',
-        apt_number: form.querySelector('[name="apt_number"]')?.value || '',
-        owner_name: form.querySelector('[name="owner_name"]')?.value || '',
-        owner_phone: form.querySelector('[name="owner_phone"]')?.value || '',
-        owner_email: form.querySelector('[name="owner_email"]')?.value || '',
-        reserved_space: form.querySelector('[name="reserved_space"]')?.value || ''
+        aptNumber: form.querySelector('[name="apt_number"]')?.value || '',
+        ownerName: form.querySelector('[name="owner_name"]')?.value || '',
+        ownerPhone: form.querySelector('[name="owner_phone"]')?.value || '',
+        ownerEmail: form.querySelector('[name="owner_email"]')?.value || '',
+        reservedSpace: form.querySelector('[name="reserved_space"]')?.value || '',
+        resident: form.querySelector('[name="resident"]')?.checked || false,
+        guest: form.querySelector('[name="guest"]')?.checked || false,
+        guestOf: form.querySelector('[name="guest_of"]')?.value || ''
     };
     
     if (isUpdate) {
