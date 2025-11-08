@@ -1,5 +1,36 @@
 # MyParkingManager Changelog
 
+## Version 2.3.8 (2025-11-08)
+### New Features
+- **Guest Pass Generation System**: Create guest vehicle records with automatic 7-day expiration tracking
+- **Guest Pass Printing**: Professional letter-size guest pass printing with property logo and vehicle information
+- **Ticket Status Management**: Close tickets by marking fines as "collected" or "dismissed"
+- **Expired Guest Pass Display**: Automatic "EXPIRED" status shown in vehicle search for expired guest passes
+- **Streamlined Unknown Plate Workflow**: "Create Ticket for [PLATE]" button when searching unknown vehicles
+
+### Database Changes
+- Added `expiration_date` field to vehicles table for guest pass tracking
+- Added `status`, `fine_disposition`, `closed_at`, `closed_by_user_id` fields to violation_tickets table
+- Added indexes for improved performance on expiration and status queries
+
+### API Endpoints
+- `/api/guest-pass-create` - Create guest vehicle with expiration date
+- `/api/tickets-list` - List tickets with status and property filtering
+- `/api/ticket-close` - Close tickets with audit logging
+
+### UI Enhancements
+- New "Guest Pass" menu item in main navigation
+- New "Ticket Status" menu item for ticket management
+- Guest pass form with property selection and vehicle details
+- Ticket status filter (Active/Closed) with bulk operations
+- EXPIRED status shown in red for expired guest passes
+
+## Version 2.3.7 (2024-10-28)
+### Features
+- ZPL Logo Integration for thermal printers
+- Streamlined Unknown Plate Workflow
+- Automatic transparency handling for thermal printing
+
 ## Version 2.3.0 (2024-10-27)
 ### Major Features
 - **Flexible Installation Path System**: Removed all hardcoded path references, application can now be installed in any directory
