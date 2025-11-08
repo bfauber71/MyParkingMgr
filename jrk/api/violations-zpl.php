@@ -169,12 +169,15 @@ try {
 }
 
 function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
-    // Start ZPL
+    // ZQ510 is 3" width = 576 dots at 203 dpi
     $zpl = "^XA\n";
     
-    // Set label width (576 dots = 3 inches at 203 DPI)
-    // Zebra ZQ510 is 3" wide, 203 DPI
-    $zpl .= "^PW576\n";
+    // Set printer to ZPL mode (important for ZQ510)
+    $zpl .= "! U1 setvar \"device.languages\" \"zpl\"\n";
+    
+    // Calibrate media
+    $zpl .= "~jc^xa^jus^xz\n";
+    $zpl .= "^XA\n";
     
     // Add 1/2" paper advance at the beginning (since printer prints inverted)
     // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
