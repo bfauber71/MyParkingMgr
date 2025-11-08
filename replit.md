@@ -50,6 +50,7 @@ The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture
 -   **Ticket Type System:** Differentiation between 'WARNING' and 'VIOLATION' ticket types, selectable during creation and displayed on tickets.
 -   **Zebra ZQ510 Mobile Printer Integration:** Generation of ZPL (Zebra Programming Language) code for thermal tickets, with options to download ZPL files or view code, optimized for the Zebra ZQ510.
 -   **Timezone Configuration:** Configurable timezone setting for the system, affecting the real-time clock display and violation ticket timestamps.
+-   **Streamlined Unknown Plate Workflow:** When searching for a vehicle that doesn't exist, displays a "Create Ticket for [PLATE]" button that pre-fills the Add Vehicle form with the searched plate number. After creating the vehicle, automatically opens the Create Ticket modal with the newly added vehicle selected, streamlining the ticket creation process for unknown plates.
 
 ### System Design Choices
 
