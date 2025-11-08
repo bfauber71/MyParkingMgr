@@ -124,9 +124,9 @@ try {
     // Generate ZPL code
     $zpl = generateZPL($ticket, $violations, $totalFine, $minTowDeadline);
     
-    // Return as plain text for download
+    // Return as plain text (let JavaScript handle download)
     header('Content-Type: text/plain; charset=utf-8');
-    header('Content-Disposition: attachment; filename="violation-ticket-' . $ticketId . '.zpl"');
+    header('Cache-Control: no-cache, no-store, must-revalidate');
     echo $zpl;
     
 } catch (Exception $e) {

@@ -475,16 +475,21 @@
                 
                 const zplContent = await response.text();
                 
-                // Create download link
-                const blob = new Blob([zplContent], { type: 'text/plain' });
+                // Create download link with better MIME type
+                const blob = new Blob([zplContent], { type: 'application/octet-stream' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
+                a.style.display = 'none';
                 a.href = url;
                 a.download = `violation-ticket-${ticketId}.zpl`;
                 document.body.appendChild(a);
                 a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                
+                // Cleanup after a delay to ensure download starts
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
                 
                 alert('ZPL file downloaded! Open this file with the Zebra Utilities app on your iOS/Android device to print to your Zebra ZQ510 printer.');
             } catch (error) {
