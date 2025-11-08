@@ -69,8 +69,10 @@ FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
-WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
+WHERE (
+    (v.id IS NOT NULL AND v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
+    OR (v.id IS NULL AND vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
+)";
 
 $params = array_merge($propertyNames, $propertyNames);
 
