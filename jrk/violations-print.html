@@ -218,10 +218,14 @@
     </style>
 </head>
 <body>
-    <div class="no-print">
-        <button onclick="window.print()">Print Ticket (Paper)</button>
-        <button onclick="downloadZPLForMobile()" id="downloadZPLBtn" style="background: #000; color: white; border: 2px solid #000; padding: 12px 30px; font-size: 16px; font-weight: 900; border-radius: 4px; cursor: pointer; margin: 0 5px;">Download ZPL for Zebra Printer</button>
-        <button onclick="showZPLCode()">View ZPL Code</button>
+    <div class="no-print" style="text-align: center; margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+        <button onclick="window.print()" style="background: #007bff; color: white; border: 3px solid #007bff; padding: 16px 40px; font-size: 18px; font-weight: 900; border-radius: 6px; cursor: pointer; margin: 0 5px; box-shadow: 0 4px 6px rgba(0,123,255,0.3);">🖨️ PRINT TICKET (Paper Printer)</button>
+        <button onclick="downloadZPLForMobile()" id="downloadZPLBtn" style="background: #000; color: white; border: 2px solid #000; padding: 12px 30px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; margin: 0 5px;">Download ZPL (Zebra Mobile)</button>
+        <button onclick="showZPLCode()" style="background: #6c757d; color: white; border: 2px solid #6c757d; padding: 12px 30px; font-size: 14px; font-weight: 700; border-radius: 4px; cursor: pointer; margin: 0 5px;">View ZPL Code</button>
+        <p style="margin-top: 15px; font-size: 14px; color: #666;">
+            <strong>Click "PRINT TICKET" above for regular paper printing.</strong><br>
+            Use ZPL options only if you have a Zebra thermal printer.
+        </p>
     </div>
 
     <div id="zplModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7);">

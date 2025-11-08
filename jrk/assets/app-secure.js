@@ -3379,6 +3379,14 @@ function displayTicketStatus(tickets) {
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
         
+        // Add reprint button for all tickets
+        const reprintBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Reprint');
+        safeAddEventListener(reprintBtn, 'click', () => {
+            window.open(`violations-print.html?id=${ticket.id}`, '_blank');
+            showToast('Opening ticket for printing', 'info');
+        });
+        actionsDiv.appendChild(reprintBtn);
+        
         if (ticket.status === 'active') {
             const collectedBtn = createElement('button', { className: 'btn btn-sm btn-success' }, 'Collected');
             const dismissedBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, 'Dismissed');
@@ -3393,8 +3401,6 @@ function displayTicketStatus(tickets) {
             
             actionsDiv.appendChild(collectedBtn);
             actionsDiv.appendChild(dismissedBtn);
-        } else {
-            actionsDiv.textContent = 'Closed';
         }
         
         actionsTd.appendChild(actionsDiv);

@@ -47,6 +47,12 @@ BUG FIXES
    - Only one single space after the last violation
    - Cleaner, more compact ticket layout
 
+5. TICKET REPRINT: UI Improvements
+   - Added "Reprint" button to Ticket Status screen for easy reprinting
+   - Made print button more prominent on ticket print page
+   - Added clear instructions to prevent accidental ZPL downloads
+   - Print button now larger, blue, and clearly labeled for paper printers
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================
@@ -75,10 +81,10 @@ Two packages available:
    - All application files included
    - For new installations or complete replacements
 
-2. MyParkingManager-v2.3.8-Update.zip (~42 KB)
+2. MyParkingManager-v2.3.8-Update.zip (~48 KB)
    - Update package with only changed files
    - Includes: .htaccess, index.html, guest-pass-print.html,
-     app-secure.js, styles.css, 3 API files, 2 SQL migrations
+     violations-print.html, app-secure.js, 4 API files, 2 SQL migrations
    - For upgrading from v2.3.7
 
 ====================================================================
