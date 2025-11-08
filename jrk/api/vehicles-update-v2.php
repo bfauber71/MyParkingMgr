@@ -43,8 +43,8 @@ try {
     $reserved_space = isset($input['reserved_space']) ? sanitizeInput($input['reserved_space']) : '';
     $plate_number = isset($input['plate_number']) ? sanitizeInput($input['plate_number']) : '';
     
-    // Validate tag number format
-    if (!preg_match('/^[A-Z0-9\-]+$/i', $tag_number)) {
+    // Validate tag number format (allow letters, numbers, hyphens, and spaces)
+    if (!preg_match('/^[A-Z0-9\-\s]+$/i', $tag_number)) {
         throw new Exception('Invalid tag number format');
     }
     

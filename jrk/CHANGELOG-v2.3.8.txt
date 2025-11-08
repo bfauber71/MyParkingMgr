@@ -69,6 +69,12 @@ BUG FIXES
    - No need to manually enter tag number for guest vehicles
    - Consistent identification of all guest vehicles
 
+9. VEHICLE EDIT: Fixed Tag Number Validation Error
+   - Fixed "tag_number is required" error when editing vehicles
+   - Corrected field name mismatch between frontend and backend
+   - Changed JavaScript field names from camelCase to snake_case
+   - Tag number field now properly populated and validated
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================
@@ -97,10 +103,10 @@ Two packages available:
    - All application files included
    - For new installations or complete replacements
 
-2. MyParkingManager-v2.3.8-Update.zip (~48 KB)
+2. MyParkingManager-v2.3.8-Update.zip (~49 KB)
    - Update package with only changed files
    - Includes: .htaccess, index.html, guest-pass-print.html,
-     violations-print.html, app-secure.js, 4 API files, 2 SQL migrations
+     violations-print.html, app-secure.js, 5 API files, 2 SQL migrations
    - For upgrading from v2.3.7
 
 ====================================================================
