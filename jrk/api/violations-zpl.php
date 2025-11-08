@@ -179,7 +179,10 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     $zpl .= "~jc^xa^jus^xz\n";
     $zpl .= "^XA\n";
     
-    $yPos = 20;
+    // Add 1/2" paper advance at the beginning (since printer prints inverted)
+    // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
+    // This blank space at the start of ZPL will print at the END of the physical ticket
+    $yPos = 120;
     
     // Include header logo if enabled and ZPL version exists
     try {
@@ -341,11 +344,6 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     // QR code with ticket ID (optional - for tracking)
     $yPos += 10;
     $zpl .= "^FO200," . $yPos . "^BQN,2,4^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
-    
-    // Add 1/2" paper advance (feed) after ticket
-    // At 203 DPI: 0.5 inches = 101.5 dots ≈ 100 dots
-    $yPos += 100;
-    $zpl .= "^FO0," . $yPos . "^FS\n";
     
     // End ZPL
     $zpl .= "^XZ\n";
