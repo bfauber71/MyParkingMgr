@@ -1,158 +1,8 @@
-# ManageMyParking (MyParkingManager)
+# ManageMyParking
 
 ## Overview
 
-ManageMyParking is a PHP-based vehicle and property management system designed for shared hosting environments. Its primary purpose is to provide comprehensive parking violation tracking, vehicle management, and property administration with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, and detailed audit logging. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations.
-
-## Recent Changes
-
-### November 08, 2025 - Non-Resident/Guest Tracking, Ticket Type System, and Zebra Printer Integration
-
-- **Non-Resident and Guest Vehicle Tracking:**
-  - Added `resident` (BOOLEAN/TINYINT) field to vehicles table - defaults to TRUE for residents
-  - Added `guest` (BOOLEAN/TINYINT) field to vehicles table - defaults to FALSE
-  - Added `guest_of` (VARCHAR 50) field to vehicles table - stores apartment/unit number for guests
-  - Migration file: `jrk/sql/add-resident-guest-fields.sql`
-  - Vehicle create/edit forms now include checkboxes for Resident and Guest status
-  - Guest checkbox toggles visibility of "Guest Of" input field for apartment number
-  - All API endpoints handle new fields with backward compatibility
-  - Column existence checks ensure compatibility with databases at different migration states
-
-- **WARNING vs VIOLATION Ticket Types:**
-  - Added `ticket_type` (VARCHAR 20) field to violation_tickets table - defaults to 'VIOLATION'
-  - Migration file: `jrk/sql/add-ticket-type-field.sql`
-  - Violation creation form includes dropdown selector for WARNING or VIOLATION
-  - Ticket type displayed in violation search results with visual indicators (⚠️ WARNING, 🚫 VIOLATION)
-  - Printed tickets dynamically show "WARNING" or "VIOLATION" header based on ticket_type
-  - Export CSV includes ticket_type column
-  - All API endpoints (create, search, export, ticket) handle ticket_type with fallback to 'VIOLATION'
-  - Backward compatible with existing tickets and databases without migration applied
-
-- **Zebra ZQ510 Mobile Printer Integration:**
-  - New API endpoint: `violations-zpl.php` generates ZPL (Zebra Programming Language) code
-  - Optimized for Zebra ZQ510 printer (3" / 2.75" width thermal printer)
-  - Print page now offers three options:
-    1. Traditional paper printing (existing functionality)
-    2. Download ZPL file for Zebra Utilities app (iOS/Android)
-    3. View/copy ZPL code to clipboard
-  - ZPL format includes ticket type header, vehicle info, violations, QR code for tracking
-  - Users can download .zpl file and open with Zebra Utilities app on mobile device
-  - Bluetooth printing to ZQ510 via Zebra app on iOS/Android devices
-  - ZPL code automatically sets printer to ZPL mode and calibrates media
-  - All ticket data (WARNING/VIOLATION, vehicle info, violations, fines) included in ZPL output
-
-- **Naming Convention Consistency:**
-  - Database fields use snake_case: `resident`, `guest`, `guest_of`, `ticket_type`
-  - API payloads and JavaScript use camelCase: `resident`, `guest`, `guestOf`, `ticketType`
-  - All spelling and capitalization verified across database, API, JavaScript, and HTML layers
-
-### October 31, 2025 - Fixed Import Vehicles CSRF Token and Export Tickets
-
-- **Import Vehicles CSRF Token Fix:**
-  - Added CSRF token to file upload request in `handleImportFile()`
-  - Function now calls `getCsrfToken()` before uploading
-  - CSRF token sent in `X-CSRF-Token` header with FormData
-  - Added `validateCsrfToken()` call in `vehicles-import.php` API endpoint
-  - Import now works correctly without "invalid CSRF token" error
-
-- **Export Tickets (Violations) Fix:**
-  - Added missing required includes to `violations-export.php`:
-    - `database.php`, `session.php`, `helpers.php`
-  - Added cache-control headers for consistency
-  - Added `Session::start()` before permission check
-  - Export tickets now works correctly (previously failed due to missing includes)
-
-### October 30, 2025 - Fixed Navigation Dropdown Visibility and Navbar Sticky Positioning
-- **Navigation Dropdown Architecture Fix:**
-  - **CRITICAL FIX:** Moved navbar OUTSIDE of `#dashboardPage` container
-  - Navbar is now sibling of dashboardPage, not child
-  - This allows `position: fixed` to work correctly (flex container was preventing it)
-  - **INTEGRATED DROPDOWN:** Dropdown menu now integrated INTO navbar structure
-  - Dropdown is part of navbar, not separate element below it
-  - Navbar uses `position: fixed` with `top: 0`, `left: 0`, `right: 0`, `z-index: 1000`
-  - Navbar contains: brand/logo/version, clock, and dropdown toggle/menu
-  - Dropdown menu appears below navbar with `position: absolute`
-  - Dropdown uses `z-index: 1001` and appears in correct stacking order
-  - Dropdown fully visible when opened
-  - Navbar stays at top of screen on scroll (fixed positioning)
-  - Container has `margin-top: 140px` to prevent content from hiding under navbar
-  - JavaScript updated to show/hide navbar on login/logout
-- **Timezone Persistence After Logout:**
-  - Clock initialization deferred until timezone loads from database on login
-  - Created `loadPrinterSettingsForClock()` function called in `showDashboard()`
-  - Clock always starts (with default or saved timezone) even if API fails
-  - Clock stops on logout to prevent showing incorrect time
-  - Timezone persists across logout/login cycles
-  - Enhanced console logging for debugging timezone load
-- **Clock Behavior:**
-  - Clock does not start until user logs in
-  - On login, timezone loaded from database immediately
-  - Clock displays correct saved timezone from first render
-  - No more reverting to default timezone on page reload
-- **Cache-Busting for CSS:**
-  - Updated version query string to CSS reference: `assets/style.css?v=241`
-  - Forces browsers to fetch updated CSS and HTML after deployment
-  - Critical for ensuring users see latest styling changes
-- **Production Deployment Instructions:**
-  - Upload new deployment package to production (2clv.com)
-  - Clear browser cache or hard-refresh (Ctrl+Shift+R / Cmd+Shift+R) to see changes
-  - CDN/server cache may need clearing for immediate visibility
-
-### October 30, 2025 - Violation Ticket Maximum Bold and Black
-- **Ticket Styling for Thermal Printers:**
-  - All text now uses `font-weight: 900` (maximum bold)
-  - All colors changed to solid black `#000` only (no grey or colors)
-  - Border box around ticket removed
-  - Header border increased to `3px solid #000`
-  - Property info border changed from `1px solid #ccc` to `2px solid #000`
-  - Print mode forces exact color printing with `print-color-adjust: exact`
-  - Optimized for maximum darkness and legibility on thermal printers
-
-### October 30, 2025 - Timezone Setting and Real-Time Clock Added
-- **Timezone Configuration:**
-  - Added timezone setting to Printer Settings tab with dropdown selector
-  - Supports 8 US timezones: Eastern, Central, Mountain, Mountain-Arizona, Pacific, Alaska, Hawaii, and UTC
-  - Stored in printer_settings table with key 'timezone'
-  - Defaults to America/New_York (Eastern Time)
-  - Migration file: jrk/sql/add-timezone-setting.sql
-  - All authenticated users can VIEW timezone setting
-  - Only administrators can MODIFY timezone setting (read-only for non-admins)
-- **Real-Time Clock Display:**
-  - Added live clock to navbar showing current date and time
-  - Updates every second using JavaScript setInterval
-  - Displays date in "Day, Mon DD, YYYY" format
-  - Displays time in 12-hour format with AM/PM
-  - Respects selected timezone for all date/time displays
-  - Clock automatically updates when timezone setting changes
-  - Navbar is now sticky/fixed at top of page on all devices
-- **Violation Ticket Timestamp:**
-  - Violation tickets now use configured timezone at point of creation
-  - issued_at timestamp on tickets reflects the selected timezone
-  - Timestamps are stored correctly based on user's timezone preference
-  - No timezone display on printed tickets (corrected at creation time)
-
-### October 30, 2025 - Reprint Ticket Error Fixed
-- **Reprint Ticket Bug Fixed:**
-  - Fixed critical bug in violations-ticket.php API endpoint causing "error loading ticket"
-  - Issue: Old tickets stored property name, new tickets store property ID
-  - Added backward compatibility: query checks both ID and name (WHERE id = ? OR name = ?)
-  - Reprint ticket now works for both old and new tickets
-  - Correctly loads property data and custom ticket text for all tickets
-- **Database Migration Compatibility:**
-  - Code now checks if tag_number/plate_number columns exist before querying
-  - Works on databases with or without the migration applied
-  - Old tickets (without tag/plate snapshot) show ticket without tag/plate info
-  - New tickets (after migration) show tag/plate info on reprint
-  - **To enable tag/plate on tickets:** Run `jrk/sql/add-tag-plate-to-tickets.sql` on production database
-
-### October 30, 2025 - Find Duplicates Auto-Refresh Fixed
-- **Duplicates Auto-Refresh After Edit/Delete:**
-  - Added isViewingDuplicates flag to track when user is viewing duplicates
-  - After editing a vehicle from duplicates list, automatically refreshes duplicates search
-  - After deleting a vehicle from duplicates list, automatically refreshes duplicates search
-  - Ensures duplicate list always shows current data (no stale results)
-  - Works correctly for both plate and tag duplicate searches
-  - Fixes issue where edited/deleted duplicates still appeared until manual refresh
+ManageMyParking is a PHP-based vehicle and property management system designed for shared hosting environments. It provides comprehensive parking violation tracking, vehicle management, and property administration with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, and detailed audit logging. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations. The system also integrates Zebra ZPL for thermal printing of violation tickets, including automatic logo conversion and dynamic layout adjustments.
 
 ## User Preferences
 
@@ -167,7 +17,7 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions
 
-The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis.
+The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis, and dynamic logo integration via ZPL. The navbar is fixed at the top of the screen and includes a real-time clock respecting the configured timezone.
 
 ### Technical Implementations
 
@@ -181,6 +31,7 @@ The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture
 -   **License System:** HMAC-SHA256 cryptographic signing, 30-day trial, and installation-specific/universal license keys.
 -   **API Structure:** RESTful endpoints under `/api` using JSON, with CSRF token validation and credential-based session management.
 -   **Security:** Password hashing (bcrypt/Argon2), session token validation, global security headers (HSTS, CSP), input validation (HTML escaping, prepared statements), and CSRF protection.
+-   **ZPL Image Conversion:** `ZPLImageConverter` class handles automatic conversion of various image formats (PNG, JPG, GIF, WEBP) to ZPL ^GF format for thermal printer logos, including transparency handling and resizing.
 
 ### Feature Specifications
 
@@ -195,6 +46,10 @@ The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture
 -   **Black & White Ticket Design:** Optimized ticket designs for thermal printers by converting colors to black and white with enhanced borders and text.
 -   **Accessibility:** Improved contrast on text and elements for better readability.
 -   **Duplicate Vehicle Detection:** Functionality to find and display duplicate vehicles based on tag/plate number, with options to edit or delete duplicates.
+-   **Non-Resident/Guest Vehicle Tracking:** Support for marking vehicles as resident or guest, including tracking the "guest of" apartment number.
+-   **Ticket Type System:** Differentiation between 'WARNING' and 'VIOLATION' ticket types, selectable during creation and displayed on tickets.
+-   **Zebra ZQ510 Mobile Printer Integration:** Generation of ZPL (Zebra Programming Language) code for thermal tickets, with options to download ZPL files or view code, optimized for the Zebra ZQ510.
+-   **Timezone Configuration:** Configurable timezone setting for the system, affecting the real-time clock display and violation ticket timestamps.
 
 ### System Design Choices
 
@@ -208,6 +63,7 @@ The system uses **MySQL 5.7+ / MariaDB 10.2+** as its database. Core tables incl
 -   `json`
 -   `session`
 -   `mbstring`
+-   `gd` (for ZPL Image Conversion)
 
 ### Database
 -   **MySQL**: 5.7+

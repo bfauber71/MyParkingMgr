@@ -35,9 +35,11 @@ The system now converts uploaded logos to ZPL ^GF (Graphics Field) format during
 
 ### Database Schema
 
-New fields added to `printer_settings` table:
-- `logo_top_zpl` (MEDIUMTEXT) - ZPL format top logo
-- `logo_bottom_zpl` (MEDIUMTEXT) - ZPL format bottom logo
+The `printer_settings` table uses a key-value structure. New ZPL data is stored as:
+- Key: `logo_top_zpl` → Value: ZPL format graphic data (MEDIUMTEXT)
+- Key: `logo_top_zpl_height` → Value: Logo height in dots (INT)
+- Key: `logo_bottom_zpl` → Value: ZPL format graphic data (MEDIUMTEXT) 
+- Key: `logo_bottom_zpl_height` → Value: Logo height in dots (INT)
 
 ### Logo Specifications
 
@@ -55,27 +57,21 @@ New fields added to `printer_settings` table:
 
 ## Installation / Upgrade
 
-### 1. Run SQL Migration
+### 1. No SQL Migration Required! ✅
 
-```bash
-# In phpMyAdmin or MySQL command line
-mysql -u username -p database_name < sql/add-zpl-logo-fields.sql
-```
+**Good news:** The existing `printer_settings` table already supports this feature!
 
-Or manually run:
-```sql
-ALTER TABLE printer_settings 
-ADD COLUMN logo_top_zpl MEDIUMTEXT NULL 
-COMMENT 'ZPL ^GF format graphic for top logo' 
-AFTER logo_top;
+The table uses a key-value structure:
+- `setting_key` (VARCHAR)
+- `setting_value` (MEDIUMTEXT)
 
-ALTER TABLE printer_settings 
-ADD COLUMN logo_bottom_zpl MEDIUMTEXT NULL 
-COMMENT 'ZPL ^GF format graphic for bottom logo' 
-AFTER logo_bottom;
-```
+ZPL logo data is automatically stored as key-value pairs:
+- `logo_top_zpl` → ZPL graphic data
+- `logo_top_zpl_height` → Logo height in dots
 
-### 2. Replace/Upload Files
+**No database changes needed!** Just upload the new files and re-upload your logo.
+
+### 2. Upload Files
 
 **New Files:**
 - `includes/zpl-image-converter.php` (New ZPL converter class)
@@ -85,7 +81,7 @@ AFTER logo_bottom;
 - `api/printer-settings.php` (Logo conversion on upload)
 - `api/violations-zpl.php` (Logo rendering in tickets)
 
-### 3. Re-upload Existing Logos
+### 3. Re-upload Your Logo
 
 **Important:** After upgrading, you must re-upload existing logos to generate ZPL versions:
 
