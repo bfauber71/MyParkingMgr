@@ -51,10 +51,16 @@ The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture
 -   **Zebra ZQ510 Mobile Printer Integration:** Generation of ZPL (Zebra Programming Language) code for thermal tickets, with options to download ZPL files or view code, optimized for the Zebra ZQ510.
 -   **Timezone Configuration:** Configurable timezone setting for the system, affecting the real-time clock display and violation ticket timestamps.
 -   **Streamlined Unknown Plate Workflow:** When searching for a vehicle that doesn't exist, displays a "Create Ticket for [PLATE]" button that pre-fills the Add Vehicle form with the searched plate number. After creating the vehicle, automatically opens the Create Ticket modal with the newly added vehicle selected, streamlining the ticket creation process for unknown plates.
+-   **Guest Pass Generation System (v2.3.8):** Create temporary guest vehicle records with automatic 7-day expiration tracking. Includes professional letter-size guest pass printing with property logo, vehicle details, and expiration date. EXPIRED status displayed in red in vehicle search for expired guest passes.
+-   **Ticket Status Management (v2.3.8):** Close parking tickets by marking fines as "collected" or "dismissed". Includes dedicated Ticket Status screen with status filters (Active/Closed), property filtering, and comprehensive audit logging. Database tracks status, fine_disposition, closed_at, and closed_by_user_id for full accountability.
 
 ### System Design Choices
 
-The system uses **MySQL 5.7+ / MariaDB 10.2+** as its database. Core tables include `users`, `properties`, `vehicles`, `property_contacts`, `user_assigned_properties`, `audit_logs`, and `sessions`. The schema is relational with foreign key constraints, supports multi-property deployments, and includes an audit trail. HTTPS is mandatory for production.
+The system uses **MySQL 5.7+ / MariaDB 10.2+** as its database. Core tables include `users`, `properties`, `vehicles`, `property_contacts`, `user_assigned_properties`, `audit_logs`, `sessions`, and `violation_tickets`. The schema is relational with foreign key constraints, supports multi-property deployments, and includes an audit trail. HTTPS is mandatory for production.
+
+**Database Schema Extensions (v2.3.8):**
+-   **vehicles table:** Added `expiration_date` DATE field for guest pass tracking with index
+-   **violation_tickets table:** Added `status` ENUM('active','closed'), `fine_disposition` ENUM('collected','dismissed'), `closed_at` DATETIME, `closed_by_user_id` INT with foreign key to users table
 
 ## External Dependencies
 
