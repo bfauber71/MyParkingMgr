@@ -341,9 +341,12 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
         $yPos += 35;
     }
     
-    // QR code with ticket ID (optional - for tracking)
+    // QR code with ticket ID (centered and sized appropriately)
+    // Model 2, Magnification 2 (smaller), Error correction H (high)
+    // Centered horizontally: (576 - ~150) / 2 = ~213
     $yPos += 10;
-    $zpl .= "^FO200," . $yPos . "^BQN,2,4^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
+    $zpl .= "^FO213," . $yPos . "^BQN,2,3^FDQA,TICKET-" . $ticket['id'] . "^FS\n";
+    $yPos += 160;
     
     // End ZPL
     $zpl .= "^XZ\n";
