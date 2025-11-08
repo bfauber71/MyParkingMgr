@@ -41,6 +41,12 @@ BUG FIXES
    - Now only asks once for "Visiting Apt/Unit" (where guest is visiting)
    - Cleaner, less confusing user interface
 
+4. TICKET PRINTING: Violation Spacing
+   - Removed excessive spacing between violations on printed tickets
+   - Violations now print tightly together with minimal gaps
+   - Only one single space after the last violation
+   - Cleaner, more compact ticket layout
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

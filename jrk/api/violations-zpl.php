@@ -274,11 +274,12 @@ function generateZPL($ticket, $violations, $totalFine, $minTowDeadline) {
     foreach ($violations as $index => $violation) {
         $violationText = ($index + 1) . ". " . $violation['description'];
         $zpl .= "^FO30," . $yPos . "^FB506,5,0,L,0^A0N,32,32^FD" . escapeZPL($violationText) . "^FS\n";
-        // Assume up to 5 lines per violation (increased spacing for larger font)
-        $yPos += 168;
+        // Minimal spacing between violations (just one line height)
+        $yPos += 40;
     }
     
-    $yPos += 5;
+    // Single space after the last violation
+    $yPos += 15;
     
     // Date and time on ONE LINE
     // Font size increased 75%: 18 -> 32 (31.5 rounded up)
