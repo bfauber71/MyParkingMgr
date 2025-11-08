@@ -1,0 +1,60 @@
+SCRAMBLED IMAGE FIX - Quick Update
+===================================
+
+WHAT THIS FIXES:
+- Scrambled/skewed logos on Zebra printer
+- Image appearing distorted or corrupted
+- Logo not printing correctly
+
+FILE TO UPLOAD:
+✓ zpl-image-converter.php
+
+WHERE TO PUT IT:
+Upload to: includes/zpl-image-converter.php
+
+(Replace the existing file on your server)
+
+INSTALLATION STEPS:
+===================
+
+1. UPLOAD FILE:
+   - On your server (2clv.com via FTP/cPanel):
+   - Navigate to: includes/ folder
+   - Upload: zpl-image-converter.php
+   - Overwrite the existing file
+
+2. RE-UPLOAD YOUR LOGO:
+   - Login to your app as admin
+   - Go to: Settings → Printer Settings
+   - Click "Upload Logo"
+   - Select your logo file (PNG/JPG)
+   - Check "Enable Top Logo"
+   - Click "Save Settings"
+
+3. TEST:
+   - Print any violation ticket
+   - Click "Download ZPL for Zebra Printer"
+   - Print on Zebra ZQ510
+   - Logo should now print CLEARLY (not scrambled!)
+
+WHAT WAS FIXED:
+===============
+- Disabled ZPL compression (was causing scrambling)
+- Now uses uncompressed hex format (100% reliable)
+- Image data is larger but prints perfectly
+- No more distorted/skewed logos!
+
+TECH DETAILS:
+- Old: Used run-length encoding compression
+- New: Uses uncompressed hex (more stable)
+- File size: ~50-100KB per logo (still small)
+
+TROUBLESHOOTING:
+================
+If logo still scrambled:
+1. Make sure you re-uploaded logo AFTER updating file
+2. Clear your browser cache
+3. Try a simpler logo (high contrast, bold design)
+4. Check PHP has GD extension: php -m | grep gd
+
+That's it! Just 1 file to upload, then re-upload your logo.
