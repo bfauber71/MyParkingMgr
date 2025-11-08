@@ -2706,7 +2706,10 @@ async function deleteUser(id, username) {
     }
 }
 
-async function openVehicleModal(vehicle = null) {
+// Global variable to store callback after vehicle creation
+let vehicleCreationCallback = null;
+
+async function openVehicleModal(vehicle = null, prefill = {}) {
     const modal = document.getElementById('vehicleModal');
     const title = document.getElementById('vehicleModalTitle');
     const form = modal.querySelector('form');
@@ -2777,9 +2780,39 @@ async function openVehicleModal(vehicle = null) {
         if (guestCheckbox) guestCheckbox.checked = false;
         if (guestOfField) guestOfField.value = '';
         if (guestOfContainer) guestOfContainer.style.display = 'none';
+        
+        // Apply prefill data if provided
+        if (prefill.plate) {
+            document.getElementById('vehiclePlate').value = prefill.plate;
+            document.getElementById('vehicleTag').value = prefill.plate; // Also set tag to same value
+        }
+        if (prefill.tag) {
+            document.getElementById('vehicleTag').value = prefill.tag;
+        }
     }
     
     modal.classList.add('show');
+}
+
+// Function to create a ticket for an unknown plate
+function createTicketForUnknownPlate(plateNumber) {
+    // Set callback to open create ticket modal after vehicle is created
+    vehicleCreationCallback = async (newVehicle) => {
+        // Close the vehicle modal first
+        closeModalByName('vehicle');
+        
+        // Wait a moment for modal to close
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Open create ticket modal with the new vehicle
+        openCreateTicketModal(newVehicle);
+        
+        // Clear the callback
+        vehicleCreationCallback = null;
+    };
+    
+    // Open vehicle modal with plate pre-filled
+    openVehicleModal(null, { plate: plateNumber });
 }
 
 async function deleteVehicle(id, tag) {
@@ -2994,14 +3027,22 @@ async function handleVehicleSubmit(e) {
         
         if (response.ok && data.success) {
             showToast(isUpdate ? 'Vehicle updated successfully' : 'Vehicle created successfully', 'success');
-            closeModalByName('vehicle');
-            form.reset();
             
-            // Refresh appropriate list based on current view
-            if (isViewingDuplicates) {
-                handleFindDuplicates();
+            // If this was a create operation and there's a callback, execute it
+            if (!isUpdate && vehicleCreationCallback && data.vehicle) {
+                // Call the callback with the newly created vehicle
+                vehicleCreationCallback(data.vehicle);
             } else {
-                searchVehicles('', '');
+                // Normal flow: close modal and refresh
+                closeModalByName('vehicle');
+                form.reset();
+                
+                // Refresh appropriate list based on current view
+                if (isViewingDuplicates) {
+                    handleFindDuplicates();
+                } else {
+                    searchVehicles('', '');
+                }
             }
         } else {
             showToast(data.error || 'Failed to save vehicle', 'error');
