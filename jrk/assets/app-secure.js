@@ -851,7 +851,7 @@ async function setupDatabaseOpsHandlers() {
     }
     
     if (importFileInput) {
-        importFileInput.onchange = handleImportFile;
+        importFileInput.onchange = showImportOptionsModal;
     }
     
     if (exportBtn) {
@@ -1411,7 +1411,10 @@ async function populateDatabaseDropdowns() {
     }
 }
 
-async function handleImportFile(e) {
+// Global variable to store selected import file
+let selectedImportFile = null;
+
+async function showImportOptionsModal(e) {
     const file = e.target.files[0];
     if (!file) return;
     
@@ -1421,15 +1424,129 @@ async function handleImportFile(e) {
         return;
     }
     
+    // Store the file for later use
+    selectedImportFile = file;
+    
+    // Populate property dropdown
+    try {
+        const response = await secureApiCall(`${API_BASE}/properties-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const properties = data.properties || [];
+            
+            const dropdown = document.getElementById('importPropertyDropdown');
+            if (dropdown) {
+                dropdown.innerHTML = '<option value="">Select Property</option>';
+                properties.forEach(property => {
+                    const option = document.createElement('option');
+                    option.value = property.name;
+                    option.textContent = property.name;
+                    dropdown.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading properties for import:', error);
+    }
+    
+    // Set up radio button listeners
+    const csvOption = document.getElementById('importOptionCsv');
+    const specificOption = document.getElementById('importOptionSpecific');
+    const dropdown = document.getElementById('importPropertyDropdown');
+    
+    if (csvOption && specificOption && dropdown) {
+        csvOption.onchange = () => {
+            dropdown.disabled = true;
+        };
+        
+        specificOption.onchange = () => {
+            dropdown.disabled = false;
+        };
+        
+        // Reset to default state
+        csvOption.checked = true;
+        dropdown.disabled = true;
+        dropdown.value = '';
+    }
+    
+    // Show modal
+    const modal = document.getElementById('importOptionsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeImportOptionsModal() {
+    const modal = document.getElementById('importOptionsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Clear the file input
+    const fileInput = document.getElementById('importFileInput');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+    
+    selectedImportFile = null;
+}
+
+async function proceedWithImport() {
+    if (!selectedImportFile) {
+        showToast('No file selected', 'error');
+        return;
+    }
+    
+    // Get selected option
+    const specificOption = document.getElementById('importOptionSpecific');
+    const dropdown = document.getElementById('importPropertyDropdown');
+    
+    let propertyOverride = null;
+    
+    if (specificOption && specificOption.checked) {
+        if (!dropdown || !dropdown.value) {
+            showToast('Please select a property', 'error');
+            return;
+        }
+        propertyOverride = dropdown.value;
+    }
+    
+    // Store file reference before closing modal
+    const fileToImport = selectedImportFile;
+    
+    // Close modal first (but keep file reference)
+    const modal = document.getElementById('importOptionsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // Perform import
+    await performImport(fileToImport, propertyOverride);
+    
+    // Clean up after import completes
+    selectedImportFile = null;
+    const fileInput = document.getElementById('importFileInput');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
+
+async function performImport(file, propertyOverride = null) {
     const formData = new FormData();
     formData.append('csv', file);
+    
+    if (propertyOverride) {
+        formData.append('property_override', propertyOverride);
+    }
     
     try {
         // Get CSRF token for file upload
         const token = await getCsrfToken();
         if (!token) {
             showToast('Security token unavailable. Please refresh and try again.', 'error');
-            e.target.value = '';
             return;
         }
         
@@ -1446,6 +1563,9 @@ async function handleImportFile(e) {
         
         if (response.ok && data.success) {
             let message = `Successfully imported ${data.imported || 0} vehicles`;
+            if (propertyOverride) {
+                message += ` to property "${propertyOverride}"`;
+            }
             if (data.errors && data.errors.length > 0) {
                 message += `\n\nWarnings:\n${data.errors.slice(0, 5).join('\n')}`;
                 if (data.errors.length > 5) {

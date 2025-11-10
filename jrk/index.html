@@ -323,7 +323,7 @@
                                     <button id="exportBtn" class="btn btn-secondary">Export Vehicles CSV</button>
                                 </div>
                             </div>
-                            <input type="file" id="importFileInput" style="display: none;">
+                            <input type="file" id="importFileInput" accept=".csv" style="display: none;">
                             <p class="help-text">Import or export vehicle data in CSV format for bulk operations.</p>
                         </div>
 
@@ -565,6 +565,43 @@
                     <button type="submit" class="btn btn-primary">Save Vehicle</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Import Options Modal -->
+    <div id="importOptionsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Vehicle CSV</h2>
+                <button class="close" onclick="closeImportOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="help-text" style="margin-bottom: 20px;">Choose how to assign properties to the imported vehicles:</p>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; margin-bottom: 10px; cursor: pointer;">
+                        <input type="radio" name="importPropertyOption" value="csv" id="importOptionCsv" checked style="margin-right: 10px;">
+                        <span>Use property from CSV file (column 1)</span>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; margin-bottom: 15px; cursor: pointer;">
+                        <input type="radio" name="importPropertyOption" value="specific" id="importOptionSpecific" style="margin-right: 10px;">
+                        <span>Assign all vehicles to a specific property:</span>
+                    </label>
+                    
+                    <select id="importPropertyDropdown" class="form-control" disabled style="margin-left: 30px; max-width: 400px;">
+                        <option value="">Select Property</option>
+                    </select>
+                </div>
+                
+                <p class="help-text" style="margin-top: 20px; font-size: 0.9em; color: #94a3b8;">
+                    <strong>Note:</strong> If you select a specific property, all imported vehicles will be assigned to that property regardless of what's in the CSV file.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeImportOptionsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="proceedWithImport()">Import</button>
+            </div>
         </div>
     </div>
 

@@ -33,6 +33,39 @@ if (!isset($_FILES['csv']) || $_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
 
 $db = Database::getInstance();
 
+// Check if property override is specified
+$propertyOverride = $_POST['property_override'] ?? null;
+$propertyOverride = $propertyOverride ? trim($propertyOverride) : null;
+
+// If property override is specified, validate it
+if ($propertyOverride) {
+    // Check if property exists
+    $propCheck = $db->prepare("SELECT id, name FROM properties WHERE name = ?");
+    $propCheck->execute([$propertyOverride]);
+    $overrideProperty = $propCheck->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$overrideProperty) {
+        http_response_code(400);
+        echo json_encode(['error' => "Property '$propertyOverride' does not exist"]);
+        exit;
+    }
+    
+    // For non-Admin users, check if they have access to this property
+    if (strcasecmp($user['role'], 'admin') !== 0) {
+        $accessCheck = $db->prepare("
+            SELECT 1 FROM user_assigned_properties uap
+            INNER JOIN properties p ON uap.property_id = p.id
+            WHERE uap.user_id = ? AND p.name = ?
+        ");
+        $accessCheck->execute([$user['id'], $propertyOverride]);
+        if (!$accessCheck->fetch()) {
+            http_response_code(403);
+            echo json_encode(['error' => "You don't have access to property '$propertyOverride'"]);
+            exit;
+        }
+    }
+}
+
 try {
     $file = fopen($_FILES['csv']['tmp_name'], 'r');
     
@@ -56,7 +89,7 @@ try {
         
         // Map CSV columns to database fields (order from export)
         $vehicle = [
-            'property' => $data[0] ?? '',
+            'property' => $propertyOverride ?? ($data[0] ?? ''),  // Use override if specified
             'tag_number' => $data[1] ?? null,
             'plate_number' => $data[2] ?? null,
             'state' => $data[3] ?? null,
@@ -75,31 +108,34 @@ try {
             'expiration_date' => $data[16] ?? null
         ];
         
-        // Validate required field
-        if (empty($vehicle['property'])) {
-            $errors[] = "Row $row: Property is required";
-            continue;
-        }
-        
-        // Check if property exists
-        $propCheck = $db->prepare("SELECT name FROM properties WHERE name = ?");
-        $propCheck->execute([$vehicle['property']]);
-        if (!$propCheck->fetch()) {
-            $errors[] = "Row $row: Property '{$vehicle['property']}' does not exist";
-            continue;
-        }
-        
-        // For non-Admin users, check if they have access to this property (case-insensitive)
-        if (strcasecmp($user['role'], 'admin') !== 0) {
-            $accessCheck = $db->prepare("
-                SELECT 1 FROM user_assigned_properties uap
-                INNER JOIN properties p ON uap.property_id = p.id
-                WHERE uap.user_id = ? AND p.name = ?
-            ");
-            $accessCheck->execute([$user['id'], $vehicle['property']]);
-            if (!$accessCheck->fetch()) {
-                $errors[] = "Row $row: You don't have access to property '{$vehicle['property']}'";
+        // If property override is NOT used, validate CSV property
+        if (!$propertyOverride) {
+            // Validate required field
+            if (empty($vehicle['property'])) {
+                $errors[] = "Row $row: Property is required";
                 continue;
+            }
+            
+            // Check if property exists
+            $propCheck = $db->prepare("SELECT name FROM properties WHERE name = ?");
+            $propCheck->execute([$vehicle['property']]);
+            if (!$propCheck->fetch()) {
+                $errors[] = "Row $row: Property '{$vehicle['property']}' does not exist";
+                continue;
+            }
+            
+            // For non-Admin users, check if they have access to this property (case-insensitive)
+            if (strcasecmp($user['role'], 'admin') !== 0) {
+                $accessCheck = $db->prepare("
+                    SELECT 1 FROM user_assigned_properties uap
+                    INNER JOIN properties p ON uap.property_id = p.id
+                    WHERE uap.user_id = ? AND p.name = ?
+                ");
+                $accessCheck->execute([$user['id'], $vehicle['property']]);
+                if (!$accessCheck->fetch()) {
+                    $errors[] = "Row $row: You don't have access to property '{$vehicle['property']}'";
+                    continue;
+                }
             }
         }
         

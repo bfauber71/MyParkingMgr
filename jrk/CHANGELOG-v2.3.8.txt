@@ -176,6 +176,15 @@ BUG FIXES
    - Event listeners now properly replaced instead of accumulated
    - All user search functionality (Search, Show All, Clear, Enter key) working correctly
 
+19. CSV IMPORT: PROPERTY OVERRIDE OPTION
+   - New import modal appears when selecting CSV file
+   - Two import options: "Use property from CSV file" or "Assign all to specific property"
+   - Property dropdown populated with all available properties
+   - If specific property selected, all vehicles assigned to that property regardless of CSV content
+   - Backend validates property access permissions before import
+   - Success message shows which property was used for override
+   - Streamlines importing vehicles to a single property
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================
