@@ -16,6 +16,14 @@ let allUsers = [];
 let isViewingDuplicates = false;
 let appTimezone = 'America/New_York';
 
+// Detect iOS Safari for download compatibility
+function isIosSafari() {
+    const ua = navigator.userAgent;
+    const iOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    const webkit = /WebKit/.test(ua);
+    return iOS && webkit;
+}
+
 // SECURITY: Remove sensitive debug logging
 // Only log errors in production
 const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -1420,6 +1428,15 @@ async function handleImportFile(e) {
 
 async function handleExportVehicles() {
     try {
+        // iOS Safari: use direct navigation instead of blob download
+        if (isIosSafari()) {
+            // Direct navigation works better on iOS Safari for downloads
+            window.location.href = `${API_BASE}/vehicles-export`;
+            showToast('Export started - check your downloads', 'success');
+            return;
+        }
+        
+        // Standard browser: use blob download
         const response = await secureApiCall(`${API_BASE}/vehicles-export`, {
             method: 'GET'
         });
@@ -1930,6 +1947,15 @@ async function handleViolationPrint() {
 
 async function handleViolationExport() {
     try {
+        // iOS Safari: use direct navigation instead of blob download
+        if (isIosSafari()) {
+            // Direct navigation works better on iOS Safari for downloads
+            window.location.href = `${API_BASE}/violations-export`;
+            showToast('Export started - check your downloads', 'success');
+            return;
+        }
+        
+        // Standard browser: use blob download
         const response = await secureApiCall(`${API_BASE}/violations-export`, {
             method: 'GET'
         });

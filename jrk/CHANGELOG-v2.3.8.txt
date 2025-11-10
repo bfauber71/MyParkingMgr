@@ -90,9 +90,11 @@ BUG FIXES
    - More compact, cleaner thermal ticket layout
 
 13. iOS SAFARI FIX: CSV Downloads Now Work on iOS
-   - Applied same iOS Safari-compatible headers to CSV exports
-   - Changed Content-Type from text/csv to application/octet-stream
-   - Added X-Content-Type-Options: nosniff header
+   - Backend: Changed Content-Type from text/csv to application/octet-stream
+   - Backend: Added X-Content-Type-Options: nosniff header
+   - Frontend: Added iOS Safari detection (isIosSafari() helper function)
+   - Frontend: Use direct navigation (window.location.href) on iOS instead of blob downloads
+   - Frontend: Keep blob download approach for desktop browsers
    - Vehicle and Violation CSV exports now download correctly on iOS devices
 
 ====================================================================
