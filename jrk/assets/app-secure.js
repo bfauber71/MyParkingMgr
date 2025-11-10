@@ -1339,9 +1339,12 @@ async function searchUsers(query = null) {
         if (response.ok) {
             const data = await response.json();
             displayUsers(data.users || []);
+        } else {
+            showToast('Error loading users', 'error');
         }
     } catch (error) {
         console.error('Error loading users:', error);
+        showToast('Error loading users', 'error');
     }
 }
 
