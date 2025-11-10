@@ -103,6 +103,23 @@ BUG FIXES
    - User taps export → iOS share sheet appears → save to Files/share
    - Desktop browsers get traditional instant download (better UX)
 
+14. CSV EXPORT/IMPORT COMPATIBILITY FIX
+   - Export now includes guest pass fields: Resident, Guest, Guest Of, Expiration Date
+   - Import now handles all 17 fields (was 13, missing 4 guest pass fields)
+   - Exported CSVs can now be re-imported without data loss
+   - Backwards compatible: old CSVs still import (missing fields use defaults)
+   
+   Fields now exported/imported:
+   - Original 13: Property, Tag Number, Plate Number, State, Make, Model, Color, 
+     Year, Apt Number, Owner Name, Owner Phone, Owner Email, Reserved Space
+   - Added 4: Resident (1/0), Guest (1/0), Guest Of (apt #), Expiration Date (YYYY-MM-DD)
+   
+   Default values for missing fields:
+   - Resident: 1 (TRUE)
+   - Guest: 0 (FALSE)
+   - Guest Of: NULL
+   - Expiration Date: NULL
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

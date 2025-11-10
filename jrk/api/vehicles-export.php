@@ -52,11 +52,11 @@ try {
     
     $output = fopen('php://output', 'w');
     
-    // Write header row
+    // Write header row (includes guest pass fields)
     fputcsv($output, [
         'Property', 'Tag Number', 'Plate Number', 'State', 'Make', 'Model', 
         'Color', 'Year', 'Apt Number', 'Owner Name', 'Owner Phone', 
-        'Owner Email', 'Reserved Space'
+        'Owner Email', 'Reserved Space', 'Resident', 'Guest', 'Guest Of', 'Expiration Date'
     ], ',', '"', '\\');
     
     // Write data rows
@@ -74,7 +74,11 @@ try {
             $vehicle['owner_name'] ?? '',
             $vehicle['owner_phone'] ?? '',
             $vehicle['owner_email'] ?? '',
-            $vehicle['reserved_space'] ?? ''
+            $vehicle['reserved_space'] ?? '',
+            $vehicle['resident'] ?? '1',
+            $vehicle['guest'] ?? '0',
+            $vehicle['guest_of'] ?? '',
+            $vehicle['expiration_date'] ?? ''
         ], ',', '"', '\\');
     }
     

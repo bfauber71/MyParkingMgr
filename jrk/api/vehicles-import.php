@@ -68,7 +68,11 @@ try {
             'owner_name' => $data[9] ?? null,
             'owner_phone' => $data[10] ?? null,
             'owner_email' => $data[11] ?? null,
-            'reserved_space' => $data[12] ?? null
+            'reserved_space' => $data[12] ?? null,
+            'resident' => isset($data[13]) ? (int)$data[13] : 1,
+            'guest' => isset($data[14]) ? (int)$data[14] : 0,
+            'guest_of' => $data[15] ?? null,
+            'expiration_date' => $data[16] ?? null
         ];
         
         // Validate required field
@@ -99,13 +103,14 @@ try {
             }
         }
         
-        // Insert vehicle
+        // Insert vehicle (includes guest pass fields)
         $stmt = $db->prepare("
             INSERT INTO vehicles (
                 id, property, tag_number, plate_number, state, make, model, color, year,
-                apt_number, owner_name, owner_phone, owner_email, reserved_space
+                apt_number, owner_name, owner_phone, owner_email, reserved_space,
+                resident, guest, guest_of, expiration_date
             ) VALUES (
-                UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         ");
         
@@ -122,7 +127,11 @@ try {
             $vehicle['owner_name'],
             $vehicle['owner_phone'],
             $vehicle['owner_email'],
-            $vehicle['reserved_space']
+            $vehicle['reserved_space'],
+            $vehicle['resident'],
+            $vehicle['guest'],
+            $vehicle['guest_of'],
+            $vehicle['expiration_date']
         ]);
         
         $imported++;
