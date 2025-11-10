@@ -89,18 +89,18 @@ BUG FIXES
    - Reduced "following violations..." text by 10% (35 → 32)
    - More compact, cleaner thermal ticket layout
 
-13. iOS SAFARI FIX: CSV Export/Import Workflow
-   - Backend: Changed Content-Type from text/csv to application/octet-stream
-   - Backend: Added X-Content-Type-Options: nosniff header
-   - Frontend: Use traditional blob download (NOT Web Share API for CSV)
-   - Web Share API caused file metadata issues preventing re-import
-   - CSV downloads directly to Downloads folder on iOS
-   - Vehicle and Violation CSV exports now work on iOS Safari
+13. CRITICAL FIX: CSV Import "string doesn't match expected parameters" Error
+   - ROOT CAUSE: secureApiCall was adding Content-Type: application/json to FormData uploads
+   - iOS Safari strictly validates headers and rejects the Content-Type/body mismatch
+   - Desktop browsers silently correct the mismatch, masking the bug
+   - SOLUTION: Skip Content-Type header when body is FormData (let browser set multipart boundary)
+   - CSV import now works on all browsers including iOS Safari
    
    Technical Details:
-   - ZPL files still use Web Share API (works fine for thermal printing)
-   - CSV files use blob download to avoid iOS metadata corruption
-   - Ensures exported CSVs can be re-imported without file picker errors
+   - Error was DOMException thrown by iOS Safari after file selection
+   - Request never reached server - failed client-side during fetch()
+   - Bug introduced when secureApiCall wrapper was added for CSRF protection
+   - Fixed by detecting FormData and allowing browser to set proper multipart headers
 
 14. CSV EXPORT/IMPORT COMPATIBILITY FIX
    - Export now includes guest pass fields: Resident, Guest, Guest Of, Expiration Date
