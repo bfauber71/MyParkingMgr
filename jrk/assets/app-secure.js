@@ -1285,13 +1285,52 @@ function displayVehicles(vehicles, searchQuery = '') {
 // Users Section
 async function loadUsersSection() {
     const addUserBtn = document.getElementById('addUserBtn');
+    const userSearchBtn = document.getElementById('userSearchBtn');
+    const userShowAllBtn = document.getElementById('userShowAllBtn');
+    const userClearSearchBtn = document.getElementById('userClearSearchBtn');
+    const userSearchInput = document.getElementById('userSearchInput');
     
     if (addUserBtn) {
         addUserBtn.onclick = () => openUserModal();
     }
     
+    if (userSearchBtn) {
+        userSearchBtn.onclick = () => searchUsers();
+    }
+    
+    if (userShowAllBtn) {
+        userShowAllBtn.onclick = () => searchUsers('');
+    }
+    
+    if (userClearSearchBtn) {
+        userClearSearchBtn.onclick = () => {
+            if (userSearchInput) userSearchInput.value = '';
+            searchUsers('');
+        };
+    }
+    
+    if (userSearchInput) {
+        userSearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchUsers();
+            }
+        });
+    }
+    
+    // Load all users initially
+    searchUsers('');
+}
+
+async function searchUsers(query = null) {
+    const userSearchInput = document.getElementById('userSearchInput');
+    const searchQuery = query !== null ? query : (userSearchInput?.value || '');
+    
     try {
-        const response = await secureApiCall(`${API_BASE}/users-list`, {
+        const url = searchQuery 
+            ? `${API_BASE}/users-list?search=${encodeURIComponent(searchQuery)}`
+            : `${API_BASE}/users-list`;
+            
+        const response = await secureApiCall(url, {
             method: 'GET'
         });
         

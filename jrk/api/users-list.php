@@ -12,13 +12,31 @@ $user = Session::user();
 
 $db = Database::getInstance();
 
+// Get search parameter if provided
+$search = $_GET['search'] ?? '';
+$search = trim($search);
+
 try {
-    $stmt = $db->prepare("
-        SELECT id, username, email, role, created_at 
-        FROM users 
-        ORDER BY created_at DESC
-    ");
-    $stmt->execute();
+    if (!empty($search)) {
+        // Search by username or email
+        $stmt = $db->prepare("
+            SELECT id, username, email, role, created_at 
+            FROM users 
+            WHERE username LIKE :search 
+               OR email LIKE :search
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute(['search' => '%' . $search . '%']);
+    } else {
+        // Return all users
+        $stmt = $db->prepare("
+            SELECT id, username, email, role, created_at 
+            FROM users 
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute();
+    }
+    
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo json_encode(['users' => $users]);
