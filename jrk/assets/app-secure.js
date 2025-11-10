@@ -1320,7 +1320,7 @@ async function loadUsersSection() {
     }
     
     // Load all users initially
-    searchUsers('');
+    await searchUsers('');
 }
 
 async function searchUsers(query = null) {
@@ -2534,6 +2534,9 @@ async function loadSettingsSection() {
 
     // Load settings on page load
     await loadPrinterSettings();
+    
+    // Load default sub-tab (users)
+    switchSettingsTab('users');
 }
 
 async function loadViolations() {
