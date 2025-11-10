@@ -3338,13 +3338,8 @@ async function handleGuestPassSubmit() {
 }
 
 function printGuestPass(vehicle, property) {
-    // Format expiration date
-    const expDate = new Date(vehicle.expiration_date);
-    const formattedExpDate = expDate.toLocaleDateString('en-US', { 
-        month: 'long', 
-        day: 'numeric', 
-        year: 'numeric' 
-    });
+    // Use expiration date exactly as stored (YYYY-MM-DD format)
+    const formattedExpDate = vehicle.expiration_date || '';
     
     // Build URL with parameters
     const params = new URLSearchParams({

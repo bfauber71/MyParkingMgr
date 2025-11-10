@@ -31,68 +31,82 @@
             height: 5.5in;
             padding: 0.25in;
             box-sizing: border-box;
-            border: 2px solid #000;
+            border: 4px solid #000;
             page-break-after: always;
         }
 
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            min-height: 80px;
+        }
+
         .logo-container {
-            text-align: center;
-            margin-bottom: 10px;
+            flex: 0 0 auto;
+            max-width: 250px;
         }
 
         .logo-container img {
-            max-height: 60px;
-            max-width: 200px;
+            max-height: 80px;
+            max-width: 250px;
+            display: block;
+        }
+
+        .property-info {
+            flex: 0 0 auto;
+            text-align: right;
+            max-width: 350px;
+            padding: 5px;
+            border: 2px solid #000;
+            background: white;
+        }
+
+        .property-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .property-info p {
+            margin: 2px 0;
+            font-size: 12px;
         }
 
         .guest-pass-header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            border-top: 3px solid #000;
+            border-bottom: 3px solid #000;
+            padding: 10px 0;
         }
 
         .guest-pass-title {
             font-size: 72px;
             font-weight: bold;
-            letter-spacing: 8px;
+            letter-spacing: 10px;
             margin: 0;
             line-height: 1;
-        }
-
-        .property-info {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            background: #f5f5f5;
-            border: 1px solid #000;
-        }
-
-        .property-info h2 {
-            margin: 0 0 5px 0;
-            font-size: 18px;
-        }
-
-        .property-info p {
-            margin: 2px 0;
-            font-size: 14px;
         }
 
         .vehicle-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px 20px;
-            margin-bottom: 15px;
+            gap: 10px 30px;
+            margin-bottom: 20px;
             font-size: 16px;
         }
 
         .info-row {
             display: flex;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 2px solid #000;
             padding: 8px 0;
         }
 
         .info-label {
             font-weight: bold;
-            min-width: 120px;
+            min-width: 130px;
         }
 
         .info-value {
@@ -101,13 +115,14 @@
 
         .expiration-notice {
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             background: #000;
             color: #fff;
-            margin-top: 15px;
-            font-size: 20px;
+            margin-top: 20px;
+            font-size: 24px;
             font-weight: bold;
-            border: 3px solid #000;
+            border: 4px solid #000;
+            letter-spacing: 2px;
         }
 
         .print-button {
@@ -115,9 +130,9 @@
             top: 20px;
             right: 20px;
             padding: 15px 30px;
-            background: #007bff;
+            background: #000;
             color: white;
-            border: none;
+            border: 2px solid #000;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
@@ -125,7 +140,7 @@
         }
 
         .print-button:hover {
-            background: #0056b3;
+            background: #333;
         }
     </style>
 </head>
@@ -133,18 +148,20 @@
     <button class="print-button no-print" onclick="window.print()">🖨️ Print Guest Pass</button>
 
     <div class="guest-pass-container">
-        <div class="logo-container" id="logoContainer">
-            <!-- Logo will be inserted here -->
+        <div class="header-row">
+            <div class="logo-container" id="logoContainer">
+                <!-- Logo will be inserted here in upper left -->
+            </div>
+            
+            <div class="property-info">
+                <h2 id="propertyName"></h2>
+                <p id="propertyAddress"></p>
+                <p id="propertyContact"></p>
+            </div>
         </div>
 
         <div class="guest-pass-header">
             <h1 class="guest-pass-title">GUEST PASS</h1>
-        </div>
-
-        <div class="property-info">
-            <h2 id="propertyName"></h2>
-            <p id="propertyAddress"></p>
-            <p id="propertyContact"></p>
         </div>
 
         <div class="vehicle-info">
