@@ -89,18 +89,22 @@ BUG FIXES
    - Reduced "following violations..." text by 10% (35 → 32)
    - More compact, cleaner thermal ticket layout
 
-13. CRITICAL FIX: CSV Import "string doesn't match expected parameters" Error
-   - ROOT CAUSE: secureApiCall was adding Content-Type: application/json to FormData uploads
-   - iOS Safari strictly validates headers and rejects the Content-Type/body mismatch
-   - Desktop browsers silently correct the mismatch, masking the bug
-   - SOLUTION: Skip Content-Type header when body is FormData (let browser set multipart boundary)
-   - CSV import now works on all browsers including iOS Safari
+13. CRITICAL FIX: CSV Import "The string did not match the expected pattern" Error
+   - ROOT CAUSE 1: Missing includes/csrf.php file caused PHP fatal error
+   - ROOT CAUSE 2: secureApiCall was adding Content-Type: application/json to FormData
+   - vehicles-import.php required csrf.php which didn't exist in filesystem
+   - iOS Safari strictly validates multipart form boundaries
+   
+   SOLUTION:
+   - Created includes/csrf.php wrapper for Security::validateRequest()
+   - Modified secureApiCall to skip Content-Type for FormData uploads
+   - Browser now sets proper multipart/form-data boundary automatically
+   - CSV import works on all browsers including iOS Safari
    
    Technical Details:
-   - Error was DOMException thrown by iOS Safari after file selection
-   - Request never reached server - failed client-side during fetch()
-   - Bug introduced when secureApiCall wrapper was added for CSRF protection
-   - Fixed by detecting FormData and allowing browser to set proper multipart headers
+   - Missing file caused server-side fatal error shown as generic pattern error
+   - Fixed by adding backward-compatible CSRF validation wrapper
+   - FormData Content-Type must be set by browser, not manually
 
 14. CSV EXPORT/IMPORT COMPATIBILITY FIX
    - Export now includes guest pass fields: Resident, Guest, Guest Of, Expiration Date
