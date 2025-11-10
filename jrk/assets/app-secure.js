@@ -855,7 +855,7 @@ async function setupDatabaseOpsHandlers() {
     }
     
     if (exportBtn) {
-        exportBtn.onclick = handleExportVehicles;
+        exportBtn.onclick = showExportOptionsModal;
     }
     
     // Bulk operations
@@ -1592,16 +1592,104 @@ async function performImport(file, propertyOverride = null) {
     e.target.value = '';
 }
 
-async function handleExportVehicles() {
+async function showExportOptionsModal() {
+    // Populate property dropdown
     try {
-        const response = await secureApiCall(`${API_BASE}/vehicles-export`, {
+        const response = await secureApiCall(`${API_BASE}/properties-list`, {
+            method: 'GET'
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const properties = data.properties || [];
+            
+            const dropdown = document.getElementById('exportPropertyDropdown');
+            if (dropdown) {
+                dropdown.innerHTML = '<option value="">Select Property</option>';
+                properties.forEach(property => {
+                    const option = document.createElement('option');
+                    option.value = property.name;
+                    option.textContent = property.name;
+                    dropdown.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading properties for export:', error);
+    }
+    
+    // Set up radio button listeners
+    const allOption = document.getElementById('exportOptionAll');
+    const specificOption = document.getElementById('exportOptionSpecific');
+    const dropdown = document.getElementById('exportPropertyDropdown');
+    
+    if (allOption && specificOption && dropdown) {
+        allOption.onchange = () => {
+            dropdown.disabled = true;
+        };
+        
+        specificOption.onchange = () => {
+            dropdown.disabled = false;
+        };
+        
+        // Reset to default state
+        allOption.checked = true;
+        dropdown.disabled = true;
+        dropdown.value = '';
+    }
+    
+    // Show modal
+    const modal = document.getElementById('exportOptionsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeExportOptionsModal() {
+    const modal = document.getElementById('exportOptionsModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+async function proceedWithExport() {
+    // Get selected option
+    const specificOption = document.getElementById('exportOptionSpecific');
+    const dropdown = document.getElementById('exportPropertyDropdown');
+    
+    let propertyFilter = null;
+    
+    if (specificOption && specificOption.checked) {
+        if (!dropdown || !dropdown.value) {
+            showToast('Please select a property', 'error');
+            return;
+        }
+        propertyFilter = dropdown.value;
+    }
+    
+    // Close modal
+    closeExportOptionsModal();
+    
+    // Perform export
+    await performExport(propertyFilter);
+}
+
+async function performExport(propertyFilter = null) {
+    try {
+        const url = propertyFilter 
+            ? `${API_BASE}/vehicles-export?property=${encodeURIComponent(propertyFilter)}`
+            : `${API_BASE}/vehicles-export`;
+            
+        const response = await secureApiCall(url, {
             method: 'GET'
         });
         
         if (response.ok) {
             const csvContent = await response.text();
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const filename = `vehicles_export_${new Date().toISOString().split('T')[0]}.csv`;
+            const filename = propertyFilter 
+                ? `vehicles_${propertyFilter}_${new Date().toISOString().split('T')[0]}.csv`
+                : `vehicles_export_${new Date().toISOString().split('T')[0]}.csv`;
             
             // Use traditional download for CSV (iOS Share API causes import issues)
             const url = window.URL.createObjectURL(blob);
@@ -1617,7 +1705,11 @@ async function handleExportVehicles() {
                 document.body.removeChild(a);
             }, 100);
             
-            showToast('Vehicles exported successfully', 'success');
+            let message = 'Vehicles exported successfully';
+            if (propertyFilter) {
+                message += ` from property "${propertyFilter}"`;
+            }
+            showToast(message, 'success');
         } else {
             showToast('Failed to export vehicles', 'error');
         }

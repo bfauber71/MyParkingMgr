@@ -16,10 +16,51 @@ requirePermission(MODULE_VEHICLES, ACTION_VIEW);
 $db = Database::getInstance();
 $user = Session::user();
 
-try {
-    // Get accessible vehicles based on role (case-insensitive)
+// Get property filter if specified
+$propertyFilter = $_GET['property'] ?? null;
+$propertyFilter = $propertyFilter ? trim($propertyFilter) : null;
+
+// If property filter is specified, validate access
+if ($propertyFilter) {
+    // Check if property exists
+    $propCheck = $db->prepare("SELECT id, name FROM properties WHERE name = ?");
+    $propCheck->execute([$propertyFilter]);
+    $filterProperty = $propCheck->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$filterProperty) {
+        http_response_code(400);
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Property does not exist']);
+        exit;
+    }
+    
+    // For non-Admin users, check if they have access to this property
     $role = strtolower($user['role']);
-    if ($role === 'admin' || $role === 'operator') {
+    if ($role !== 'admin' && $role !== 'operator') {
+        $accessCheck = $db->prepare("
+            SELECT 1 FROM user_assigned_properties uap
+            INNER JOIN properties p ON uap.property_id = p.id
+            WHERE uap.user_id = ? AND p.name = ?
+        ");
+        $accessCheck->execute([$user['id'], $propertyFilter]);
+        if (!$accessCheck->fetch()) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Access denied to property']);
+            exit;
+        }
+    }
+}
+
+try {
+    // Get accessible vehicles based on role and property filter
+    $role = strtolower($user['role']);
+    
+    if ($propertyFilter) {
+        // Export vehicles from specific property
+        $stmt = $db->prepare("SELECT * FROM vehicles WHERE property = ? ORDER BY created_at DESC");
+        $stmt->execute([$propertyFilter]);
+    } else if ($role === 'admin' || $role === 'operator') {
         // Admin and Operator can export all vehicles
         $stmt = $db->prepare("SELECT * FROM vehicles ORDER BY property, created_at DESC");
         $stmt->execute();
@@ -39,8 +80,14 @@ try {
     
     $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Generate CSV
-    $filename = 'vehicles_' . date('Y-m-d_His') . '.csv';
+    // Generate CSV filename (include property name if filtering)
+    if ($propertyFilter) {
+        // Sanitize property name for filename (remove special chars)
+        $safePropertyName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $propertyFilter);
+        $filename = 'vehicles_' . $safePropertyName . '_' . date('Y-m-d_His') . '.csv';
+    } else {
+        $filename = 'vehicles_' . date('Y-m-d_His') . '.csv';
+    }
     
     // iOS Safari-compatible headers - use octet-stream with nosniff
     header('Content-Type: application/octet-stream');

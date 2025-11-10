@@ -185,6 +185,16 @@ BUG FIXES
    - Success message shows which property was used for override
    - Streamlines importing vehicles to a single property
 
+20. CSV EXPORT: PROPERTY FILTER OPTION
+   - New export modal appears when clicking Export Vehicles button
+   - Two export options: "Export all vehicles from all properties" or "Export from specific property"
+   - Property dropdown populated with all available properties
+   - If specific property selected, only vehicles from that property are exported
+   - Backend validates property access permissions before export
+   - Filename includes property name when filtering (e.g., vehicles_PropertyName_2025-11-10.csv)
+   - Success message shows which property was exported
+   - Streamlines exporting vehicles from a single property
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

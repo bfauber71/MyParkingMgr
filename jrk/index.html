@@ -605,6 +605,39 @@
         </div>
     </div>
 
+    <!-- Export Options Modal -->
+    <div id="exportOptionsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Vehicle CSV</h2>
+                <button class="close" onclick="closeExportOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="help-text" style="margin-bottom: 20px;">Choose which vehicles to export:</p>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; margin-bottom: 10px; cursor: pointer;">
+                        <input type="radio" name="exportPropertyOption" value="all" id="exportOptionAll" checked style="margin-right: 10px;">
+                        <span>Export all vehicles from all properties</span>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; margin-bottom: 15px; cursor: pointer;">
+                        <input type="radio" name="exportPropertyOption" value="specific" id="exportOptionSpecific" style="margin-right: 10px;">
+                        <span>Export vehicles from a specific property:</span>
+                    </label>
+                    
+                    <select id="exportPropertyDropdown" class="form-control" disabled style="margin-left: 30px; max-width: 400px;">
+                        <option value="">Select Property</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExportOptionsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="proceedWithExport()">Export</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add/Edit Property Modal -->
     <div id="propertyModal" class="modal">
         <div class="modal-content">
