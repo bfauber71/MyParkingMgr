@@ -1428,34 +1428,45 @@ async function handleImportFile(e) {
 
 async function handleExportVehicles() {
     try {
-        // iOS Safari: use hidden form submission (must be synchronous from user gesture)
-        if (isIosSafari()) {
-            // Create and submit form immediately - session cookies automatically included
-            const form = document.createElement('form');
-            form.method = 'GET';
-            form.action = `${API_BASE}/vehicles-export`;
-            form.style.display = 'none';
-            document.body.appendChild(form);
-            form.submit();
-            showToast('Export started - check your downloads', 'success');
-            return;
-        }
-        
-        // Standard browser: use blob download
         const response = await secureApiCall(`${API_BASE}/vehicles-export`, {
             method: 'GET'
         });
         
         if (response.ok) {
-            const blob = await response.blob();
+            const csvContent = await response.text();
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const filename = `vehicles_export_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            // Try iOS Share API first (works on iOS 15+)
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const file = new File([blob], filename, { type: 'text/csv' });
+                    const shareData = { files: [file] };
+                    
+                    if (navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                        showToast('Export shared successfully', 'success');
+                        return;
+                    }
+                } catch (shareError) {
+                    console.log('Share API failed, falling back to download:', shareError);
+                }
+            }
+            
+            // Fallback: traditional download
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
-            a.download = `vehicles_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+            
             showToast('Vehicles exported successfully', 'success');
         } else {
             showToast('Failed to export vehicles', 'error');
@@ -1952,34 +1963,45 @@ async function handleViolationPrint() {
 
 async function handleViolationExport() {
     try {
-        // iOS Safari: use hidden form submission (must be synchronous from user gesture)
-        if (isIosSafari()) {
-            // Create and submit form immediately - session cookies automatically included
-            const form = document.createElement('form');
-            form.method = 'GET';
-            form.action = `${API_BASE}/violations-export`;
-            form.style.display = 'none';
-            document.body.appendChild(form);
-            form.submit();
-            showToast('Export started - check your downloads', 'success');
-            return;
-        }
-        
-        // Standard browser: use blob download
         const response = await secureApiCall(`${API_BASE}/violations-export`, {
             method: 'GET'
         });
         
         if (response.ok) {
-            const blob = await response.blob();
+            const csvContent = await response.text();
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const filename = `violations_export_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            // Try iOS Share API first (works on iOS 15+)
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const file = new File([blob], filename, { type: 'text/csv' });
+                    const shareData = { files: [file] };
+                    
+                    if (navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                        showToast('Export shared successfully', 'success');
+                        return;
+                    }
+                } catch (shareError) {
+                    console.log('Share API failed, falling back to download:', shareError);
+                }
+            }
+            
+            // Fallback: traditional download
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
-            a.download = `violations_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
+            
             showToast('Violations exported successfully', 'success');
         } else {
             showToast('Failed to export violations', 'error');
