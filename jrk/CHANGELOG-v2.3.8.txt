@@ -108,6 +108,8 @@ BUG FIXES
    - Import now handles all 17 fields (was 13, missing 4 guest pass fields)
    - Exported CSVs can now be re-imported without data loss
    - Backwards compatible: old CSVs still import (missing fields use defaults)
+   - File input now accepts multiple MIME types (text/csv, text/plain, etc)
+   - Fixes "string does not match" error on iOS when importing shared CSVs
    
    Fields now exported/imported:
    - Original 13: Property, Tag Number, Plate Number, State, Make, Model, Color, 
@@ -119,6 +121,10 @@ BUG FIXES
    - Guest: 0 (FALSE)
    - Guest Of: NULL
    - Expiration Date: NULL
+   
+   iOS Safari Import Fix:
+   - File input accept attribute now includes: .csv, text/csv, text/plain, application/vnd.ms-excel
+   - Handles files saved from iOS share sheet with different MIME types
 
 ====================================================================
 DATABASE CHANGES
