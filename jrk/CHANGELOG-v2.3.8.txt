@@ -89,6 +89,12 @@ BUG FIXES
    - Reduced "following violations..." text by 10% (35 → 32)
    - More compact, cleaner thermal ticket layout
 
+13. iOS SAFARI FIX: CSV Downloads Now Work on iOS
+   - Applied same iOS Safari-compatible headers to CSV exports
+   - Changed Content-Type from text/csv to application/octet-stream
+   - Added X-Content-Type-Options: nosniff header
+   - Vehicle and Violation CSV exports now download correctly on iOS devices
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

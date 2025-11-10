@@ -42,9 +42,12 @@ try {
     // Generate CSV
     $filename = 'vehicles_' . date('Y-m-d_His') . '.csv';
     
-    header('Content-Type: text/csv');
+    // iOS Safari-compatible headers - use octet-stream with nosniff
+    header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
-    header('Cache-Control: no-cache, must-revalidate');
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    header('Pragma: public');
     header('Expires: 0');
     
     $output = fopen('php://output', 'w');
