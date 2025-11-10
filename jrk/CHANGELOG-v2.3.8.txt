@@ -93,9 +93,15 @@ BUG FIXES
    - Backend: Changed Content-Type from text/csv to application/octet-stream
    - Backend: Added X-Content-Type-Options: nosniff header
    - Frontend: Added iOS Safari detection (isIosSafari() helper function)
-   - Frontend: Use direct navigation (window.location.href) on iOS instead of blob downloads
-   - Frontend: Keep blob download approach for desktop browsers
+   - Frontend: Use hidden form submission on iOS (synchronous from user gesture)
+   - Frontend: Form submission automatically includes session cookies
+   - Frontend: Keep blob download approach for desktop browsers (better UX)
    - Vehicle and Violation CSV exports now download correctly on iOS devices
+   
+   Technical Details:
+   - iOS Safari blocks navigation after async work (CSRF token fetch)
+   - Hidden form submission must be immediate (no async) to preserve user gesture
+   - Session authentication automatically works with form submission
 
 ====================================================================
 DATABASE CHANGES

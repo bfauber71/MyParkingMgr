@@ -1428,10 +1428,15 @@ async function handleImportFile(e) {
 
 async function handleExportVehicles() {
     try {
-        // iOS Safari: use direct navigation instead of blob download
+        // iOS Safari: use hidden form submission (must be synchronous from user gesture)
         if (isIosSafari()) {
-            // Direct navigation works better on iOS Safari for downloads
-            window.location.href = `${API_BASE}/vehicles-export`;
+            // Create and submit form immediately - session cookies automatically included
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = `${API_BASE}/vehicles-export`;
+            form.style.display = 'none';
+            document.body.appendChild(form);
+            form.submit();
             showToast('Export started - check your downloads', 'success');
             return;
         }
@@ -1947,10 +1952,15 @@ async function handleViolationPrint() {
 
 async function handleViolationExport() {
     try {
-        // iOS Safari: use direct navigation instead of blob download
+        // iOS Safari: use hidden form submission (must be synchronous from user gesture)
         if (isIosSafari()) {
-            // Direct navigation works better on iOS Safari for downloads
-            window.location.href = `${API_BASE}/violations-export`;
+            // Create and submit form immediately - session cookies automatically included
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = `${API_BASE}/violations-export`;
+            form.style.display = 'none';
+            document.body.appendChild(form);
+            form.submit();
             showToast('Export started - check your downloads', 'success');
             return;
         }
