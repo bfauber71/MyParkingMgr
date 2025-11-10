@@ -1443,23 +1443,7 @@ async function handleExportVehicles() {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const filename = `vehicles_export_${new Date().toISOString().split('T')[0]}.csv`;
             
-            // Try iOS Share API first (works on iOS 15+)
-            if (navigator.share && navigator.canShare) {
-                try {
-                    const file = new File([blob], filename, { type: 'text/csv' });
-                    const shareData = { files: [file] };
-                    
-                    if (navigator.canShare(shareData)) {
-                        await navigator.share(shareData);
-                        showToast('Export shared successfully', 'success');
-                        return;
-                    }
-                } catch (shareError) {
-                    console.log('Share API failed, falling back to download:', shareError);
-                }
-            }
-            
-            // Fallback: traditional download
+            // Use traditional download for CSV (iOS Share API causes import issues)
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
@@ -1978,23 +1962,7 @@ async function handleViolationExport() {
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const filename = `violations_export_${new Date().toISOString().split('T')[0]}.csv`;
             
-            // Try iOS Share API first (works on iOS 15+)
-            if (navigator.share && navigator.canShare) {
-                try {
-                    const file = new File([blob], filename, { type: 'text/csv' });
-                    const shareData = { files: [file] };
-                    
-                    if (navigator.canShare(shareData)) {
-                        await navigator.share(shareData);
-                        showToast('Export shared successfully', 'success');
-                        return;
-                    }
-                } catch (shareError) {
-                    console.log('Share API failed, falling back to download:', shareError);
-                }
-            }
-            
-            // Fallback: traditional download
+            // Use traditional download for CSV (iOS Share API causes import issues)
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';

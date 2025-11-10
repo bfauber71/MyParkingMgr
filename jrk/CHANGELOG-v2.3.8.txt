@@ -89,19 +89,18 @@ BUG FIXES
    - Reduced "following violations..." text by 10% (35 → 32)
    - More compact, cleaner thermal ticket layout
 
-13. iOS SAFARI FIX: CSV Downloads Now Work on iOS
+13. iOS SAFARI FIX: CSV Export/Import Workflow
    - Backend: Changed Content-Type from text/csv to application/octet-stream
    - Backend: Added X-Content-Type-Options: nosniff header
-   - Frontend: Use Web Share API (navigator.share) for iOS (same as ZPL files)
-   - Frontend: Opens iOS native share sheet to save CSV to Files app
-   - Frontend: Automatic fallback to traditional download for desktop browsers
+   - Frontend: Use traditional blob download (NOT Web Share API for CSV)
+   - Web Share API caused file metadata issues preventing re-import
+   - CSV downloads directly to Downloads folder on iOS
    - Vehicle and Violation CSV exports now work on iOS Safari
    
    Technical Details:
-   - Same proven approach used for ZPL thermal ticket downloads
-   - Web Share API works on iOS 15+ (all modern iPhones)
-   - User taps export → iOS share sheet appears → save to Files/share
-   - Desktop browsers get traditional instant download (better UX)
+   - ZPL files still use Web Share API (works fine for thermal printing)
+   - CSV files use blob download to avoid iOS metadata corruption
+   - Ensures exported CSVs can be re-imported without file picker errors
 
 14. CSV EXPORT/IMPORT COMPATIBILITY FIX
    - Export now includes guest pass fields: Resident, Guest, Guest Of, Expiration Date
