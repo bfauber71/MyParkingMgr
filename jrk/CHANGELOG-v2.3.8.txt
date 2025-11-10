@@ -123,8 +123,10 @@ BUG FIXES
    - Expiration Date: NULL
    
    iOS Safari Import Fix:
-   - File input accept attribute now includes: .csv, text/csv, text/plain, application/vnd.ms-excel
-   - Handles files saved from iOS share sheet with different MIME types
+   - Removed strict file input accept attribute (was causing "string doesn't match" error)
+   - JavaScript validation now checks file extension AND MIME type
+   - Accepts: .csv extension, text/csv, text/plain, application/vnd.ms-excel
+   - Fixes iOS Safari file picker validation issues
 
 ====================================================================
 DATABASE CHANGES
