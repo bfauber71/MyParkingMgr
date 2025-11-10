@@ -131,6 +131,27 @@ BUG FIXES
    - Accepts: .csv extension, text/csv, text/plain, application/vnd.ms-excel
    - Fixes iOS Safari file picker validation issues
 
+15. USER MANAGEMENT SEARCH FIX
+   - CRITICAL FIX: User search UI was completely non-functional
+   - Search input and buttons existed but had no event listeners attached
+   - Backend users-list.php had no search capability (returned all users only)
+   
+   SOLUTION:
+   - Added search parameter support to users-list.php API endpoint
+   - Search by username OR email using SQL LIKE query
+   - Created searchUsers() JavaScript function with backend integration
+   - Wired up all search button event listeners (Search, Show All, Clear)
+   - Added Enter key support on search input field
+   - Initial page load now properly displays all users
+   
+   Security:
+   - SQL injection prevented via prepared statements with :search parameter binding
+   - All permissions verified and working correctly:
+     * View users: MODULE_USERS + ACTION_VIEW
+     * Create users: MODULE_USERS + ACTION_CREATE_DELETE
+     * Edit users: MODULE_USERS + ACTION_EDIT
+     * Delete users: MODULE_USERS + ACTION_CREATE_DELETE
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================
@@ -159,10 +180,13 @@ Two packages available:
    - All application files included
    - For new installations or complete replacements
 
-2. MyParkingManager-v2.3.8-Update.zip (~49 KB)
+2. MyParkingManager-v2.3.8-Update.zip (~56 KB)
    - Update package with only changed files
    - Includes: .htaccess, index.html, guest-pass-print.html,
-     violations-print.html, app-secure.js, 5 API files, 2 SQL migrations
+     violations-print.html, app-secure.js, csrf.php, 9 API files, 2 SQL migrations
+   - API files: guest-pass-create.php, tickets-list.php, ticket-close.php,
+     violations-zpl.php, vehicles-update-v2.php, vehicles-export.php,
+     vehicles-import.php, violations-export.php, users-list.php
    - For upgrading from v2.3.7
 
 ====================================================================
