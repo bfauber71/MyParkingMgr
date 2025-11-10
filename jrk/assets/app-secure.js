@@ -1367,32 +1367,56 @@ async function populateDatabaseDropdowns() {
 
 async function handleImportFile(e) {
     const file = e.target.files[0];
-    if (!file) return;
+    console.log('File selected:', file);
+    
+    if (!file) {
+        console.log('No file selected');
+        return;
+    }
+    
+    console.log('File details:', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+    });
     
     // Check file type (MIME type or extension) - iOS may save without .csv extension
     const isCSV = file.name.endsWith('.csv') || 
                   file.type === 'text/csv' || 
                   file.type === 'text/plain' || 
-                  file.type === 'application/vnd.ms-excel';
+                  file.type === 'application/vnd.ms-excel' ||
+                  file.type === '';
+    
+    console.log('Is CSV check:', isCSV, {
+        endsWithCSV: file.name.endsWith('.csv'),
+        fileType: file.type
+    });
     
     if (!isCSV) {
+        console.log('File type validation failed');
         showToast('Please select a CSV file', 'error');
         e.target.value = '';
         return;
     }
     
+    console.log('Creating FormData...');
     const formData = new FormData();
     formData.append('csv', file);
+    console.log('FormData created');
     
     try {
-        // Get CSRF token for file upload
+        console.log('Getting CSRF token...');
         const token = await getCsrfToken();
+        console.log('CSRF token obtained:', token ? 'yes' : 'no');
+        
         if (!token) {
             showToast('Security token unavailable. Please refresh and try again.', 'error');
             e.target.value = '';
             return;
         }
         
+        console.log('Sending import request...');
         const response = await fetch(`${API_BASE}/vehicles-import`, {
             method: 'POST',
             body: formData,
@@ -1402,7 +1426,10 @@ async function handleImportFile(e) {
             }
         });
         
+        console.log('Response received:', response.status, response.statusText);
+        
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (response.ok && data.success) {
             let message = `Successfully imported ${data.imported || 0} vehicles`;
@@ -1422,10 +1449,12 @@ async function handleImportFile(e) {
                     errorMessage += `\n... and ${data.errors.length - 5} more`;
                 }
             }
+            console.error('Import failed:', errorMessage);
             showToast(errorMessage, 'error');
         }
     } catch (error) {
         console.error('Error importing vehicles:', error);
+        console.error('Error details:', error.message, error.stack);
         showToast('Error importing vehicles: ' + error.message, 'error');
     }
     
