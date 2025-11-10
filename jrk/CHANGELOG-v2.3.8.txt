@@ -170,6 +170,12 @@ BUG FIXES
    - Safe date parsing with fallback for unexpected formats
    - Apartment number displays only once under "Visiting" field
 
+18. USER SEARCH: EVENT LISTENER FIX
+   - Fixed issue where Search button wouldn't work after switching tabs
+   - Changed from addEventListener to onkeypress to prevent duplicate handlers
+   - Event listeners now properly replaced instead of accumulated
+   - All user search functionality (Search, Show All, Clear, Enter key) working correctly
+
 ====================================================================
 DATABASE CHANGES
 ====================================================================

@@ -1312,11 +1312,11 @@ async function loadUsersSection() {
     }
     
     if (userSearchInput) {
-        userSearchInput.addEventListener('keypress', (e) => {
+        userSearchInput.onkeypress = (e) => {
             if (e.key === 'Enter') {
                 searchUsers();
             }
-        });
+        };
     }
     
     // Load all users initially
