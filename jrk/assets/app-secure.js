@@ -3363,7 +3363,6 @@ function printGuestPass(vehicle, property) {
         color: vehicle.color || '',
         year: vehicle.year || '',
         guestName: vehicle.owner_name || '',
-        aptNumber: vehicle.apt_number || '',
         guestOf: vehicle.guest_of ? `Apt/Unit ${vehicle.guest_of}` : '',
         expirationDate: formattedExpDate,
         logoUrl: property.logo_url || '../assets/logo.png'

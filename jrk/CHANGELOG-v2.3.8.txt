@@ -162,15 +162,13 @@ BUG FIXES
    - Property info: right-aligned in bordered box, max 350px wide
    - Consistent date format between app display and printed pass
 
-17. GUEST PASS: APARTMENT NUMBER & DATE FORMAT FIX
-   - CRITICAL FIX: Apartment number was missing from guest pass printout
-   - Added "Apt/Unit #" field to display guest's apartment number
-   - Shows apt_number from vehicle record on printed pass
+17. GUEST PASS: DATE FORMAT FIX
    - Changed date format from YYYY-MM-DD to MM-DD-YYYY (US standard)
    - Date format now consistent in both vehicle search and printed pass
    - Displays as "Expires MM-DD-YYYY" in vehicle list
    - Prints as "EXPIRES: MM-DD-YYYY" on guest pass
    - Safe date parsing with fallback for unexpected formats
+   - Apartment number displays only once under "Visiting" field
 
 ====================================================================
 DATABASE CHANGES
