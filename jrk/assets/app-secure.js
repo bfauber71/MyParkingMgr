@@ -1369,7 +1369,13 @@ async function handleImportFile(e) {
     const file = e.target.files[0];
     if (!file) return;
     
-    if (!file.name.endsWith('.csv')) {
+    // Check file type (MIME type or extension) - iOS may save without .csv extension
+    const isCSV = file.name.endsWith('.csv') || 
+                  file.type === 'text/csv' || 
+                  file.type === 'text/plain' || 
+                  file.type === 'application/vnd.ms-excel';
+    
+    if (!isCSV) {
         showToast('Please select a CSV file', 'error');
         e.target.value = '';
         return;
