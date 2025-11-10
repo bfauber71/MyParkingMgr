@@ -1224,7 +1224,9 @@ function displayVehicles(vehicles, searchQuery = '') {
             if (expirationDate < today) {
                 guestPassStatus = 'EXPIRED';
             } else {
-                const expiryString = vehicle.expiration_date;
+                // Convert YYYY-MM-DD to MM-DD-YYYY
+                const parts = vehicle.expiration_date.split('-');
+                const expiryString = parts.length === 3 ? `${parts[1]}-${parts[2]}-${parts[0]}` : vehicle.expiration_date;
                 guestPassStatus = `Expires ${expiryString}`;
             }
         }
@@ -3338,8 +3340,16 @@ async function handleGuestPassSubmit() {
 }
 
 function printGuestPass(vehicle, property) {
-    // Use expiration date exactly as stored (YYYY-MM-DD format)
-    const formattedExpDate = vehicle.expiration_date || '';
+    // Convert date from YYYY-MM-DD to MM-DD-YYYY
+    let formattedExpDate = '';
+    if (vehicle.expiration_date) {
+        const parts = vehicle.expiration_date.split('-');
+        if (parts.length === 3) {
+            formattedExpDate = `${parts[1]}-${parts[2]}-${parts[0]}`;
+        } else {
+            formattedExpDate = vehicle.expiration_date;
+        }
+    }
     
     // Build URL with parameters
     const params = new URLSearchParams({
@@ -3353,6 +3363,7 @@ function printGuestPass(vehicle, property) {
         color: vehicle.color || '',
         year: vehicle.year || '',
         guestName: vehicle.owner_name || '',
+        aptNumber: vehicle.apt_number || '',
         guestOf: vehicle.guest_of ? `Apt/Unit ${vehicle.guest_of}` : '',
         expirationDate: formattedExpDate,
         logoUrl: property.logo_url || '../assets/logo.png'

@@ -194,6 +194,10 @@
                 <span class="info-value" id="guestName"></span>
             </div>
             <div class="info-row">
+                <span class="info-label">Apt/Unit #:</span>
+                <span class="info-value" id="aptNumber"></span>
+            </div>
+            <div class="info-row">
                 <span class="info-label">Visiting:</span>
                 <span class="info-value" id="guestOf"></span>
             </div>
@@ -221,6 +225,7 @@
         document.getElementById('color').textContent = params.get('color') || '';
         document.getElementById('year').textContent = params.get('year') || '';
         document.getElementById('guestName').textContent = params.get('guestName') || '';
+        document.getElementById('aptNumber').textContent = params.get('aptNumber') || '';
         document.getElementById('guestOf').textContent = params.get('guestOf') || '';
         document.getElementById('expirationDate').textContent = params.get('expirationDate') || '';
         
