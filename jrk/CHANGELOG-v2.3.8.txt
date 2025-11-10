@@ -157,11 +157,20 @@ BUG FIXES
    - Property logo now positioned in upper left corner (was centered)
    - Property information now positioned in upper right corner (was centered)
    - Removed all gray backgrounds and borders - pure black and white only
-   - Fixed expiration date to print exactly as displayed (YYYY-MM-DD format)
    - Increased border weights for better print quality (4px outer, 2px inner)
    - Logo size: max 80px height, 250px width
    - Property info: right-aligned in bordered box, max 350px wide
    - Consistent date format between app display and printed pass
+
+17. GUEST PASS: APARTMENT NUMBER & DATE FORMAT FIX
+   - CRITICAL FIX: Apartment number was missing from guest pass printout
+   - Added "Apt/Unit #" field to display guest's apartment number
+   - Shows apt_number from vehicle record on printed pass
+   - Changed date format from YYYY-MM-DD to MM-DD-YYYY (US standard)
+   - Date format now consistent in both vehicle search and printed pass
+   - Displays as "Expires MM-DD-YYYY" in vehicle list
+   - Prints as "EXPIRES: MM-DD-YYYY" on guest pass
+   - Safe date parsing with fallback for unexpected formats
 
 ====================================================================
 DATABASE CHANGES
