@@ -851,12 +851,23 @@ async function setupDatabaseOpsHandlers() {
     if (importBtn) {
         importBtn.onclick = () => {
             console.log('Import button clicked, opening file dialog');
-            if (importFileInput) importFileInput.click();
+            if (importFileInput) {
+                console.log('File input found, triggering click');
+                importFileInput.click();
+            } else {
+                console.error('File input NOT found!');
+            }
         };
+        console.log('Import button handler attached');
+    } else {
+        console.error('Import button NOT found!');
     }
     
     if (importFileInput) {
         importFileInput.onchange = showImportOptionsModal;
+        console.log('Import file input onchange handler attached');
+    } else {
+        console.error('Import file input NOT found!');
     }
     
     if (exportBtn) {
@@ -1426,21 +1437,27 @@ async function populateDatabaseDropdowns() {
 let selectedImportFile = null;
 
 async function showImportOptionsModal(e) {
-    console.log('showImportOptionsModal() called');
+    console.log('=== showImportOptionsModal() START ===');
+    console.log('Event:', e);
+    console.log('Event target:', e.target);
+    console.log('Files:', e.target.files);
+    
     const file = e.target.files[0];
     if (!file) {
-        console.log('No file selected');
+        console.log('No file selected - exiting');
         return;
     }
     
-    console.log('File selected:', file.name);
+    console.log('File selected:', file.name, 'Type:', file.type, 'Size:', file.size);
     
     if (!file.name.endsWith('.csv')) {
+        console.log('Not a CSV file - rejecting');
         showToast('Please select a CSV file', 'error');
         e.target.value = '';
         return;
     }
     
+    console.log('CSV file validated, storing reference');
     // Store the file for later use
     selectedImportFile = file;
     
@@ -1490,10 +1507,17 @@ async function showImportOptionsModal(e) {
     }
     
     // Show modal
+    console.log('Attempting to show import modal...');
     const modal = document.getElementById('importOptionsModal');
+    console.log('Modal element:', modal);
     if (modal) {
+        console.log('Setting modal display to flex');
         modal.style.display = 'flex';
+        console.log('Modal display set to:', modal.style.display);
+    } else {
+        console.error('Import modal element NOT FOUND!');
     }
+    console.log('=== showImportOptionsModal() END ===');
 }
 
 function closeImportOptionsModal() {
@@ -1512,7 +1536,11 @@ function closeImportOptionsModal() {
 }
 
 async function proceedWithImport() {
+    console.log('=== proceedWithImport() called ===');
+    console.log('Selected file:', selectedImportFile);
+    
     if (!selectedImportFile) {
+        console.log('No file stored - showing error');
         showToast('No file selected', 'error');
         return;
     }
