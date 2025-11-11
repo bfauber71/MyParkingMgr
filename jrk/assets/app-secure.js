@@ -536,6 +536,7 @@ async function handleLogout() {
 function showLogin() {
     loginPage.style.display = 'block';
     dashboardPage.style.display = 'none';
+    document.getElementById('appHeader').style.display = 'none';
     document.getElementById('navbar').style.display = 'none';
     
     // Hide splash screen if showing
@@ -555,8 +556,9 @@ async function showDashboard() {
     console.log('=== showDashboard() called ===');
     console.log('Step 1: Hide login page');
     loginPage.style.display = 'none';
-    console.log('Step 2: Show dashboard and navbar');
+    console.log('Step 2: Show dashboard, header, and navbar');
     dashboardPage.style.display = 'block';
+    document.getElementById('appHeader').style.display = 'flex';
     document.getElementById('navbar').style.display = 'flex';
     
     console.log('Step 3: Set user info');

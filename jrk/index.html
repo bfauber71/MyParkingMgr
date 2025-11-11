@@ -47,21 +47,23 @@
             </div>
         </div>
 
-        <!-- Navbar (outside dashboard page for fixed positioning) -->
-        <nav class="navbar" id="navbar" style="display: none;">
-            <div class="nav-brand">
-                <div class="brand-content">
-                    <span class="brand-name">MyParkingManager <span id="licenseStatusBadge" class="license-badge"></span></span>
-                    <span class="brand-version">v2.3.8</span>
+        <!-- App Header (brand, logo, clock, license badge) -->
+        <header class="app-header" id="appHeader" style="display: none;">
+            <div class="header-brand">
+                <img src="assets/logo.png" alt="Logo" class="header-logo">
+                <div class="header-brand-content">
+                    <span class="header-brand-name">MyParkingManager <span id="licenseStatusBadge" class="license-badge"></span></span>
+                    <span class="header-brand-version">v2.3.8</span>
                 </div>
-                <img src="assets/logo.png" alt="Logo" class="brand-logo">
             </div>
-            <div class="nav-clock">
-                <div id="navDate" class="nav-date"></div>
-                <div id="navTime" class="nav-time"></div>
+            <div class="header-clock">
+                <div id="navDate" class="header-date"></div>
+                <div id="navTime" class="header-time"></div>
             </div>
-            
-            <!-- Navigation Dropdown integrated into navbar -->
+        </header>
+
+        <!-- Navbar (navigation menu below header) -->
+        <nav class="navbar" id="navbar" style="display: none;">
             <div class="nav-dropdown-container">
                 <button class="nav-dropdown-toggle" id="navDropdownToggle">
                     <span id="currentSectionName">🚗 Vehicles</span>
