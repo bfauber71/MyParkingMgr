@@ -2670,26 +2670,32 @@ async function loadLicenseTabStatus() {
         if (data.success && data.license) {
             displayLicenseInfo(data.license);
         } else {
-            // Show default unlicensed status instead of error
+            // Show default trial status instead of error (30-day trial assumed)
+            const trialExpiresAt = new Date();
+            trialExpiresAt.setDate(trialExpiresAt.getDate() + 30);
+            
             displayLicenseInfo({
-                status: 'unlicensed',
+                status: 'trial',
                 install_id: 'N/A',
                 licensed_to: null,
-                trial_expires_at: null,
-                days_remaining: null,
+                trial_expires_at: trialExpiresAt.toISOString(),
+                days_remaining: 30,
                 activation_date: null,
                 license_key_prefix: null
             });
         }
     } catch (error) {
         console.error('Error loading license status:', error);
-        // Show default unlicensed status instead of error
+        // Show default trial status instead of error (30-day trial assumed)
+        const trialExpiresAt = new Date();
+        trialExpiresAt.setDate(trialExpiresAt.getDate() + 30);
+        
         displayLicenseInfo({
-            status: 'unlicensed',
+            status: 'trial',
             install_id: 'N/A',
             licensed_to: null,
-            trial_expires_at: null,
-            days_remaining: null,
+            trial_expires_at: trialExpiresAt.toISOString(),
+            days_remaining: 30,
             activation_date: null,
             license_key_prefix: null
         });
@@ -2701,7 +2707,16 @@ function displayLicenseInfo(license) {
     if (!displayDiv) return;
     
     const statusClass = `status-${license.status}`;
-    const statusText = license.status.charAt(0).toUpperCase() + license.status.slice(1);
+    let statusText = license.status.charAt(0).toUpperCase() + license.status.slice(1);
+    
+    // Display "Trial License" instead of just "Trial"
+    if (license.status === 'trial') {
+        statusText = 'Trial License';
+    } else if (license.status === 'licensed') {
+        statusText = 'Licensed';
+    } else if (license.status === 'expired') {
+        statusText = 'Expired';
+    }
     
     let html = '<div class="license-status-info">';
     

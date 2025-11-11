@@ -98,10 +98,17 @@ class Database {
                 $errorMessage = 'Database does not exist. Please create the database first.';
             }
             
-            // Allow app-config to proceed without database (for license graceful fallback)
+            // Allow certain APIs to proceed without database (for graceful fallback)
             $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-            if (strpos($requestUri, '/api/app-config') !== false) {
-                return null;
+            $allowedWithoutDb = [
+                '/api/app-config',
+                '/api/license-status-v2' // Allow license status to show trial even without database
+            ];
+            
+            foreach ($allowedWithoutDb as $endpoint) {
+                if (strpos($requestUri, $endpoint) !== false) {
+                    return null;
+                }
             }
             
             // If this is an API request, return JSON error

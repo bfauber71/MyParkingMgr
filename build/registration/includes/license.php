@@ -101,11 +101,24 @@ class License {
             );
             
             if (!$license) {
-                // No license record found - return unlicensed status
+                // No license record found - return trial status with 30-day trial
+                // Calculate trial expiration (30 days from config file modified date or current date)
+                $configFile = __DIR__ . '/../config.php';
+                $installDate = file_exists($configFile) ? filemtime($configFile) : time();
+                $trialExpiresAt = date('Y-m-d H:i:s', strtotime('+30 days', $installDate));
+                
+                // Calculate days remaining
+                $now = new DateTime();
+                $expiresDate = new DateTime($trialExpiresAt);
+                $interval = $now->diff($expiresDate);
+                $daysRemaining = $interval->invert ? 0 : $interval->days;
+                
                 return [
-                    'status' => 'unlicensed',
-                    'is_valid' => false,
-                    'message' => 'No license activated'
+                    'status' => 'trial',
+                    'is_valid' => true,
+                    'days_remaining' => $daysRemaining,
+                    'expires_at' => $trialExpiresAt,
+                    'show_warning' => $daysRemaining <= 7
                 ];
             }
             

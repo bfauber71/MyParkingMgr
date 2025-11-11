@@ -61,22 +61,35 @@ try {
     echo json_encode($response);
     
 } catch (Exception $e) {
-    // Return default unlicensed status if database fails
+    // Return default trial status if database fails
+    // Assume 30-day trial from installation
     // This ensures the UI always shows something instead of breaking
+    
+    // Calculate trial expiration (30 days from config file modified date or current date)
+    $configFile = __DIR__ . '/../config.php';
+    $installDate = file_exists($configFile) ? filemtime($configFile) : time();
+    $trialExpiresAt = date('Y-m-d H:i:s', strtotime('+30 days', $installDate));
+    
+    // Calculate days remaining
+    $now = new DateTime();
+    $expiresDate = new DateTime($trialExpiresAt);
+    $interval = $now->diff($expiresDate);
+    $daysRemaining = $interval->invert ? 0 : $interval->days;
+    
     http_response_code(200);
     echo json_encode([
         'success' => true,
         'license' => [
-            'status' => 'unlicensed',
+            'status' => 'trial',
             'install_id' => 'N/A',
             'licensed_to' => null,
-            'trial_expires_at' => null,
-            'days_remaining' => null,
+            'trial_expires_at' => $trialExpiresAt,
+            'days_remaining' => $daysRemaining,
             'activation_date' => null,
             'license_key_prefix' => null
         ],
         'features' => [],
         'timestamp' => date('Y-m-d H:i:s'),
-        'warning' => 'Database connection required to check license status'
+        'warning' => 'Database connection unavailable - showing trial status'
     ]);
 }
