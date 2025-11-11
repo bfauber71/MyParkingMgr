@@ -667,14 +667,22 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     background: transparent;
     color: #94a3b8;
     border: none;
-    padding: 10px 16px;
+    padding: 8px 12px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     border-radius: 6px;
     transition: all 0.2s;
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+/* Mobile: More compact settings tabs */
+@media (max-width: 767px) {
+    .settings-tab-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
 }
 
 .settings-tab-btn:hover {
