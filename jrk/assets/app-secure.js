@@ -156,6 +156,8 @@ const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const logoutBtn = document.getElementById('logoutBtn');
 const userInfo = document.getElementById('userInfo');
+const licenseSplash = document.getElementById('licenseSplash');
+const licenseSplashText = document.getElementById('licenseSplashText');
 
 // Initialize app
 // Real-time clock update function
@@ -201,6 +203,7 @@ function updateClock() {
 
 // Start clock when page loads
 let clockInterval = null;
+let splashTimeout = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
@@ -407,7 +410,34 @@ async function handleLogin(e) {
         if (response.ok) {
             currentUser = data.user;
             clearLoginLockout();
-            showDashboard();
+            
+            // Check if we can show license splash screen for licensed users
+            const licenseData = MPM_CONFIG.license;
+            const canShowSplash = licenseData && licenseData.status === 'licensed' && licenseSplash && licenseSplashText;
+            
+            if (canShowSplash) {
+                // Show splash screen for licensed users
+                const customerName = licenseData.customer_email || licenseData.customer_name || 'Licensed customer';
+                licenseSplashText.textContent = `Licensed to: ${customerName}`;
+                loginPage.style.display = 'none';
+                licenseSplash.style.display = 'flex';
+                
+                // Clear any existing timeout
+                if (splashTimeout) {
+                    clearTimeout(splashTimeout);
+                    splashTimeout = null;
+                }
+                
+                // After 5 seconds, hide splash and show dashboard
+                splashTimeout = setTimeout(() => {
+                    if (licenseSplash) licenseSplash.style.display = 'none';
+                    splashTimeout = null;
+                    showDashboard();
+                }, 5000);
+            } else {
+                // Either not licensed or splash elements missing - go directly to dashboard
+                showDashboard();
+            }
         } else if (response.status === 429 && data.locked) {
             // Account locked - show countdown
             showError('');
@@ -492,6 +522,12 @@ async function handleLogout() {
     if (clockInterval) clearInterval(clockInterval);
     clockInterval = null;
     
+    // Clear splash timeout if active
+    if (splashTimeout) {
+        clearTimeout(splashTimeout);
+        splashTimeout = null;
+    }
+    
     currentUser = null;
     csrfToken = null; // Clear CSRF token on logout
     showLogin();
@@ -501,6 +537,16 @@ function showLogin() {
     loginPage.style.display = 'block';
     dashboardPage.style.display = 'none';
     document.getElementById('navbar').style.display = 'none';
+    
+    // Hide splash screen if showing
+    if (licenseSplash) licenseSplash.style.display = 'none';
+    
+    // Clear splash timeout if active
+    if (splashTimeout) {
+        clearTimeout(splashTimeout);
+        splashTimeout = null;
+    }
+    
     loginForm.reset();
     loginError.classList.remove('show');
 }

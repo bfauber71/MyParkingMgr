@@ -101,11 +101,11 @@ class License {
             );
             
             if (!$license) {
-                // Not initialized yet - should only happen during setup
+                // No license record found - return unlicensed status
                 return [
-                    'status' => 'not_initialized',
-                    'is_valid' => true, // Allow access during setup
-                    'message' => 'License system not initialized'
+                    'status' => 'unlicensed',
+                    'is_valid' => false,
+                    'message' => 'No license activated'
                 ];
             }
             

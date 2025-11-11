@@ -27,7 +27,8 @@ try {
         $licenseStatus = License::getStatus();
         $licenseData = [
             'status' => $licenseStatus['status'] ?? 'active',
-            'warnings' => $licenseStatus['warnings'] ?? []
+            'warnings' => $licenseStatus['warnings'] ?? [],
+            'customer_email' => $licenseStatus['customer_email'] ?? null
         ];
     }
 } catch (Exception $e) {

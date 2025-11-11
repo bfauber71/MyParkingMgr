@@ -232,6 +232,37 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     font-weight: 600;
 }
 
+/* License Splash Screen */
+.license-splash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #0f172a;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.license-splash-content {
+    text-align: center;
+    padding: 40px;
+}
+
+.license-splash-content h1 {
+    font-size: 32px;
+    margin-bottom: 24px;
+    color: #fff;
+}
+
+.license-splash-text {
+    font-size: 20px;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
 /* Buttons - Mobile-First with Better Touch Targets */
 .btn {
     padding: 12px 20px;
