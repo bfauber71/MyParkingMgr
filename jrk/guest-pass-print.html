@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guest Pass</title>
+    <script src="assets/config.js"></script>
     <style>
         @media print {
             @page {
@@ -115,23 +116,14 @@
 
         .expiration-notice {
             text-align: center;
-            padding: 25px;
-            background: white;
+            padding: 20px 10px;
+            background: transparent;
             color: #000;
-            margin-top: 20px;
+            margin-top: 15px;
             font-size: 60px;
             font-weight: bold;
-            border: 6px solid #000;
+            border: none;
             letter-spacing: 4px;
-        }
-        
-        @media print {
-            .expiration-notice {
-                background: white !important;
-                color: #000 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
         }
 
         .print-button {
@@ -214,6 +206,10 @@
     </div>
 
     <script>
+        // Get API base from config
+        const MPM_CONFIG = window.MPM_CONFIG || { basePath: '', apiBase: '/api' };
+        const API_BASE = MPM_CONFIG.apiBase;
+        
         // Get data from URL parameters
         const params = new URLSearchParams(window.location.search);
         
@@ -233,14 +229,32 @@
         document.getElementById('guestOf').textContent = params.get('guestOf') || '';
         document.getElementById('expirationDate').textContent = params.get('expirationDate') || '';
         
-        // Add logo if provided
-        const logoUrl = params.get('logoUrl');
-        if (logoUrl && logoUrl !== 'null' && logoUrl !== '') {
-            const img = document.createElement('img');
-            img.src = logoUrl;
-            img.alt = 'Property Logo';
-            document.getElementById('logoContainer').appendChild(img);
+        // Load logo from printer settings (same as violation tickets)
+        async function loadLogo() {
+            try {
+                const response = await fetch(`${API_BASE}/printer-settings`, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const settings = data.settings || {};
+                    
+                    // Use top logo if enabled (same as violation tickets)
+                    if (settings.logo_top_enabled === 'true' && settings.logo_top) {
+                        const img = document.createElement('img');
+                        img.src = settings.logo_top;
+                        img.alt = 'Property Logo';
+                        document.getElementById('logoContainer').appendChild(img);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load logo:', error);
+            }
         }
+        
+        // Load logo on page load
+        loadLogo();
         
         // Auto-print on load (optional - can be removed if not desired)
         // window.onload = () => setTimeout(() => window.print(), 500);
