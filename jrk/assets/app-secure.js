@@ -855,7 +855,8 @@ function switchSettingsTab(subTabName) {
         'users': 'settingsUsersTab',
         'violations': 'settingsViolationsTab',
         'database-ops': 'settingsDatabaseOpsTab',
-        'printer': 'settingsPrinterTab'
+        'printer': 'settingsPrinterTab',
+        'license': 'settingsLicenseTab'
     };
     
     const actualContent = document.getElementById(contentMap[subTabName]);
@@ -868,6 +869,11 @@ function switchSettingsTab(subTabName) {
     if (actualContent) {
         actualContent.classList.add('active');
         secureLog('Activated settings sub-tab content:', subTabName);
+        
+        // Load license status when license tab is activated
+        if (subTabName === 'license') {
+            loadLicenseStatus();
+        }
     }
     
     // Load sub-tab specific data
@@ -2622,8 +2628,182 @@ async function loadSettingsSection() {
     // Load settings on page load
     await loadPrinterSettings();
     
+    // Setup license management event listeners
+    setupLicenseManagement();
+    
     // Load default sub-tab (users)
     switchSettingsTab('users');
+}
+
+// License Management Functions
+function setupLicenseManagement() {
+    // License activation form submission
+    const licenseForm = document.getElementById('licenseActivationForm');
+    if (licenseForm) {
+        licenseForm.onsubmit = async (e) => {
+            e.preventDefault();
+            await handleLicenseActivation();
+        };
+    }
+    
+    // Clear form button
+    const clearBtn = document.getElementById('clearLicenseFormBtn');
+    if (clearBtn) {
+        clearBtn.onclick = () => {
+            document.getElementById('licenseActivationForm').reset();
+            document.getElementById('licenseActivationError').style.display = 'none';
+            document.getElementById('licenseActivationSuccess').style.display = 'none';
+        };
+    }
+}
+
+async function loadLicenseStatus() {
+    const displayDiv = document.getElementById('licenseStatusDisplay');
+    if (!displayDiv) return;
+    
+    try {
+        displayDiv.innerHTML = '<div class="loading-spinner">Loading license information...</div>';
+        
+        const response = await fetch(`${API_BASE}/license-status-v2`);
+        const data = await response.json();
+        
+        if (data.success && data.license) {
+            displayLicenseInfo(data.license);
+        } else {
+            displayDiv.innerHTML = '<p class="error-message">Failed to load license information</p>';
+        }
+    } catch (error) {
+        console.error('Error loading license status:', error);
+        displayDiv.innerHTML = '<p class="error-message">Error loading license information</p>';
+    }
+}
+
+function displayLicenseInfo(license) {
+    const displayDiv = document.getElementById('licenseStatusDisplay');
+    if (!displayDiv) return;
+    
+    const statusClass = `status-${license.status}`;
+    const statusText = license.status.charAt(0).toUpperCase() + license.status.slice(1);
+    
+    let html = '<div class="license-status-info">';
+    
+    html += `
+        <div class="license-status-row">
+            <span class="license-status-label">Status:</span>
+            <span class="license-status-value ${statusClass}">${statusText}</span>
+        </div>
+    `;
+    
+    if (license.licensed_to) {
+        html += `
+            <div class="license-status-row">
+                <span class="license-status-label">Licensed To:</span>
+                <span class="license-status-value">${license.licensed_to}</span>
+            </div>
+        `;
+    }
+    
+    if (license.install_id) {
+        html += `
+            <div class="license-status-row">
+                <span class="license-status-label">Installation ID:</span>
+                <span class="license-status-value">${license.install_id}</span>
+            </div>
+        `;
+    }
+    
+    if (license.status === 'trial' && license.days_remaining !== undefined) {
+        html += `
+            <div class="license-status-row">
+                <span class="license-status-label">Trial Days Remaining:</span>
+                <span class="license-status-value status-trial">${license.days_remaining} days</span>
+            </div>
+        `;
+        
+        if (license.trial_expires_at) {
+            html += `
+                <div class="license-status-row">
+                    <span class="license-status-label">Trial Expires:</span>
+                    <span class="license-status-value">${new Date(license.trial_expires_at).toLocaleDateString()}</span>
+                </div>
+            `;
+        }
+    }
+    
+    if (license.activated_at) {
+        html += `
+            <div class="license-status-row">
+                <span class="license-status-label">Activated:</span>
+                <span class="license-status-value">${new Date(license.activated_at).toLocaleDateString()}</span>
+            </div>
+        `;
+    }
+    
+    if (license.key_prefix) {
+        html += `
+            <div class="license-status-row">
+                <span class="license-status-label">License Key Prefix:</span>
+                <span class="license-status-value">${license.key_prefix}...</span>
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    displayDiv.innerHTML = html;
+}
+
+async function handleLicenseActivation() {
+    const errorDiv = document.getElementById('licenseActivationError');
+    const successDiv = document.getElementById('licenseActivationSuccess');
+    const btn = document.getElementById('activateLicenseBtn');
+    
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    const licenseKey = document.getElementById('licenseKey').value.trim();
+    const customerEmail = document.getElementById('customerEmail').value.trim();
+    
+    if (!licenseKey) {
+        errorDiv.textContent = 'Please enter a license key';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    try {
+        btn.disabled = true;
+        btn.textContent = 'Activating...';
+        
+        const response = await secureApiCall(`${API_BASE}/license-activate`, {
+            method: 'POST',
+            body: JSON.stringify({
+                license_key: licenseKey,
+                email: customerEmail
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            successDiv.textContent = data.message || 'License activated successfully!';
+            successDiv.style.display = 'block';
+            document.getElementById('licenseActivationForm').reset();
+            
+            await loadLicenseStatus();
+            await loadLicenseStatus(); // Also update header badge
+            
+            showToast('License activated successfully!', 'success');
+        } else {
+            errorDiv.textContent = data.error || 'Failed to activate license';
+            errorDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('License activation error:', error);
+        errorDiv.textContent = 'Error activating license. Please try again.';
+        errorDiv.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Activate License';
+    }
 }
 
 async function loadViolations() {

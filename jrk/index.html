@@ -228,6 +228,7 @@
                         <button class="settings-tab-btn" data-settings-tab="violations">🎫 Violations</button>
                         <button class="settings-tab-btn" data-settings-tab="database-ops">🗄️ Database Operations</button>
                         <button class="settings-tab-btn" data-settings-tab="printer">🖨️ Printer Settings</button>
+                        <button class="settings-tab-btn" data-settings-tab="license">🔑 License</button>
                     </div>
 
                     <!-- Users Sub-section -->
@@ -463,6 +464,61 @@
                                 <li>A new window opens with printable table on 8.5x11 paper</li>
                             </ol>
                             <p class="help-text" style="margin-top: 10px;"><strong>Note:</strong> This is different from individual violation tickets which use custom sizes.</p>
+                        </div>
+                    </div>
+
+                    <!-- License Management Sub-section -->
+                    <div id="settingsLicenseTab" class="settings-tab-content">
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>License Management</h3>
+                            </div>
+                            
+                            <!-- Current License Status -->
+                            <div class="license-status-card">
+                                <h4>Current License Status</h4>
+                                <div id="licenseStatusDisplay">
+                                    <div class="loading-spinner">Loading license information...</div>
+                                </div>
+                            </div>
+
+                            <!-- License Activation Form -->
+                            <div class="license-activation-card" style="margin-top: 30px;">
+                                <h4>Install/Update License</h4>
+                                <p class="help-text">Enter your license key to activate or update your license. Only administrators can install licenses.</p>
+                                
+                                <form id="licenseActivationForm" style="margin-top: 20px;">
+                                    <div class="form-group">
+                                        <label for="licenseKey">License Key *</label>
+                                        <input type="text" id="licenseKey" name="license_key" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" required>
+                                        <p class="help-text" style="margin-top: 5px;">Format: 32 characters with dashes (e.g., ABCD-1234-EFGH-5678-IJKL-9012-MNOP-3456)</p>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="customerEmail">Email (Optional)</label>
+                                        <input type="email" id="customerEmail" name="customer_email" placeholder="your@email.com">
+                                        <p class="help-text" style="margin-top: 5px;">Your email address for license records</p>
+                                    </div>
+                                    
+                                    <div id="licenseActivationError" class="error-message" style="display: none;"></div>
+                                    <div id="licenseActivationSuccess" class="success-message" style="display: none;"></div>
+                                    
+                                    <div style="margin-top: 20px;">
+                                        <button type="submit" id="activateLicenseBtn" class="btn btn-primary">Activate License</button>
+                                        <button type="button" id="clearLicenseFormBtn" class="btn btn-secondary">Clear</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- License Information -->
+                            <div class="settings-info" style="margin-top: 30px;">
+                                <h4>About License Keys</h4>
+                                <p class="help-text"><strong>Trial License:</strong> All new installations start with a 30-day trial period with full features.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Licensed:</strong> Activate a paid license key to continue using the software after the trial expires.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Expired:</strong> If your trial has expired, you must activate a license key to continue using the software.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Installation-Specific Keys:</strong> Some license keys are tied to your specific installation ID and will only work on this server.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Universal Keys:</strong> Some license keys work on any installation (typically for enterprise customers).</p>
+                            </div>
                         </div>
                     </div>
                 </div>

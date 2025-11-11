@@ -1426,6 +1426,80 @@ input[type="date"]::-webkit-datetime-edit-year-field {
     font-size: 1.3em;
 }
 
+/* License Management Cards */
+.license-status-card,
+.license-activation-card {
+    background: #1e293b;
+    border: 2px solid #475569;
+    border-left: 4px solid #3b82f6;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.license-status-card h4,
+.license-activation-card h4 {
+    margin: 0 0 15px 0;
+    color: #60a5fa;
+    font-size: 1.1em;
+}
+
+.license-status-info {
+    display: grid;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.license-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #0f172a;
+    border-radius: 6px;
+}
+
+.license-status-label {
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.license-status-value {
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+.license-status-value.status-trial {
+    color: #fbbf24;
+}
+
+.license-status-value.status-licensed {
+    color: #34d399;
+}
+
+.license-status-value.status-expired {
+    color: #f87171;
+}
+
+.license-status-value.status-unlicensed {
+    color: #94a3b8;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+}
+
+.success-message {
+    background: #065f46;
+    color: #d1fae5;
+    border: 1px solid #10b981;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
 .bulk-operation-card {
     background: #1e293b;
     border: 2px solid #475569;
