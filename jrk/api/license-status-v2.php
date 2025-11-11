@@ -1,8 +1,7 @@
 <?php
 /**
- * License Status API v2 - Cache-busted version
+ * License Status API v2 - Simplified for shared hosting
  * GET /api/license-status-v2
- * Returns current license status and trial information
  */
 
 // Force no caching
@@ -10,19 +9,40 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
 header('Content-Type: application/json');
 
-// Clear OPcache for this file if possible
+// Clear OPcache if available
 if (function_exists('opcache_invalidate')) {
-    opcache_invalidate(__FILE__, true);
+    @opcache_invalidate(__FILE__, true);
 }
 
-require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/helpers.php';
-require_once __DIR__ . '/../includes/license.php';
+// Error handling for shared hosting
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
 
 try {
+    // Check if required files exist before including
+    $requiredFiles = [
+        __DIR__ . '/../includes/database.php',
+        __DIR__ . '/../includes/helpers.php',
+        __DIR__ . '/../includes/license.php'
+    ];
+    
+    foreach ($requiredFiles as $file) {
+        if (!file_exists($file)) {
+            throw new Exception("Required file missing: " . basename($file));
+        }
+    }
+    
+    require_once __DIR__ . '/../includes/database.php';
+    require_once __DIR__ . '/../includes/helpers.php';
+    require_once __DIR__ . '/../includes/license.php';
+    
+    // Check if License class exists
+    if (!class_exists('License')) {
+        throw new Exception("License class not found");
+    }
+    
     $status = License::getStatus();
     
-    // Add additional information for frontend
     $response = [
         'success' => true,
         'license' => $status,
@@ -30,21 +50,23 @@ try {
         'timestamp' => date('Y-m-d H:i:s')
     ];
     
-    // Add warning messages if applicable
     if ($status['status'] === 'trial' && isset($status['days_remaining'])) {
         if ($status['days_remaining'] <= 7) {
-            $response['warning'] = "Your trial expires in {$status['days_remaining']} days. Please enter a license key to continue using all features.";
+            $response['warning'] = "Your trial expires in {$status['days_remaining']} days.";
         }
     } elseif ($status['status'] === 'expired') {
-        $response['warning'] = "Your trial has expired. Please enter a license key to continue using premium features.";
+        $response['warning'] = "Your trial has expired.";
     }
     
-    jsonResponse($response);
+    echo json_encode($response);
+    
 } catch (Exception $e) {
-    jsonResponse([
+    http_response_code(500);
+    echo json_encode([
         'success' => false,
-        'error' => 'Failed to retrieve license status',
-        'message' => $e->getMessage(),
-        'debug' => $e->getTraceAsString()
-    ], 500);
+        'error' => 'License status error',
+        'details' => $e->getMessage(),
+        'file' => basename($e->getFile()),
+        'line' => $e->getLine()
+    ]);
 }

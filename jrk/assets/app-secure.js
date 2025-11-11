@@ -570,10 +570,18 @@ async function loadPrinterSettingsForClock() {
 async function loadLicenseStatus() {
     console.log('loadLicenseStatus() called');
     try {
-        // Use v2 endpoint to bypass OPcache on production
-        const response = await secureApiCall(`${API_BASE}/license-status-v2`, {
+        // Try v2 first, fallback to v1 if it fails
+        let response = await secureApiCall(`${API_BASE}/license-status-v2`, {
             method: 'GET'
         });
+        
+        // If v2 fails, try original endpoint
+        if (!response.ok) {
+            console.log('License v2 failed, trying v1...');
+            response = await secureApiCall(`${API_BASE}/license-status`, {
+                method: 'GET'
+            });
+        }
         
         console.log('License status response:', response.status);
         
