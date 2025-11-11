@@ -3687,21 +3687,21 @@ async function handleVehicleSubmit(e) {
     
     const formData = {
         property: form.querySelector('[name="property"]')?.value || '',
-        tag_number: form.querySelector('[name="tag_number"]')?.value || '',
-        plate_number: form.querySelector('[name="plate_number"]')?.value || '',
+        tagNumber: form.querySelector('[name="tag_number"]')?.value || '',
+        plateNumber: form.querySelector('[name="plate_number"]')?.value || '',
         state: form.querySelector('[name="state"]')?.value || '',
         make: form.querySelector('[name="make"]')?.value || '',
         model: form.querySelector('[name="model"]')?.value || '',
         color: form.querySelector('[name="color"]')?.value || '',
         year: form.querySelector('[name="year"]')?.value || '',
-        apt_number: form.querySelector('[name="apt_number"]')?.value || '',
-        owner_name: form.querySelector('[name="owner_name"]')?.value || '',
-        owner_phone: form.querySelector('[name="owner_phone"]')?.value || '',
-        owner_email: form.querySelector('[name="owner_email"]')?.value || '',
-        reserved_space: form.querySelector('[name="reserved_space"]')?.value || '',
+        aptNumber: form.querySelector('[name="apt_number"]')?.value || '',
+        ownerName: form.querySelector('[name="owner_name"]')?.value || '',
+        ownerPhone: form.querySelector('[name="owner_phone"]')?.value || '',
+        ownerEmail: form.querySelector('[name="owner_email"]')?.value || '',
+        reservedSpace: form.querySelector('[name="reserved_space"]')?.value || '',
         resident: form.querySelector('[name="resident"]')?.checked || false,
         guest: form.querySelector('[name="guest"]')?.checked || false,
-        guest_of: form.querySelector('[name="guest_of"]')?.value || ''
+        guestOf: form.querySelector('[name="guest_of"]')?.value || ''
     };
     
     if (isUpdate) {
