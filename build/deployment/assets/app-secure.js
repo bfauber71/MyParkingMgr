@@ -1667,7 +1667,11 @@ async function performImport(file, propertyOverride = null) {
                 }
             }
             showToast(message, 'success');
-            searchVehicles('', '');
+            
+            // Add delay before refreshing to ensure database writes complete
+            setTimeout(() => {
+                searchVehicles('', '');
+            }, 500); // 500ms delay for bulk import
         } else {
             let errorMessage = data.error || 'Failed to import vehicles';
             if (data.errors && data.errors.length > 0) {
@@ -1838,7 +1842,11 @@ async function handleBulkDelete() {
         
         if (response.ok && data.success) {
             showToast(`Deleted ${data.count || 0} vehicles`, 'success');
-            searchVehicles('', '');
+            
+            // Add delay before refreshing to ensure database write completes
+            setTimeout(() => {
+                searchVehicles('', '');
+            }, 500); // Longer delay for bulk operations
         } else {
             showToast(data.error || 'Failed to delete vehicles', 'error');
         }
@@ -2001,8 +2009,12 @@ async function deleteDuplicateVehicle(vehicleId, identifier) {
         
         if (response.ok && data.success) {
             showToast('Vehicle deleted successfully', 'success');
-            // Refresh duplicates search to show updated results
-            await handleFindDuplicates();
+            
+            // Add delay before refreshing to ensure database write completes
+            setTimeout(async () => {
+                // Refresh duplicates search to show updated results
+                await handleFindDuplicates();
+            }, 300);
         } else {
             showToast(data.error || 'Failed to delete vehicle', 'error');
         }
@@ -3511,7 +3523,11 @@ async function deleteVehicle(id, tag) {
         
         if (response.ok) {
             showToast('Vehicle deleted successfully', 'success');
-            searchVehicles('', '');
+            
+            // Add delay before refreshing to ensure database write completes
+            setTimeout(() => {
+                searchVehicles('', '');
+            }, 300);
         } else {
             const data = await response.json();
             showToast(data.error || 'Failed to delete vehicle', 'error');
@@ -3720,12 +3736,16 @@ async function handleVehicleSubmit(e) {
                 closeModalByName('vehicle');
                 form.reset();
                 
-                // Refresh appropriate list based on current view
-                if (isViewingDuplicates) {
-                    handleFindDuplicates();
-                } else {
-                    searchVehicles('', '');
-                }
+                // Add small delay before refreshing to ensure database write completes
+                // This helps with shared hosting environments where OPcache may serve stale results
+                setTimeout(() => {
+                    // Refresh appropriate list based on current view
+                    if (isViewingDuplicates) {
+                        handleFindDuplicates();
+                    } else {
+                        searchVehicles('', '');
+                    }
+                }, 300); // 300ms delay
             }
         } else {
             showToast(data.error || 'Failed to save vehicle', 'error');
