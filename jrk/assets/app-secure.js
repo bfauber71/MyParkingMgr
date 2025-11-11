@@ -872,7 +872,7 @@ function switchSettingsTab(subTabName) {
         
         // Load license status when license tab is activated
         if (subTabName === 'license') {
-            loadLicenseStatus();
+            loadLicenseTabStatus();
         }
     }
     
@@ -2657,7 +2657,7 @@ function setupLicenseManagement() {
     }
 }
 
-async function loadLicenseStatus() {
+async function loadLicenseTabStatus() {
     const displayDiv = document.getElementById('licenseStatusDisplay');
     if (!displayDiv) return;
     
@@ -2788,8 +2788,12 @@ async function handleLicenseActivation() {
             successDiv.style.display = 'block';
             document.getElementById('licenseActivationForm').reset();
             
-            await loadLicenseStatus();
-            await loadLicenseStatus(); // Also update header badge
+            await loadLicenseTabStatus(); // Reload license tab display
+            
+            // Reload the entire page to refresh header badge and all license info
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
             
             showToast('License activated successfully!', 'success');
         } else {
