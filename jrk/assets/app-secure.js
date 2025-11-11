@@ -3608,6 +3608,9 @@ function printGuestPass(vehicle, property) {
         }
     }
     
+    // Build absolute URL for logo
+    const logoUrl = property.logo_url || `${window.location.origin}${basePath}/assets/logo.png`;
+    
     // Build URL with parameters
     const params = new URLSearchParams({
         propertyName: property.name || '',
@@ -3622,7 +3625,7 @@ function printGuestPass(vehicle, property) {
         guestName: vehicle.owner_name || '',
         guestOf: vehicle.guest_of ? `Apt/Unit ${vehicle.guest_of}` : '',
         expirationDate: formattedExpDate,
-        logoUrl: property.logo_url || '../assets/logo.png'
+        logoUrl: logoUrl
     });
     
     // Open print window
