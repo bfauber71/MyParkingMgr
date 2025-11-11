@@ -2670,11 +2670,29 @@ async function loadLicenseTabStatus() {
         if (data.success && data.license) {
             displayLicenseInfo(data.license);
         } else {
-            displayDiv.innerHTML = '<p class="error-message">Failed to load license information</p>';
+            // Show default unlicensed status instead of error
+            displayLicenseInfo({
+                status: 'unlicensed',
+                install_id: 'N/A',
+                licensed_to: null,
+                trial_expires_at: null,
+                days_remaining: null,
+                activation_date: null,
+                license_key_prefix: null
+            });
         }
     } catch (error) {
         console.error('Error loading license status:', error);
-        displayDiv.innerHTML = '<p class="error-message">Error loading license information</p>';
+        // Show default unlicensed status instead of error
+        displayLicenseInfo({
+            status: 'unlicensed',
+            install_id: 'N/A',
+            licensed_to: null,
+            trial_expires_at: null,
+            days_remaining: null,
+            activation_date: null,
+            license_key_prefix: null
+        });
     }
 }
 

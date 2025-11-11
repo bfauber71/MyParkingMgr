@@ -61,12 +61,22 @@ try {
     echo json_encode($response);
     
 } catch (Exception $e) {
-    http_response_code(500);
+    // Return default unlicensed status if database fails
+    // This ensures the UI always shows something instead of breaking
+    http_response_code(200);
     echo json_encode([
-        'success' => false,
-        'error' => 'License status error',
-        'details' => $e->getMessage(),
-        'file' => basename($e->getFile()),
-        'line' => $e->getLine()
+        'success' => true,
+        'license' => [
+            'status' => 'unlicensed',
+            'install_id' => 'N/A',
+            'licensed_to' => null,
+            'trial_expires_at' => null,
+            'days_remaining' => null,
+            'activation_date' => null,
+            'license_key_prefix' => null
+        ],
+        'features' => [],
+        'timestamp' => date('Y-m-d H:i:s'),
+        'warning' => 'Database connection required to check license status'
     ]);
 }
