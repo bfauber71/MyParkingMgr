@@ -566,53 +566,40 @@ async function loadPrinterSettingsForClock() {
     console.log('Clock started with timezone:', appTimezone);
 }
 
-// Load and display license status badge
+// Load and display license status badge from MPM_CONFIG
+// NOTE: License data is embedded in app-config.php (shared-hosting safe approach)
 async function loadLicenseStatus() {
-    console.log('loadLicenseStatus() called');
+    console.log('loadLicenseStatus() called - reading from MPM_CONFIG');
     try {
-        // Try v2 first, fallback to v1 if it fails
-        let response = await secureApiCall(`${API_BASE}/license-status-v2`, {
-            method: 'GET'
-        });
+        const badge = document.getElementById('licenseStatusBadge');
+        console.log('Badge element found:', !!badge);
         
-        // If v2 fails, try original endpoint
-        if (!response.ok) {
-            console.log('License v2 failed, trying v1...');
-            response = await secureApiCall(`${API_BASE}/license-status`, {
-                method: 'GET'
-            });
-        }
+        // Get license data from app-config (already loaded)
+        const licenseData = MPM_CONFIG.license;
+        console.log('License data from config:', licenseData);
         
-        console.log('License status response:', response.status);
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('License data:', data);
-            const badge = document.getElementById('licenseStatusBadge');
+        if (badge && licenseData) {
+            const status = licenseData.status;
+            console.log('License status:', status);
             
-            console.log('Badge element found:', !!badge);
-            
-            if (badge && data.license) {
-                const status = data.license.status;
-                console.log('License status:', status);
-                
-                if (status === 'trial') {
-                    badge.textContent = 'TRIAL';
-                    badge.className = 'license-badge trial';
-                    console.log('Set TRIAL badge');
-                } else if (status === 'expired') {
-                    badge.textContent = 'EXPIRED';
-                    badge.className = 'license-badge expired';
-                    console.log('Set EXPIRED badge');
-                } else if (status === 'licensed') {
-                    badge.textContent = '';
-                    badge.className = 'license-badge';
-                    console.log('Cleared badge (licensed)');
-                }
+            if (status === 'trial') {
+                badge.textContent = 'TRIAL';
+                badge.className = 'license-badge trial';
+                console.log('Set TRIAL badge');
+            } else if (status === 'expired') {
+                badge.textContent = 'EXPIRED';
+                badge.className = 'license-badge expired';
+                console.log('Set EXPIRED badge');
+            } else if (status === 'licensed') {
+                badge.textContent = '';
+                badge.className = 'license-badge';
+                console.log('Cleared badge (licensed)');
             }
+        } else {
+            console.log('No license data available in config');
         }
     } catch (error) {
-        // Silently fail - license status is not critical
+        console.error('Error displaying license badge:', error);
     }
 }
 

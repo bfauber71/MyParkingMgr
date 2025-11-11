@@ -98,8 +98,14 @@ class Database {
                 $errorMessage = 'Database does not exist. Please create the database first.';
             }
             
+            // Allow app-config to proceed without database (for license graceful fallback)
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+            if (strpos($requestUri, '/api/app-config') !== false) {
+                return null;
+            }
+            
             // If this is an API request, return JSON error
-            if (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false) {
+            if (strpos($requestUri, '/api/') !== false) {
                 http_response_code(500);
                 die(json_encode(['error' => $errorMessage]));
             }
