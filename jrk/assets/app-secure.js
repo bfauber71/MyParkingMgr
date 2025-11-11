@@ -839,13 +839,18 @@ function switchSettingsTab(subTabName) {
 }
 
 async function setupDatabaseOpsHandlers() {
+    console.log('setupDatabaseOpsHandlers() called');
+    
     // Import/Export buttons
     const importBtn = document.getElementById('importBtn');
     const exportBtn = document.getElementById('exportBtn');
     const importFileInput = document.getElementById('importFileInput');
     
+    console.log('Found elements:', { importBtn: !!importBtn, exportBtn: !!exportBtn, importFileInput: !!importFileInput });
+    
     if (importBtn) {
         importBtn.onclick = () => {
+            console.log('Import button clicked, opening file dialog');
             if (importFileInput) importFileInput.click();
         };
     }
@@ -855,7 +860,10 @@ async function setupDatabaseOpsHandlers() {
     }
     
     if (exportBtn) {
-        exportBtn.onclick = showExportOptionsModal;
+        exportBtn.onclick = () => {
+            console.log('Export button clicked, opening modal');
+            showExportOptionsModal();
+        };
     }
     
     // Bulk operations
@@ -1418,8 +1426,14 @@ async function populateDatabaseDropdowns() {
 let selectedImportFile = null;
 
 async function showImportOptionsModal(e) {
+    console.log('showImportOptionsModal() called');
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+        console.log('No file selected');
+        return;
+    }
+    
+    console.log('File selected:', file.name);
     
     if (!file.name.endsWith('.csv')) {
         showToast('Please select a CSV file', 'error');
@@ -1596,6 +1610,8 @@ async function performImport(file, propertyOverride = null) {
 }
 
 async function showExportOptionsModal() {
+    console.log('showExportOptionsModal() called');
+    
     // Populate property dropdown
     try {
         const response = await secureApiCall(`${API_BASE}/properties-list`, {
