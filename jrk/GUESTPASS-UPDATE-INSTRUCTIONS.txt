@@ -1,0 +1,57 @@
+================================================================================
+GUEST PASS UPDATE - Quick Fix for Recently Installed Package
+================================================================================
+
+If you just installed the complete package and need only the guest pass fix,
+upload these 2 files:
+
+================================================================================
+FILES TO UPLOAD (from GuestPass-Update.zip)
+================================================================================
+
+1. guest-pass-print.html
+   Location: Root directory (same folder as index.html)
+
+2. assets/app-secure.js
+   Location: assets/ folder (replace existing file)
+
+================================================================================
+UPLOAD INSTRUCTIONS
+================================================================================
+
+1. Extract GuestPass-Update.zip
+
+2. Upload guest-pass-print.html to your web root
+   (Overwrites the existing guest-pass-print.html)
+
+3. Upload app-secure.js to your assets/ folder
+   (Overwrites the existing assets/app-secure.js)
+
+4. Clear browser cache:
+   - Windows: Ctrl + F5
+   - Mac: Cmd + Shift + R
+
+5. Test guest pass printing
+
+================================================================================
+WHAT THIS FIX DOES
+================================================================================
+
+✓ Guest pass now shows your saved property logo (from printer settings)
+✓ Expiration displays as large black text without border box
+✓ Everything stays within the 1/2 page cutoff
+
+================================================================================
+VERIFICATION
+================================================================================
+
+After uploading:
+1. Create or view a guest pass
+2. Click "Print Guest Pass"
+3. Verify:
+   - Property logo appears in upper left
+   - "EXPIRES: MM-DD-YYYY" is large black text
+   - No border box around expiration
+   - Everything fits on page
+
+================================================================================
