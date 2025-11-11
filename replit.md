@@ -17,7 +17,9 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions
 
-The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis, and dynamic logo integration via ZPL. The navbar is fixed at the top of the screen and includes a real-time clock respecting the configured timezone. Mobile navbar is optimized to fit within 1/2 inch (48px) screen space with compact layout. License status badge displays only for TRIAL/EXPIRED states on mobile, always visible on desktop/tablet.
+The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis, and dynamic logo integration via ZPL. 
+
+**Header/Navbar Architecture:** The application uses a two-tier fixed layout with the header and navbar as separate structural elements. The header (app-header) contains branding elements: logo, app name, version, license badge, and real-time clock. The navbar appears directly below the header and contains only navigation controls: dropdown menu, user info, and logout. Mobile header is max 56px, navbar is max 48px (1/2 inch). Desktop header is max 72px with larger navbar. Visual differentiation: header has darker background (#1e293b), navbar has lighter background (#334155). License status badge displays only for TRIAL/EXPIRED states on mobile, always visible on desktop/tablet.
 
 ### Technical Implementations
 
