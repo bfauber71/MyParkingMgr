@@ -106,16 +106,12 @@ class Session {
         
         // Ensure permissions are loaded if table exists
         if ($user && !isset($user['permissions'])) {
-            // Only try to load permissions if loadUserPermissions function exists
-            // (it's defined in helpers.php which may not be loaded yet)
-            if (function_exists('loadUserPermissions')) {
-                try {
-                    $user['permissions'] = loadUserPermissions($user['id']);
-                    self::set('user', $user); // Cache in session
-                } catch (Exception $e) {
-                    // If permissions table doesn't exist yet, continue without permissions
-                    $user['permissions'] = [];
-                }
+            try {
+                $user['permissions'] = loadUserPermissions($user['id']);
+                self::set('user', $user); // Cache in session
+            } catch (Exception $e) {
+                // If permissions table doesn't exist yet, continue without permissions
+                $user['permissions'] = [];
             }
         }
         

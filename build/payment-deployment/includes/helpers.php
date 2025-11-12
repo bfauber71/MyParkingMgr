@@ -470,17 +470,24 @@ function loadUserPermissions($userId) {
     
     $permissions = [];
     foreach ($rows as $row) {
-        // PDO returns values as strings, so convert properly
-        // Use filter_var or explicit int casting to handle '1' string as true
         $permissions[$row['module']] = [
-            'can_view' => filter_var($row['can_view'], FILTER_VALIDATE_BOOLEAN) || (int)$row['can_view'] === 1,
-            'can_edit' => filter_var($row['can_edit'], FILTER_VALIDATE_BOOLEAN) || (int)$row['can_edit'] === 1,
-            'can_create_delete' => filter_var($row['can_create_delete'], FILTER_VALIDATE_BOOLEAN) || (int)$row['can_create_delete'] === 1
+            'can_view' => (bool)$row['can_view'],
+            'can_edit' => (bool)$row['can_edit'],
+            'can_create_delete' => (bool)$row['can_create_delete']
         ];
     }
     
-    // DO NOT add default false values - return empty array if no permissions
-    // This allows hasPermission() to fall back to role-based permissions
+    // Ensure all modules exist with default false values
+    $modules = [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS, MODULE_DATABASE];
+    foreach ($modules as $module) {
+        if (!isset($permissions[$module])) {
+            $permissions[$module] = [
+                'can_view' => false,
+                'can_edit' => false,
+                'can_create_delete' => false
+            ];
+        }
+    }
     
     return $permissions;
 }
