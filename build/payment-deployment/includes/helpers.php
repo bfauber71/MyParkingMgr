@@ -477,17 +477,8 @@ function loadUserPermissions($userId) {
         ];
     }
     
-    // Ensure all modules exist with default false values
-    $modules = [MODULE_VEHICLES, MODULE_USERS, MODULE_PROPERTIES, MODULE_VIOLATIONS, MODULE_DATABASE];
-    foreach ($modules as $module) {
-        if (!isset($permissions[$module])) {
-            $permissions[$module] = [
-                'can_view' => false,
-                'can_edit' => false,
-                'can_create_delete' => false
-            ];
-        }
-    }
+    // DO NOT add default false values - return empty array if no permissions
+    // This allows hasPermission() to fall back to role-based permissions
     
     return $permissions;
 }
