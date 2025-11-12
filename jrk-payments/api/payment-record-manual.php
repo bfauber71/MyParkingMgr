@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$db = Database::connect();
+$db = Database::getInstance();
 
 if (!$db) {
     http_response_code(503);

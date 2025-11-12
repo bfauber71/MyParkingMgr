@@ -22,7 +22,7 @@ try {
     require_once __DIR__ . '/../includes/license.php';
     
     // Only check license status if database is available
-    $pdo = Database::connect();
+    $pdo = Database::getInstance();
     if ($pdo !== null) {
         $licenseStatus = License::getStatus();
         $licenseData = [
