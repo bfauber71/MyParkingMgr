@@ -40,6 +40,8 @@ After importing the SQL:
 sql/
 ├── COMPLETE-INSTALL.sql          ← USE THIS for new installations
 ├── README-SQL-INSTALLATION.md    ← This file
+├── add-test-data.sql             ← Add sample data to existing installations
+├── fix-admin-permissions.sql     ← Fix permission errors (401 Unauthorized)
 ├── install.sql                   ← Base schema only (no payment system)
 │
 └── Individual migration files (for upgrades):
@@ -60,7 +62,23 @@ database/migrations/
 ✅ Use: `COMPLETE-INSTALL.sql`
 - Complete setup in one file
 - Includes payment system
-- Default admin user included
+- Includes admin user with full permissions
+- Includes test property + 10 vehicles + 30 violations
+- Ready to use immediately!
+
+### **Existing Installation - Add Test Data**
+✅ Use: `add-test-data.sql`
+- Adds sample property (Sunset Apartments)
+- Adds 10 test vehicles
+- Adds 30 violation tickets
+- Safe to run on existing installations
+- Perfect for testing/demo purposes
+
+### **Existing Installation - Fix Permission Errors**
+✅ Use: `fix-admin-permissions.sql`
+- Fixes 401 Unauthorized errors
+- Grants admin user full permissions
+- Required if you see "Unauthorized" when accessing Users/Violations
 
 ### **Upgrading from v1.x to v2.0**
 ✅ Use: `database/migrations/002-payment-system.sql`
@@ -203,7 +221,9 @@ If you encounter issues:
 
 | File | Purpose | When to Use |
 |------|---------|-------------|
-| `COMPLETE-INSTALL.sql` | Complete new installation | Fresh setup |
+| `COMPLETE-INSTALL.sql` | Complete new installation with test data | Fresh setup |
+| `add-test-data.sql` | Add sample property, vehicles, violations | Existing installation |
+| `fix-admin-permissions.sql` | Fix 401 permission errors | When you see "Unauthorized" |
 | `install.sql` | Base schema only | Without payment system |
 | `002-payment-system.sql` | Payment tables migration | Upgrade existing v1.x |
 | Individual migration files | Specific feature upgrades | As needed |
