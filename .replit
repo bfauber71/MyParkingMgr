@@ -18,6 +18,10 @@ args = "PHP Test Server"
 task = "workflow.run"
 args = "Payments App (Port 3000)"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MySQL Server"
+
 [[workflows.workflow]]
 name = "PHP Test Server"
 author = "agent"
@@ -41,6 +45,18 @@ waitForPort = 3000
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow]]
+name = "MySQL Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "/nix/store/a4jsa8kjdn3wlccj2wkvhxqza38rpxzf-mariadb-server-10.11.13/bin/mysqld --datadir=/home/runner/.mysql --socket=/tmp/mysql.sock --pid-file=/tmp/mysql.pid --port=3001 --bind-address=127.0.0.1"
+waitForPort = 3001
 
 [[ports]]
 localPort = 3000
