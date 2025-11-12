@@ -2094,7 +2094,7 @@ function displayViolationSearchResults(violations) {
     const table = createElement('table', { className: 'data-table' });
     const thead = createElement('thead');
     const headerRow = createElement('tr');
-    ['Date', 'Vehicle', 'Ticket Type', 'Violation', 'Fines', 'Property', 'Status', 'Actions'].forEach(text => {
+    ['Date', 'Vehicle', 'Ticket Type', 'Violation', 'Fines', 'Property', 'Payment', 'Status', 'Actions'].forEach(text => {
         const th = createElement('th', {}, text);
         headerRow.appendChild(th);
     });
@@ -2155,6 +2155,15 @@ function displayViolationSearchResults(violations) {
             row.appendChild(td);
         });
         
+        // Add payment status cell
+        const paymentStatusTd = createElement('td');
+        paymentStatusTd.innerHTML = getPaymentStatusBadge(
+            violation.payment_status, 
+            violation.amount_paid, 
+            violation.total_fine
+        );
+        row.appendChild(paymentStatusTd);
+        
         // Add status cell with HTML
         const statusTd = createElement('td');
         statusTd.innerHTML = statusBadge;
@@ -2162,6 +2171,21 @@ function displayViolationSearchResults(violations) {
         
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
+        
+        // Add payment buttons if ticket has fines
+        if (parseFloat(violation.total_fine || 0) > 0 && status === 'active') {
+            const recordPaymentBtn = createElement('button', { className: 'btn btn-sm btn-success' }, '💰 Payment');
+            safeAddEventListener(recordPaymentBtn, 'click', () => {
+                openRecordPaymentModal(violation.id);
+            });
+            actionsDiv.appendChild(recordPaymentBtn);
+            
+            const historyBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, '📜 History');
+            safeAddEventListener(historyBtn, 'click', () => {
+                openPaymentHistoryModal(violation.id);
+            });
+            actionsDiv.appendChild(historyBtn);
+        }
         
         // Add reprint button for all violations (using the violation ticket id)
         const reprintBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Reprint Ticket');
@@ -2654,6 +2678,21 @@ async function loadSettingsSection() {
     
     // Setup license management event listeners
     setupLicenseManagement();
+    
+    // Set up payment system
+    setupPaymentSystem();
+    
+    // Populate property dropdown in payment settings
+    const paymentConfigProperty = document.getElementById('paymentConfigProperty');
+    if (paymentConfigProperty && allProperties.length > 0) {
+        paymentConfigProperty.innerHTML = '<option value="">Select Property</option>';
+        allProperties.forEach(prop => {
+            const option = document.createElement('option');
+            option.value = prop.id;
+            option.textContent = prop.property_name || prop.name;
+            paymentConfigProperty.appendChild(option);
+        });
+    }
     
     // Load default sub-tab (users)
     switchSettingsTab('users');
@@ -3967,7 +4006,7 @@ function displayTicketStatus(tickets) {
     const thead = createElement('thead');
     const headerRow = createElement('tr');
     
-    ['Ticket ID', 'Vehicle', 'Property', 'Issued Date', 'Status', 'Disposition', 'Actions'].forEach(header => {
+    ['Ticket ID', 'Vehicle', 'Property', 'Issued Date', 'Payment', 'Status', 'Disposition', 'Actions'].forEach(header => {
         const th = createElement('th', {}, header);
         headerRow.appendChild(th);
     });
@@ -3989,21 +4028,49 @@ function displayTicketStatus(tickets) {
             ticket.id.substring(0, 8),
             vehicleInfo,
             ticket.property || '-',
-            issuedDate,
-            statusBadge,
-            disposition
-        ].forEach((text, index) => {
+            issuedDate
+        ].forEach((text) => {
             const td = createElement('td');
-            if (index === 4) {
-                td.innerHTML = text;
-            } else {
-                td.textContent = text;
-            }
+            td.textContent = text;
             row.appendChild(td);
         });
         
+        // Add payment status cell
+        const paymentStatusTd = createElement('td');
+        paymentStatusTd.innerHTML = getPaymentStatusBadge(
+            ticket.payment_status, 
+            ticket.amount_paid, 
+            ticket.total_fine
+        );
+        row.appendChild(paymentStatusTd);
+        
+        // Add status badge cell
+        const statusTd = createElement('td');
+        statusTd.innerHTML = statusBadge;
+        row.appendChild(statusTd);
+        
+        // Add disposition cell
+        const dispositionTd = createElement('td');
+        dispositionTd.textContent = disposition;
+        row.appendChild(dispositionTd);
+        
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
+        
+        // Add payment buttons if ticket has fines and is active
+        if (parseFloat(ticket.total_fine || 0) > 0 && ticket.status === 'active') {
+            const recordPaymentBtn = createElement('button', { className: 'btn btn-sm btn-success' }, '💰 Payment');
+            safeAddEventListener(recordPaymentBtn, 'click', () => {
+                openRecordPaymentModal(ticket.id);
+            });
+            actionsDiv.appendChild(recordPaymentBtn);
+            
+            const historyBtn = createElement('button', { className: 'btn btn-sm btn-secondary' }, '📜 History');
+            safeAddEventListener(historyBtn, 'click', () => {
+                openPaymentHistoryModal(ticket.id);
+            });
+            actionsDiv.appendChild(historyBtn);
+        }
         
         // Add reprint button for all tickets
         const reprintBtn = createElement('button', { className: 'btn btn-sm btn-primary' }, 'Reprint');
@@ -4067,12 +4134,423 @@ async function closeTicket(ticketId, disposition) {
     }
 }
 
+// ========================================
+// PAYMENT SYSTEM FUNCTIONS (v2.0)
+// ========================================
+
+let currentPaymentTicketId = null;
+let paymentSettings = {};
+
+// Initialize Payment System
+function setupPaymentSystem() {
+    const paymentTab = document.querySelector('[data-settings-tab="payments"]');
+    if (!paymentTab) return;
+
+    const installBtn = document.getElementById('installPaymentSystemBtn');
+    if (installBtn) {
+        installBtn.onclick = installPaymentSystem;
+    }
+
+    const paymentConfigProperty = document.getElementById('paymentConfigProperty');
+    if (paymentConfigProperty) {
+        paymentConfigProperty.onchange = (e) => loadPaymentSettings(e.target.value);
+    }
+
+    const paymentProcessor = document.getElementById('paymentProcessor');
+    if (paymentProcessor) {
+        paymentProcessor.onchange = togglePaymentProcessorFields;
+    }
+
+    const savePaymentSettingsBtn = document.getElementById('savePaymentSettingsBtn');
+    if (savePaymentSettingsBtn) {
+        savePaymentSettingsBtn.onclick = savePaymentSettings;
+    }
+
+    const testPaymentConnectionBtn = document.getElementById('testPaymentConnectionBtn');
+    if (testPaymentConnectionBtn) {
+        testPaymentConnectionBtn.onclick = testPaymentConnection;
+    }
+
+    const recordPaymentForm = document.getElementById('recordPaymentForm');
+    if (recordPaymentForm) {
+        recordPaymentForm.onsubmit = handleRecordPayment;
+    }
+
+    const paymentMethod = document.getElementById('paymentMethod');
+    if (paymentMethod) {
+        paymentMethod.onchange = toggleCheckNumberField;
+    }
+
+    const closeButtons = document.querySelectorAll('[data-modal="recordPayment"], [data-cancel="recordPayment"]');
+    closeButtons.forEach(btn => {
+        btn.onclick = () => closeModalByName('recordPayment');
+    });
+
+    const historyCloseButtons = document.querySelectorAll('[data-modal="paymentHistory"], [data-cancel="paymentHistory"]');
+    historyCloseButtons.forEach(btn => {
+        btn.onclick = () => closeModalByName('paymentHistory');
+    });
+}
+
+// Install Payment System Database
+async function installPaymentSystem() {
+    const statusDiv = document.getElementById('paymentInstallStatus');
+    const btn = document.getElementById('installPaymentSystemBtn');
+    
+    if (!confirm('This will install payment system database tables. Continue?')) {
+        return;
+    }
+    
+    btn.disabled = true;
+    statusDiv.innerHTML = '<p style="color: #f59e0b;">Installing payment system...</p>';
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/migrate-payment-system.php`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            statusDiv.innerHTML = `<p style="color: #10b981;">${data.message || 'Payment system installed successfully!'}</p>`;
+            showToast('Payment system installed successfully', 'success');
+        } else {
+            statusDiv.innerHTML = `<p style="color: #ef4444;">${data.error || 'Installation failed'}</p>`;
+            showToast(data.error || 'Installation failed', 'error');
+            btn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Error installing payment system:', error);
+        statusDiv.innerHTML = '<p style="color: #ef4444;">Error installing payment system</p>';
+        showToast('Error installing payment system', 'error');
+        btn.disabled = false;
+    }
+}
+
+// Load Payment Settings for Property
+async function loadPaymentSettings(propertyId) {
+    if (!propertyId) {
+        resetPaymentForm();
+        return;
+    }
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/payment-settings.php?property_id=${propertyId}`);
+        const data = await response.json();
+        
+        if (response.ok && data.success && data.settings) {
+            paymentSettings = data.settings;
+            populatePaymentForm(data.settings);
+        } else {
+            resetPaymentForm();
+        }
+    } catch (error) {
+        console.error('Error loading payment settings:', error);
+        resetPaymentForm();
+    }
+}
+
+// Populate Payment Settings Form
+function populatePaymentForm(settings) {
+    document.getElementById('paymentProcessor').value = settings.processor_type || 'disabled';
+    document.getElementById('paymentLiveMode').checked = settings.is_live_mode === 1;
+    document.getElementById('paymentPublishableKey').value = settings.publishable_key || '';
+    document.getElementById('paymentEnableQR').checked = settings.enable_qr_codes === 1;
+    document.getElementById('paymentEnableOnline').checked = settings.enable_online_payments === 1;
+    document.getElementById('paymentDescriptionTemplate').value = settings.payment_description_template || 'Parking Violation - Ticket #{ticket_id}';
+    document.getElementById('paymentAllowCash').checked = settings.allow_cash === 1;
+    document.getElementById('paymentAllowCheck').checked = settings.allow_check === 1;
+    document.getElementById('paymentAllowManualCard').checked = settings.allow_manual_card === 1;
+    document.getElementById('paymentRequireCheckNumber').checked = settings.require_check_number === 1;
+    
+    togglePaymentProcessorFields();
+}
+
+// Reset Payment Form
+function resetPaymentForm() {
+    document.getElementById('paymentProcessor').value = 'disabled';
+    document.getElementById('paymentLiveMode').checked = false;
+    document.getElementById('paymentPublishableKey').value = '';
+    document.getElementById('paymentSecretKey').value = '';
+    document.getElementById('paymentWebhookSecret').value = '';
+    document.getElementById('paymentEnableQR').checked = true;
+    document.getElementById('paymentEnableOnline').checked = false;
+    document.getElementById('paymentDescriptionTemplate').value = 'Parking Violation - Ticket #{ticket_id}';
+    document.getElementById('paymentAllowCash').checked = true;
+    document.getElementById('paymentAllowCheck').checked = true;
+    document.getElementById('paymentAllowManualCard').checked = true;
+    document.getElementById('paymentRequireCheckNumber').checked = true;
+    
+    togglePaymentProcessorFields();
+}
+
+// Toggle Payment Processor Fields Visibility
+function togglePaymentProcessorFields() {
+    const processor = document.getElementById('paymentProcessor').value;
+    const fieldsDiv = document.getElementById('paymentProcessorFields');
+    
+    if (processor && processor !== 'disabled') {
+        fieldsDiv.style.display = 'block';
+    } else {
+        fieldsDiv.style.display = 'none';
+    }
+}
+
+// Save Payment Settings
+async function savePaymentSettings() {
+    const propertyId = document.getElementById('paymentConfigProperty').value;
+    
+    if (!propertyId) {
+        showToast('Please select a property', 'error');
+        return;
+    }
+    
+    const formData = {
+        property_id: propertyId,
+        processor_type: document.getElementById('paymentProcessor').value,
+        is_live_mode: document.getElementById('paymentLiveMode').checked ? 1 : 0,
+        publishable_key: document.getElementById('paymentPublishableKey').value,
+        api_secret: document.getElementById('paymentSecretKey').value,
+        webhook_secret: document.getElementById('paymentWebhookSecret').value,
+        enable_qr_codes: document.getElementById('paymentEnableQR').checked ? 1 : 0,
+        enable_online_payments: document.getElementById('paymentEnableOnline').checked ? 1 : 0,
+        payment_description_template: document.getElementById('paymentDescriptionTemplate').value,
+        allow_cash: document.getElementById('paymentAllowCash').checked ? 1 : 0,
+        allow_check: document.getElementById('paymentAllowCheck').checked ? 1 : 0,
+        allow_manual_card: document.getElementById('paymentAllowManualCard').checked ? 1 : 0,
+        require_check_number: document.getElementById('paymentRequireCheckNumber').checked ? 1 : 0
+    };
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/payment-settings.php`, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast('Payment settings saved successfully', 'success');
+            document.getElementById('paymentSecretKey').value = '';
+            document.getElementById('paymentWebhookSecret').value = '';
+        } else {
+            showToast(data.error || 'Failed to save payment settings', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving payment settings:', error);
+        showToast('Error saving payment settings', 'error');
+    }
+}
+
+// Test Payment Connection
+async function testPaymentConnection() {
+    const propertyId = document.getElementById('paymentConfigProperty').value;
+    
+    if (!propertyId) {
+        showToast('Please select a property', 'error');
+        return;
+    }
+    
+    showToast('Payment connection test not yet implemented', 'info');
+}
+
+// Toggle Check Number Field
+function toggleCheckNumberField() {
+    const method = document.getElementById('paymentMethod').value;
+    const checkNumberGroup = document.getElementById('checkNumberGroup');
+    const checkNumberInput = document.getElementById('paymentCheckNumber');
+    
+    if (method === 'check') {
+        checkNumberGroup.style.display = 'block';
+        checkNumberInput.required = true;
+    } else {
+        checkNumberGroup.style.display = 'none';
+        checkNumberInput.required = false;
+    }
+}
+
+// Open Record Payment Modal
+async function openRecordPaymentModal(ticketId) {
+    currentPaymentTicketId = ticketId;
+    
+    try {
+        const ticketResponse = await secureApiCall(`${API_BASE}/violations.php?id=${ticketId}`);
+        const ticketData = await ticketResponse.json();
+        
+        if (!ticketResponse.ok || !ticketData.success) {
+            showToast('Error loading ticket details', 'error');
+            return;
+        }
+        
+        const ticket = ticketData.violation;
+        
+        const historyResponse = await secureApiCall(`${API_BASE}/payment-history.php?ticket_id=${ticketId}`);
+        const historyData = await historyResponse.json();
+        
+        const totalPaid = historyData.summary?.total_paid || 0;
+        const totalFine = ticket.total_fine || 0;
+        const balance = totalFine - totalPaid;
+        
+        document.getElementById('paymentTicketId').value = ticketId;
+        document.getElementById('paymentInfoTicketId').textContent = ticketId;
+        document.getElementById('paymentInfoPlate').textContent = ticket.plate_number || '-';
+        document.getElementById('paymentInfoTotalFine').textContent = `$${totalFine.toFixed(2)}`;
+        document.getElementById('paymentInfoPaid').textContent = `$${totalPaid.toFixed(2)}`;
+        document.getElementById('paymentInfoBalance').textContent = `$${balance.toFixed(2)}`;
+        
+        document.getElementById('paymentAmount').value = balance > 0 ? balance.toFixed(2) : '';
+        document.getElementById('paymentMethod').value = '';
+        document.getElementById('paymentCheckNumber').value = '';
+        document.getElementById('paymentNotes').value = '';
+        toggleCheckNumberField();
+        
+        const modal = document.getElementById('recordPaymentModal');
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error opening payment modal:', error);
+        showToast('Error opening payment modal', 'error');
+    }
+}
+
+// Handle Record Payment Form Submit
+async function handleRecordPayment(e) {
+    e.preventDefault();
+    
+    const ticketId = document.getElementById('paymentTicketId').value;
+    const method = document.getElementById('paymentMethod').value;
+    const amount = parseFloat(document.getElementById('paymentAmount').value);
+    const checkNumber = document.getElementById('paymentCheckNumber').value;
+    const notes = document.getElementById('paymentNotes').value;
+    
+    if (!ticketId || !method || !amount || amount <= 0) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (method === 'check' && !checkNumber) {
+        showToast('Check number is required for check payments', 'error');
+        return;
+    }
+    
+    const formData = {
+        ticket_id: ticketId,
+        payment_method: method,
+        amount: amount,
+        check_number: checkNumber || null,
+        notes: notes || null
+    };
+    
+    try {
+        const response = await secureApiCall(`${API_BASE}/payment-record-manual.php`, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(`Payment recorded successfully. Status: ${data.payment_status}`, 'success');
+            closeModalByName('recordPayment');
+            
+            if (typeof loadTicketStatusSection === 'function') {
+                loadTicketStatusSection();
+            }
+        } else {
+            showToast(data.error || 'Failed to record payment', 'error');
+        }
+    } catch (error) {
+        console.error('Error recording payment:', error);
+        showToast('Error recording payment', 'error');
+    }
+}
+
+// Open Payment History Modal
+async function openPaymentHistoryModal(ticketId) {
+    try {
+        const response = await secureApiCall(`${API_BASE}/payment-history.php?ticket_id=${ticketId}`);
+        const data = await response.json();
+        
+        if (!response.ok || !data.success) {
+            showToast('Error loading payment history', 'error');
+            return;
+        }
+        
+        document.getElementById('summaryTotalFine').textContent = `$${(data.summary.total_fine || 0).toFixed(2)}`;
+        document.getElementById('summaryTotalPaid').textContent = `$${(data.summary.total_paid || 0).toFixed(2)}`;
+        document.getElementById('summaryBalanceDue').textContent = `$${(data.summary.balance_due || 0).toFixed(2)}`;
+        document.getElementById('summaryPaymentCount').textContent = data.summary.payment_count || 0;
+        
+        const listDiv = document.getElementById('paymentHistoryList');
+        if (data.payments && data.payments.length > 0) {
+            let html = '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead><tr style="background: #2a2a2a;">';
+            html += '<th style="padding: 10px; text-align: left; border: 1px solid #444;">Date</th>';
+            html += '<th style="padding: 10px; text-align: left; border: 1px solid #444;">Method</th>';
+            html += '<th style="padding: 10px; text-align: right; border: 1px solid #444;">Amount</th>';
+            html += '<th style="padding: 10px; text-align: left; border: 1px solid #444;">Status</th>';
+            html += '<th style="padding: 10px; text-align: left; border: 1px solid #444;">Notes</th>';
+            html += '</tr></thead><tbody>';
+            
+            data.payments.forEach(payment => {
+                const statusColor = payment.status === 'completed' ? '#10b981' : '#f59e0b';
+                html += '<tr>';
+                html += `<td style="padding: 8px; border: 1px solid #444;">${new Date(payment.payment_date).toLocaleString()}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #444;">${escapeHtml(payment.payment_method)}${payment.check_number ? ' #' + escapeHtml(payment.check_number) : ''}</td>`;
+                html += `<td style="padding: 8px; text-align: right; border: 1px solid #444;">$${payment.amount.toFixed(2)}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #444; color: ${statusColor};">${escapeHtml(payment.status)}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #444;">${escapeHtml(payment.notes || '-')}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            listDiv.innerHTML = html;
+        } else {
+            listDiv.innerHTML = '<p style="text-align: center; color: #888;">No payments recorded yet</p>';
+        }
+        
+        const modal = document.getElementById('paymentHistoryModal');
+        modal.style.display = 'block';
+    } catch (error) {
+        console.error('Error loading payment history:', error);
+        showToast('Error loading payment history', 'error');
+    }
+}
+
+// Display Payment Status Badge
+function getPaymentStatusBadge(paymentStatus, amountPaid, totalFine) {
+    const status = paymentStatus || 'unpaid';
+    const paid = parseFloat(amountPaid) || 0;
+    const fine = parseFloat(totalFine) || 0;
+    const balance = fine - paid;
+    
+    let badgeClass = 'status-badge';
+    let badgeText = '';
+    let badgeColor = '';
+    
+    if (status === 'paid' || balance <= 0) {
+        badgeClass += ' status-paid';
+        badgeText = 'PAID';
+        badgeColor = '#10b981';
+    } else if (status === 'partial' && paid > 0) {
+        badgeClass += ' status-partial';
+        badgeText = `PARTIAL ($${paid.toFixed(2)})`;
+        badgeColor = '#f59e0b';
+    } else {
+        badgeClass += ' status-unpaid';
+        badgeText = 'UNPAID';
+        badgeColor = '#ef4444';
+    }
+    
+    return `<span class="${badgeClass}" style="background: ${badgeColor}; color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.85em; font-weight: bold;">${badgeText}</span>`;
+}
+
 // Export functions for testing
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         escapeHtml,
         createElement,
         validateInput,
-        rateLimiter
+        rateLimiter,
+        getPaymentStatusBadge
     };
 }
