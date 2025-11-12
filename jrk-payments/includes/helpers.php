@@ -470,10 +470,12 @@ function loadUserPermissions($userId) {
     
     $permissions = [];
     foreach ($rows as $row) {
+        // PDO returns values as strings, so convert properly
+        // Use filter_var or explicit int casting to handle '1' string as true
         $permissions[$row['module']] = [
-            'can_view' => (bool)$row['can_view'],
-            'can_edit' => (bool)$row['can_edit'],
-            'can_create_delete' => (bool)$row['can_create_delete']
+            'can_view' => filter_var($row['can_view'], FILTER_VALIDATE_BOOLEAN) || (int)$row['can_view'] === 1,
+            'can_edit' => filter_var($row['can_edit'], FILTER_VALIDATE_BOOLEAN) || (int)$row['can_edit'] === 1,
+            'can_create_delete' => filter_var($row['can_create_delete'], FILTER_VALIDATE_BOOLEAN) || (int)$row['can_create_delete'] === 1
         ];
     }
     
