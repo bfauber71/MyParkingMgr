@@ -1,0 +1,29 @@
+-- ZPL Logo Integration - No Migration Required
+-- ===============================================
+-- Date: 2025-11-08
+-- Description: ZPL logo data is stored in existing printer_settings table
+--
+-- The printer_settings table uses a key-value structure:
+--   - setting_key (VARCHAR)
+--   - setting_value (TEXT/MEDIUMTEXT)
+--
+-- ZPL logo data is automatically stored by the API as:
+--   - 'logo_top_zpl' → ZPL ^GF graphic data
+--   - 'logo_top_zpl_height' → Logo height in dots
+--   - 'logo_bottom_zpl' → ZPL ^GF graphic data (future)
+--   - 'logo_bottom_zpl_height' → Logo height in dots (future)
+--
+-- NO MIGRATION NEEDED!
+-- ==================
+-- The existing table structure already supports this feature.
+-- Simply upload a logo in Settings → Printer Settings and the system
+-- will automatically convert and store the ZPL data.
+--
+-- Verification Query (optional):
+-- SELECT setting_key, LENGTH(setting_value) as data_size 
+-- FROM printer_settings 
+-- WHERE setting_key LIKE '%zpl%';
+--
+-- This will show you the ZPL logo data after you upload a logo.
+
+SELECT 'No migration required - printer_settings table already supports ZPL logo storage' AS status;

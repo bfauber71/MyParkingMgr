@@ -1,0 +1,64 @@
+ManageMyParking v1.1 - Installation Instructions
+================================================
+
+SYSTEM REQUIREMENTS:
+- PHP 7.4 or higher
+- MySQL 5.7 or higher
+- Apache or Nginx web server
+- mod_rewrite enabled (Apache)
+
+INSTALLATION STEPS:
+
+1. Upload Files
+   - Extract the contents of this folder to your web server
+   - Recommended: Upload to a subdirectory like /parking/ or use a subdomain
+
+2. Set File Permissions
+   - Ensure the web server can write to the following:
+     - config.php (for initial setup only)
+     - Entire application directory (for file uploads)
+
+3. Create MySQL Database
+   - Create a new MySQL database
+   - Note your database name, username, and password
+   - IMPORTANT: This application requires MySQL ONLY (PostgreSQL is NOT supported)
+
+4. Run Setup Wizard
+   - Navigate to: http://yourdomain.com/setup-wizard.php
+   - Follow the on-screen instructions
+   - Enter your database credentials
+   - Create your administrator account
+
+5. Configure License
+   - After setup, navigate to the License section
+   - Enter your license key (if you have one)
+   - OR use the 30-day trial period to evaluate the system
+
+6. Security Configuration
+   - After setup completes, set config.php to read-only (chmod 444)
+   - Delete setup-wizard.php and setup.php for security
+   - Review .htaccess settings for your environment
+
+7. Login and Start Using
+   - Login with your administrator account
+   - Create your first property
+   - Add vehicles and start managing parking violations
+
+UPGRADE NOTES:
+- This is version 1.1 with standardized snake_case field naming
+- Database schema uses snake_case column names (tag_number, plate_number, etc.)
+- All API endpoints expect snake_case parameter names
+
+SUPPORT:
+For technical support or questions, contact your system administrator
+or refer to the included documentation files.
+
+VERSION HISTORY:
+v1.1 - November 2025
+  - Standardized all field naming to snake_case convention
+  - Updated frontend and backend for consistency
+  - Improved code maintainability
+
+========================
+ManageMyParking v1.1
+Property & Vehicle Management System
