@@ -23,6 +23,7 @@ requirePermission(MODULE_DATABASE, ACTION_VIEW);
 $input = json_decode(file_get_contents('php://input'), true);
 
 $startDate = $input['start_date'] ?? null;
+$propertyIds = array_column($accessibleProperties, 'id');
 $endDate = $input['end_date'] ?? null;
 $property = $input['property'] ?? null;
 $violationType = $input['violation_type'] ?? null;
@@ -35,7 +36,7 @@ $propertyNames = array_column($accessibleProperties, 'name');
 // Debug logging
 error_log("Violation Export - Accessible properties: " . json_encode($propertyNames));
 
-if (empty($propertyNames)) {
+if (empty($propertyIds)) {
     error_log("Violation Export - No accessible properties found");
     jsonResponse(['error' => 'No accessible properties'], 403);
 }
@@ -54,7 +55,7 @@ $ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_t
 $sql = "SELECT 
     vt.id,
     vt.created_at as ticket_date,
-    COALESCE(v.property_id, vt.property_name) as property,
+    p.name as property,
     $ticketTypeField
     vt.vehicle_year as year,
     vt.vehicle_make as make,
@@ -68,10 +69,10 @@ $sql = "SELECT
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
-WHERE (v.id IS NULL OR v.property_id IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
+WHERE (v.id IS NULL OR vt.property_id IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")) 
+   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")";
 
-$params = array_merge($propertyNames, $propertyNames);
+$params = array_merge($propertyIds, $propertyIds);
 
 // Apply same filters as search
 if ($startDate) {

@@ -8,7 +8,7 @@ requireAdmin();
 header('Content-Type: application/json');
 
 try {
-    $db = Database::connect();
+    $db = Database::getInstance();
     
     if (!$db) {
         throw new Exception('Database connection failed');

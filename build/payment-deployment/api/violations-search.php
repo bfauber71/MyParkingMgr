@@ -24,13 +24,14 @@ $searchQuery = $input['query'] ?? '';
 
 // Get accessible properties for filtering
 $accessibleProperties = getAccessibleProperties();
+$propertyIds = array_column($accessibleProperties, 'id');
 $propertyNames = array_column($accessibleProperties, 'name');
 
 // Debug logging
 error_log("Violation Search - Accessible properties: " . json_encode($propertyNames));
 error_log("Violation Search - Filters: start_date=$startDate, end_date=$endDate, property=$property, violation_type=$violationType, query=$searchQuery");
 
-if (empty($propertyNames)) {
+if (empty($propertyIds)) {
     error_log("Violation Search - No accessible properties found, returning empty results");
     jsonResponse(['violations' => [], 'total' => 0, 'debug' => 'No accessible properties']);
 }
@@ -73,7 +74,7 @@ $sql = "SELECT
     vt.vehicle_color as color,
     v.plate_number,
     v.tag_number,
-    COALESCE(v.property, vt.property_name) as property,
+    p.name as property,
     $ticketTypeField
     $statusField
     $dispositionField
@@ -83,12 +84,13 @@ $sql = "SELECT
     SUM(COALESCE(violations.fine_amount, 0)) as total_fine
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
+    LEFT JOIN properties p ON vt.property_id = p.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
-WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
+WHERE (v.id IS NULL OR vt.property_id IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")) 
+   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")";
 
-$params = array_merge($propertyNames, $propertyNames);
+$params = array_merge($propertyIds, $propertyIds);
 
 // Date range filter
 if ($startDate) {
@@ -103,7 +105,7 @@ if ($endDate) {
 
 // Property filter
 if ($property) {
-    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+    $sql .= " AND (v.property_id = ? OR vt.property_name = ?)";
     $params[] = $property;
     $params[] = $property;
 }

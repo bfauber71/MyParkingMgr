@@ -11,13 +11,12 @@ return [
     
     // Database Configuration - MySQL
     'db' => [
-        'host' => 'localhost',
+        'host' => 'your_db_host',
         'port' => '3306',
-        'database' => 'parking_dev',
-        'username' => 'root',
-        'password' => '',
+        'database' => 'your_db_name',
+        'username' => 'your_db_username',
+        'password' => 'your_db_password',
         'charset' => 'utf8mb4',
-        'unix_socket' => '/tmp/mysql.sock',
     ],
     
     // Session Configuration

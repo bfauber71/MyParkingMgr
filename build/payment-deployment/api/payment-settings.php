@@ -9,7 +9,7 @@ requireAuth();
 header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
-$db = Database::connect();
+$db = Database::getInstance();
 
 if (!$db) {
     http_response_code(503);

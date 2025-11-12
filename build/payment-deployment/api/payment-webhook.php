@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/database.php';
 // Webhook endpoint - NO authentication required (verified by signature)
 header('Content-Type: application/json');
 
-$db = Database::connect();
+$db = Database::getInstance();
 
 if (!$db) {
     http_response_code(503);
