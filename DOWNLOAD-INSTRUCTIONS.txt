@@ -1,0 +1,14 @@
+PERMISSION FIX FILES - v1.1 EXACT CODE
+======================================
+
+OPTION 1: Download the ZIP file
+- File: permission-fix-v11-EXACT.zip (in root directory)
+- Contains: session.php and helpers.php
+
+OPTION 2: Copy the files directly (see below)
+
+Upload these 2 files to your server:
+1. session.php → upload to includes/session.php
+2. helpers.php → upload to includes/helpers.php
+
+These are EXACT copies from v1.1 that work on your server.
