@@ -5,8 +5,9 @@
  */
 
 require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/session.php';
+
 
 // CRITICAL: Prevent browser caching
 header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
