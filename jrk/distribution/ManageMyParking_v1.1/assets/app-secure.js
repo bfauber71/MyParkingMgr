@@ -2135,18 +2135,30 @@ function displayViolationSearchResults(violations) {
         const ticketType = violation.ticket_type || 'VIOLATION';
         const ticketTypeText = ticketType === 'WARNING' ? '⚠️ WARNING' : '🚫 VIOLATION';
         
-        [
+        // Format status badge
+        const status = violation.status || 'active';
+        const statusBadge = status === 'active' ? 
+            '<span style="color: #28a745; font-weight: bold;">ACTIVE</span>' :
+            `<span style="color: #6c757d;">CLOSED (${violation.fine_disposition || 'Unknown'})</span>`;
+        
+        const cells = [
             formatDate(violation.created_at),
             vehicleDesc,
             ticketTypeText,
             violation.violation_list || 'N/A',
             fineAmount,
-            violation.property || 'N/A',
-            violation.status || 'Active'
-        ].forEach(text => {
+            violation.property || 'N/A'
+        ];
+        
+        cells.forEach(text => {
             const td = createElement('td', {}, text);
             row.appendChild(td);
         });
+        
+        // Add status cell with HTML
+        const statusTd = createElement('td');
+        statusTd.innerHTML = statusBadge;
+        row.appendChild(statusTd);
         
         const actionsTd = createElement('td');
         const actionsDiv = createElement('div', { className: 'actions' });
