@@ -60,6 +60,21 @@ try {
         exit;
     }
     
+    // Check if status columns exist (for backward compatibility)
+    $hasStatus = false;
+    try {
+        $checkStmt = $db->query("SHOW COLUMNS FROM violation_tickets LIKE 'status'");
+        $hasStatus = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasStatus = false;
+    }
+    
+    // Build SELECT fields with backward compatibility
+    $statusField = $hasStatus ? "status," : "'active' as status,";
+    $dispositionField = $hasStatus ? "fine_disposition," : "NULL as fine_disposition,";
+    $closedAtField = $hasStatus ? "closed_at," : "NULL as closed_at,";
+    $closedByField = $hasStatus ? "closed_by_user_id," : "NULL as closed_by_user_id,";
+    
     // Fetch violation tickets for this vehicle (limit to 100 most recent)
     $stmt = $db->prepare("
         SELECT 
@@ -70,7 +85,11 @@ try {
             vehicle_year,
             vehicle_color,
             vehicle_make,
-            vehicle_model
+            vehicle_model,
+            $statusField
+            $dispositionField
+            $closedAtField
+            $closedByField
         FROM violation_tickets
         WHERE vehicle_id = ?
         ORDER BY issued_at DESC

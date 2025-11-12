@@ -42,8 +42,22 @@ try {
     $hasTicketType = false;
 }
 
+// Check if status columns exist (for backward compatibility)
+$hasStatus = false;
+try {
+    $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM violation_tickets LIKE 'status'");
+    $hasStatus = $checkStmt->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasStatus = false;
+}
+
 // Build SQL query with violation items and fines
 $ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_type,";
+$statusField = $hasStatus ? "vt.status," : "'active' as status,";
+$dispositionField = $hasStatus ? "vt.fine_disposition," : "NULL as fine_disposition,";
+$closedAtField = $hasStatus ? "vt.closed_at," : "NULL as closed_at,";
+$closedByField = $hasStatus ? "vt.closed_by_user_id," : "NULL as closed_by_user_id,";
+
 $sql = "SELECT 
     vt.id,
     vt.vehicle_id,
@@ -59,6 +73,10 @@ $sql = "SELECT
     v.tag_number,
     COALESCE(v.property, vt.property_name) as property,
     $ticketTypeField
+    $statusField
+    $dispositionField
+    $closedAtField
+    $closedByField
     GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') as violation_list,
     SUM(COALESCE(violations.fine_amount, 0)) as total_fine
 FROM violation_tickets vt
