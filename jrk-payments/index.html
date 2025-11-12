@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyParkingManager</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <script src="assets/config.js"></script>
+    <link rel="stylesheet" href="assets/style.css?v=241">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Page -->
+        <div id="loginPage" class="page">
+            <div class="login-container">
+                <div class="login-card">
+                    <h1>MyParkingManager</h1>
+                    <p class="subtitle">Vehicle & Property Management</p>
+                    
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" required autofocus>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        
+                        <div id="loginError" class="error-message"></div>
+                        <div id="loginLockout" class="error-message" style="display: none;"></div>
+                        
+                        <button type="submit" class="btn btn-primary" id="loginSubmitBtn">Sign In</button>
+                    </form>
+                    
+                    <p class="help-text">Contact your administrator for access.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- License Splash Screen -->
+        <div id="licenseSplash" class="license-splash" style="display: none;">
+            <div class="license-splash-content">
+                <h1>MyParkingManager</h1>
+                <p id="licenseSplashText" class="license-splash-text"></p>
+            </div>
+        </div>
+
+        <!-- App Header (brand, logo, clock, license badge) -->
+        <header class="app-header" id="appHeader" style="display: none;">
+            <div class="header-brand">
+                <img src="assets/logo.png" alt="Logo" class="header-logo">
+                <div class="header-brand-content">
+                    <span class="header-brand-name">MyParkingManager <span id="licenseStatusBadge" class="license-badge"></span></span>
+                    <span class="header-brand-version">v2.0</span>
+                </div>
+            </div>
+            <div class="header-clock">
+                <div id="navDate" class="header-date"></div>
+                <div id="navTime" class="header-time"></div>
+            </div>
+        </header>
+
+        <!-- Navbar (navigation menu below header) -->
+        <nav class="navbar" id="navbar" style="display: none;">
+            <div class="nav-dropdown-container">
+                <button class="nav-dropdown-toggle" id="navDropdownToggle">
+                    <span id="currentSectionName">🚗 Vehicles</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="nav-dropdown-menu" id="navDropdownMenu">
+                    <button class="nav-dropdown-item active" data-tab="vehicles">🚗 Vehicles</button>
+                    <button class="nav-dropdown-item" data-tab="guest-pass" id="guestPassTab">🎫 Guest Pass</button>
+                    <button class="nav-dropdown-item" data-tab="ticket-status" id="ticketStatusTab">📋 Ticket Status</button>
+                    <button class="nav-dropdown-item" data-tab="properties" id="propertiesTab">🏢 Properties</button>
+                    <button class="nav-dropdown-item" data-tab="settings" id="settingsTab">⚙️ Settings</button>
+                    <div class="nav-dropdown-divider"></div>
+                    <div class="nav-dropdown-user" id="userInfo"></div>
+                    <button class="nav-dropdown-item nav-logout" id="logoutBtn">🚪 Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page" style="display: none;">
+            <div class="container">
+                <!-- Vehicles Section -->
+                <div id="vehiclesSection" class="tab-content active">
+                    <header class="page-header">
+                        <h2>Vehicle Management</h2>
+                        <div class="header-actions">
+                            <button id="addVehicleBtn" class="btn btn-primary">Add Vehicle</button>
+                        </div>
+                    </header>
+
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search by tag, plate, owner, apartment...">
+                        <select id="propertyFilter">
+                            <option value="">All Properties</option>
+                        </select>
+                        <button id="searchBtn" class="btn btn-primary">Search</button>
+                        <button id="clearSearchBtn" class="btn btn-secondary">Clear</button>
+                    </div>
+
+                    <div id="vehiclesResults"></div>
+                </div>
+
+                <!-- Guest Pass Section -->
+                <div id="guest-passSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Guest Pass Generation</h2>
+                    </header>
+
+                    <div class="info-card" style="margin-bottom: 20px;">
+                        <p>Create guest vehicle records with 7-day expiration passes. Fill in vehicle information and print a guest pass.</p>
+                    </div>
+
+                    <div id="guestPassForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpProperty">Property *</label>
+                                <select id="gpProperty" required>
+                                    <option value="">Select Property</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gpPlateNumber">Plate Number *</label>
+                                <input type="text" id="gpPlateNumber" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpState">State</label>
+                                <input type="text" id="gpState" maxlength="2" style="text-transform: uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpMake">Make</label>
+                                <input type="text" id="gpMake">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpModel">Model</label>
+                                <input type="text" id="gpModel">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpColor">Color</label>
+                                <input type="text" id="gpColor">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpYear">Year</label>
+                                <input type="text" id="gpYear" maxlength="4">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gpOwnerName">Guest Name</label>
+                                <input type="text" id="gpOwnerName">
+                            </div>
+                            <div class="form-group">
+                                <label for="gpGuestOf">Visiting Apt/Unit</label>
+                                <input type="text" id="gpGuestOf" placeholder="Apartment or unit number">
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button id="saveGuestPassBtn" class="btn btn-primary">Save & Print Guest Pass</button>
+                            <button id="clearGuestPassBtn" class="btn btn-secondary">Clear Form</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Status Section -->
+                <div id="ticket-statusSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Ticket Status Management</h2>
+                    </header>
+
+                    <div class="info-card" style="margin-bottom: 20px;">
+                        <p>Manage ticket statuses. Close tickets by marking fines as collected or dismissed.</p>
+                    </div>
+
+                    <div class="search-bar">
+                        <select id="ticketStatusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <select id="ticketPropertyFilter">
+                            <option value="">All Properties</option>
+                        </select>
+                        <button id="ticketStatusSearchBtn" class="btn btn-primary">Filter</button>
+                        <button id="ticketStatusClearBtn" class="btn btn-secondary">Show All</button>
+                    </div>
+
+                    <div id="ticketStatusResults"></div>
+                </div>
+
+                <!-- Properties Section -->
+                <div id="propertiesSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Property Management</h2>
+                        <div class="header-actions">
+                            <button id="addPropertyBtn" class="btn btn-primary">Add Property</button>
+                        </div>
+                    </header>
+
+                    <div id="propertiesResults"></div>
+                </div>
+
+                <!-- Database Section (LEGACY - removed, functionality moved to Settings sub-tabs) -->
+
+                <!-- Violations Section (LEGACY - removed, functionality moved to Settings > Violation Types) -->
+
+                <!-- Settings Section -->
+                <div id="settingsSection" class="tab-content">
+                    <header class="page-header">
+                        <h2>Settings</h2>
+                    </header>
+
+                    <!-- Settings Sub-tabs -->
+                    <div class="settings-tabs">
+                        <button class="settings-tab-btn active" data-settings-tab="users">👥 Users</button>
+                        <button class="settings-tab-btn" data-settings-tab="violations">🎫 Violations</button>
+                        <button class="settings-tab-btn" data-settings-tab="payments">💳 Payments</button>
+                        <button class="settings-tab-btn" data-settings-tab="database-ops">🗄️ Database Operations</button>
+                        <button class="settings-tab-btn" data-settings-tab="printer">🖨️ Printer Settings</button>
+                        <button class="settings-tab-btn" data-settings-tab="license">🔑 License</button>
+                    </div>
+
+                    <!-- Users Sub-section -->
+                    <div id="settingsUsersTab" class="settings-tab-content active">
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>User Management</h3>
+                                <div class="header-actions">
+                                    <button id="addUserBtn" class="btn btn-primary">Add User</button>
+                                </div>
+                            </div>
+                            
+                            <div class="search-bar" style="margin-bottom: 20px;">
+                                <input type="text" id="userSearchInput" placeholder="Search users..." style="max-width: 300px; flex-grow: 0;">
+                                <button id="userShowAllBtn" class="btn btn-secondary">Show All</button>
+                                <button id="userSearchBtn" class="btn btn-secondary">Search</button>
+                                <button id="userClearSearchBtn" class="btn btn-secondary">Clear</button>
+                            </div>
+                            
+                            <div id="usersResults"></div>
+                        </div>
+                    </div>
+
+                    <!-- Violations Sub-section -->
+                    <div id="settingsViolationsTab" class="settings-tab-content">
+                        <!-- Violation Types Management -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Violation Types</h3>
+                                <div class="header-actions">
+                                    <button id="addViolationBtn" class="btn btn-primary">Add Violation</button>
+                                </div>
+                            </div>
+
+                            <div id="violationsResults"></div>
+                        </div>
+
+                        <!-- Violation Search & Reports -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Violation Search & Reports</h3>
+                            </div>
+                            
+                            <div class="violation-search-card">
+                                <div class="search-filters">
+                                    <div class="filter-row">
+                                        <div class="form-group">
+                                            <label for="violationStartDate">Start Date</label>
+                                            <input type="date" id="violationStartDate" onchange="validateViolationDateRange()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="violationEndDate">End Date</label>
+                                            <input type="date" id="violationEndDate" onchange="validateViolationDateRange()">
+                                        </div>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="form-group">
+                                            <label for="violationPropertyFilter">Property</label>
+                                            <select id="violationPropertyFilter">
+                                                <option value="">All Properties</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="violationTypeFilter">Violation Type</label>
+                                            <select id="violationTypeFilter">
+                                                <option value="">All Violations</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="form-group flex-grow">
+                                            <label for="violationSearchQuery">Search (Plate, Tag, Make, Model, Notes)</label>
+                                            <input type="text" id="violationSearchQuery" placeholder="Search violations...">
+                                        </div>
+                                    </div>
+                                    <div class="filter-row">
+                                        <div class="form-group">
+                                            <button id="violationSearchBtn" class="btn btn-primary">Search</button>
+                                            <button id="clearViolationSearchBtn" class="btn btn-secondary">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="search-actions" style="margin-top: 15px; display: none;">
+                                    <button id="violationPrintBtn" class="btn btn-secondary">Print Results</button>
+                                    <button id="violationExportBtn" class="btn btn-secondary">Export to CSV</button>
+                                    <span id="violationResultsCount" class="results-count"></span>
+                                </div>
+
+                                <div id="violationSearchResults" style="margin-top: 20px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payments Sub-section -->
+                    <div id="settingsPaymentsTab" class="settings-tab-content">
+                        <div class="info-card" style="margin-bottom: 20px;">
+                            <p><strong>Payment System v2.0</strong> - Configure payment processors, enable online payments via QR codes, and manage manual payment collection.</p>
+                        </div>
+
+                        <!-- Payment System Installation -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Payment System Installation</h3>
+                            </div>
+                            <div class="bulk-operation-card">
+                                <p class="help-text">Run this once to install payment system database tables.</p>
+                                <button id="installPaymentSystemBtn" class="btn btn-primary">Install Payment System</button>
+                                <div id="paymentInstallStatus" style="margin-top: 10px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Processor Configuration -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Payment Processor Configuration</h3>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="paymentConfigProperty">Property</label>
+                                    <select id="paymentConfigProperty">
+                                        <option value="">Select Property</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="paymentProcessor">Payment Processor</label>
+                                    <select id="paymentProcessor">
+                                        <option value="disabled">Disabled (Manual Payments Only)</option>
+                                        <option value="stripe">Stripe</option>
+                                        <option value="square">Square</option>
+                                        <option value="paypal">PayPal</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentLiveMode">
+                                        Live Mode (uncheck for test mode)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="paymentProcessorFields" style="display:none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="paymentPublishableKey">Publishable Key</label>
+                                        <input type="text" id="paymentPublishableKey" placeholder="pk_test_...">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="paymentSecretKey">Secret Key</label>
+                                        <input type="password" id="paymentSecretKey" placeholder="sk_test_...">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="paymentWebhookSecret">Webhook Secret (optional)</label>
+                                        <input type="password" id="paymentWebhookSecret" placeholder="whsec_...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentEnableQR" checked>
+                                        Enable QR Code Generation
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentEnableOnline">
+                                        Enable Online Payments
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="paymentDescriptionTemplate">Payment Description Template</label>
+                                    <input type="text" id="paymentDescriptionTemplate" value="Parking Violation - Ticket #{ticket_id}" placeholder="Use {ticket_id} for ticket ID">
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button id="savePaymentSettingsBtn" class="btn btn-primary">Save Payment Settings</button>
+                                <button id="testPaymentConnectionBtn" class="btn btn-secondary">Test Connection</button>
+                            </div>
+                        </div>
+
+                        <!-- Manual Payment Options -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Manual Payment Options</h3>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentAllowCash" checked>
+                                        Allow Cash Payments
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentAllowCheck" checked>
+                                        Allow Check Payments
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentAllowManualCard" checked>
+                                        Allow Manual Card Entry
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="paymentRequireCheckNumber" checked>
+                                        Require Check Number for Check Payments
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Operations Sub-section -->
+                    <div id="settingsDatabaseOpsTab" class="settings-tab-content">
+                        <!-- CSV Operations -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>CSV Operations</h3>
+                                <div class="header-actions">
+                                    <button id="importBtn" class="btn btn-secondary">Import Vehicles CSV</button>
+                                    <button id="exportBtn" class="btn btn-secondary">Export Vehicles CSV</button>
+                                </div>
+                            </div>
+                            <input type="file" id="importFileInput" accept=".csv" style="display: none;">
+                            <p class="help-text">Import or export vehicle data in CSV format for bulk operations.</p>
+                        </div>
+
+                        <!-- Bulk Operations -->
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>Bulk Operations</h3>
+                            </div>
+                            
+                            <div class="bulk-operation-card">
+                                <h4>Delete Vehicles by Property</h4>
+                                <p class="help-text">Remove all vehicles assigned to a specific property.</p>
+                                <div class="form-inline">
+                                    <select id="bulkDeleteProperty" class="form-control">
+                                        <option value="">Select Property</option>
+                                    </select>
+                                    <button id="bulkDeleteBtn" class="btn btn-danger">Delete All Vehicles</button>
+                                </div>
+                            </div>
+
+                            <div class="bulk-operation-card">
+                                <h4>Find and Remove Duplicates</h4>
+                                <p class="help-text">Search for duplicate vehicles based on plate number or tag number.</p>
+                                <div class="form-inline">
+                                    <select id="duplicateCriteria" class="form-control">
+                                        <option value="plate">Plate Number</option>
+                                        <option value="tag">Tag Number</option>
+                                    </select>
+                                    <button id="findDuplicatesBtn" class="btn btn-secondary">Find Duplicates</button>
+                                    <button id="clearDuplicatesBtn" class="btn btn-secondary">Clear</button>
+                                </div>
+                                <div id="duplicatesResults" style="margin-top: 15px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Printer Settings Sub-section -->
+                    <div id="settingsPrinterTab" class="settings-tab-content">
+                        <div class="database-subsection">
+                        <div class="subsection-header">
+                            <h3>Violation Ticket Printer Settings</h3>
+                        </div>
+                        <div class="settings-info">
+                            <p class="help-text">Configure custom page sizes and logos for violation tickets printed from the ticket view.</p>
+                            <p class="help-text"><strong>Default:</strong> 2.5" x 6" thermal printer ticket</p>
+                            <p class="help-text" id="printerSettingsPermissionNote" style="display: none; color: #fbbf24; margin-top: 10px;"><strong>Note:</strong> Only administrators can modify these settings.</p>
+                        </div>
+
+                        <form id="printerSettingsForm" style="margin-top: 20px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="ticketWidth">Ticket Width</label>
+                                    <input type="number" id="ticketWidth" step="0.1" min="2" max="12" value="2.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticketHeight">Ticket Height</label>
+                                    <input type="number" id="ticketHeight" step="0.1" min="3" max="14" value="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ticketUnit">Unit</label>
+                                    <select id="ticketUnit">
+                                        <option value="in">Inches</option>
+                                        <option value="mm">Millimeters</option>
+                                        <option value="cm">Centimeters</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label for="timezone">Time Zone</label>
+                                <select id="timezone" class="form-control">
+                                    <option value="America/New_York">Eastern Time (ET)</option>
+                                    <option value="America/Chicago">Central Time (CT)</option>
+                                    <option value="America/Denver">Mountain Time (MT)</option>
+                                    <option value="America/Phoenix">Mountain Time - Arizona (no DST)</option>
+                                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                    <option value="America/Anchorage">Alaska Time (AKT)</option>
+                                    <option value="Pacific/Honolulu">Hawaii Time (HST)</option>
+                                    <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                </select>
+                                <p class="help-text" style="margin-top: 5px;">Time zone used for displaying date and time throughout the app</p>
+                            </div>
+
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label>
+                                    <input type="checkbox" id="logoTopEnabled">
+                                    Enable Top Logo
+                                </label>
+                                <div id="logoTopUpload" style="margin-top: 10px; display: none;">
+                                    <input type="file" id="logoTopFile" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('logoTopFile').click()">Choose Top Logo</button>
+                                    <div id="logoTopPreview" style="margin-top: 10px;"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="logoBottomEnabled">
+                                    Enable Bottom Logo
+                                </label>
+                                <div id="logoBottomUpload" style="margin-top: 10px; display: none;">
+                                    <input type="file" id="logoBottomFile" accept="image/*" style="display: none;">
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('logoBottomFile').click()">Choose Bottom Logo</button>
+                                    <div id="logoBottomPreview" style="margin-top: 10px;"></div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <button type="button" id="savePrinterSettingsBtn" class="btn btn-primary">Save Settings</button>
+                                <button type="button" id="resetPrinterSettingsBtn" class="btn btn-secondary">Reset to Default</button>
+                            </div>
+                        </form>
+                        </div>
+
+                        <div class="database-subsection" style="margin-top: 30px;">
+                            <div class="subsection-header">
+                                <h3>About Violation Search Results Printing</h3>
+                            </div>
+                            <div class="settings-info">
+                                <p class="help-text"><strong>Violation Search Results</strong> automatically print on standard 8.5" x 11" (Letter) paper.</p>
+                                <p class="help-text" style="margin-top: 10px;">To print search results:</p>
+                                <ol style="margin-left: 20px; margin-top: 8px;">
+                                    <li>Go to Database tab</li>
+                                    <li>Use Violation Search & Reports section</li>
+                                    <li>Set your search filters and click Search</li>
+                                    <li>Click "Print Results" button</li>
+                                    <li>A new window opens with printable table on 8.5x11 paper</li>
+                                </ol>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Note:</strong> This is different from individual violation tickets which use custom sizes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- License Management Sub-section -->
+                    <div id="settingsLicenseTab" class="settings-tab-content">
+                        <div class="database-subsection">
+                            <div class="subsection-header">
+                                <h3>License Management</h3>
+                            </div>
+                            
+                            <!-- Current License Status -->
+                            <div class="license-status-card">
+                                <h4>Current License Status</h4>
+                                <div id="licenseStatusDisplay">
+                                    <div class="loading-spinner">Loading license information...</div>
+                                </div>
+                            </div>
+
+                            <!-- License Activation Form -->
+                            <div class="license-activation-card" style="margin-top: 30px;">
+                                <h4>Install/Update License</h4>
+                                <p class="help-text">Enter your license key to activate or update your license. Only administrators can install licenses.</p>
+                                
+                                <form id="licenseActivationForm" style="margin-top: 20px;">
+                                    <div class="form-group">
+                                        <label for="licenseKey">License Key *</label>
+                                        <input type="text" id="licenseKey" name="license_key" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" required>
+                                        <p class="help-text" style="margin-top: 5px;">Format: 32 characters with dashes (e.g., ABCD-1234-EFGH-5678-IJKL-9012-MNOP-3456)</p>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="customerEmail">Email (Optional)</label>
+                                        <input type="email" id="customerEmail" name="customer_email" placeholder="your@email.com">
+                                        <p class="help-text" style="margin-top: 5px;">Your email address for license records</p>
+                                    </div>
+                                    
+                                    <div id="licenseActivationError" class="error-message" style="display: none;"></div>
+                                    <div id="licenseActivationSuccess" class="success-message" style="display: none;"></div>
+                                    
+                                    <div style="margin-top: 20px;">
+                                        <button type="submit" id="activateLicenseBtn" class="btn btn-primary">Activate License</button>
+                                        <button type="button" id="clearLicenseFormBtn" class="btn btn-secondary">Clear</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- License Information -->
+                            <div class="settings-info" style="margin-top: 30px;">
+                                <h4>About License Keys</h4>
+                                <p class="help-text"><strong>Trial License:</strong> All new installations start with a 30-day trial period with full features.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Licensed:</strong> Activate a paid license key to continue using the software after the trial expires.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Expired:</strong> If your trial has expired, you must activate a license key to continue using the software.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Installation-Specific Keys:</strong> Some license keys are tied to your specific installation ID and will only work on this server.</p>
+                                <p class="help-text" style="margin-top: 10px;"><strong>Universal Keys:</strong> Some license keys work on any installation (typically for enterprise customers).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Vehicle Modal -->
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="vehicleModalTitle">Add Vehicle</h3>
+                <span class="close" data-modal="vehicle">&times;</span>
+            </div>
+            <form id="vehicleForm">
+                <input type="hidden" id="vehicleId" name="vehicle_id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleProperty">Property *</label>
+                        <select id="vehicleProperty" name="property" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleTag">Tag Number</label>
+                        <input type="text" id="vehicleTag" name="tag_number">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehiclePlate">Plate Number</label>
+                        <input type="text" id="vehiclePlate" name="plate_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleState">State</label>
+                        <input type="text" id="vehicleState" name="state" maxlength="2">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleMake">Make</label>
+                        <input type="text" id="vehicleMake" name="make">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleModel">Model</label>
+                        <input type="text" id="vehicleModel" name="model">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleColor">Color</label>
+                        <input type="text" id="vehicleColor" name="color">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleYear">Year</label>
+                        <input type="text" id="vehicleYear" name="year" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleApt">Apartment Number</label>
+                        <input type="text" id="vehicleApt" name="apt_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleSpace">Reserved Space</label>
+                        <input type="text" id="vehicleSpace" name="reserved_space">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="vehicleResident" name="resident" checked>
+                            Resident Vehicle
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="vehicleGuest" name="guest">
+                            Guest Vehicle
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="guestOfContainer" style="display: none;">
+                    <label for="vehicleGuestOf">Guest Of (Apartment Number)</label>
+                    <input type="text" id="vehicleGuestOf" name="guest_of">
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicleOwner">Owner Name</label>
+                    <input type="text" id="vehicleOwner" name="owner_name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehiclePhone">Owner Phone</label>
+                        <input type="tel" id="vehiclePhone" name="owner_phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleEmail">Owner Email</label>
+                        <input type="email" id="vehicleEmail" name="owner_email">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="vehicle">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Import Options Modal -->
+    <div id="importOptionsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Vehicle CSV</h2>
+                <button class="close" onclick="closeImportOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="help-text" style="margin-bottom: 20px;">Choose how to assign properties to the imported vehicles:</p>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; margin-bottom: 10px; cursor: pointer;">
+                        <input type="radio" name="importPropertyOption" value="csv" id="importOptionCsv" checked style="margin-right: 10px;">
+                        <span>Use property from CSV file (column 1)</span>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; margin-bottom: 15px; cursor: pointer;">
+                        <input type="radio" name="importPropertyOption" value="specific" id="importOptionSpecific" style="margin-right: 10px;">
+                        <span>Assign all vehicles to a specific property:</span>
+                    </label>
+                    
+                    <select id="importPropertyDropdown" class="form-control" disabled style="margin-left: 30px; max-width: 400px;">
+                        <option value="">Select Property</option>
+                    </select>
+                </div>
+                
+                <p class="help-text" style="margin-top: 20px; font-size: 0.9em; color: #94a3b8;">
+                    <strong>Note:</strong> If you select a specific property, all imported vehicles will be assigned to that property regardless of what's in the CSV file.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeImportOptionsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="proceedWithImport()">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options Modal -->
+    <div id="exportOptionsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Vehicle CSV</h2>
+                <button class="close" onclick="closeExportOptionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="help-text" style="margin-bottom: 20px;">Choose which vehicles to export:</p>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; margin-bottom: 10px; cursor: pointer;">
+                        <input type="radio" name="exportPropertyOption" value="all" id="exportOptionAll" checked style="margin-right: 10px;">
+                        <span>Export all vehicles from all properties</span>
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; margin-bottom: 15px; cursor: pointer;">
+                        <input type="radio" name="exportPropertyOption" value="specific" id="exportOptionSpecific" style="margin-right: 10px;">
+                        <span>Export vehicles from a specific property:</span>
+                    </label>
+                    
+                    <select id="exportPropertyDropdown" class="form-control" disabled style="margin-left: 30px; max-width: 400px;">
+                        <option value="">Select Property</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeExportOptionsModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="proceedWithExport()">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Property Modal -->
+    <div id="propertyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="propertyModalTitle">Add Property</h3>
+                <span class="close" data-modal="property">&times;</span>
+            </div>
+            <form id="propertyForm">
+                <input type="hidden" id="propertyId" name="id">
+                <div class="form-group">
+                    <label for="propertyName">Property Name *</label>
+                    <input type="text" id="propertyName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="propertyAddress">Address</label>
+                    <textarea id="propertyAddress" name="address" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="propertyTicketText">Custom Ticket Text</label>
+                    <textarea id="propertyTicketText" name="custom_ticket_text" rows="2" placeholder="Optional text to display on violation tickets (e.g., tow company info, payment instructions)"></textarea>
+                    <p class="help-text">This text will appear on violation tickets below the fine total.</p>
+                </div>
+
+                <h4 style="margin-top: 20px; margin-bottom: 15px; color: #4a90e2;">Property Contacts</h4>
+                
+                <div class="contact-section">
+                    <h5>Contact 1 (Primary) *</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact1Name">Name *</label>
+                            <input type="text" id="contact1Name" name="contact1Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact1Phone">Phone</label>
+                            <input type="tel" id="contact1Phone" name="contact1Phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact1Email">Email</label>
+                        <input type="email" id="contact1Email" name="contact1Email">
+                    </div>
+                </div>
+
+                <div class="contact-section">
+                    <h5>Contact 2 (Optional)</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact2Name">Name</label>
+                            <input type="text" id="contact2Name" name="contact2Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact2Phone">Phone</label>
+                            <input type="tel" id="contact2Phone" name="contact2Phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact2Email">Email</label>
+                        <input type="email" id="contact2Email" name="contact2Email">
+                    </div>
+                </div>
+
+                <div class="contact-section">
+                    <h5>Contact 3 (Optional)</h5>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact3Name">Name</label>
+                            <input type="text" id="contact3Name" name="contact3Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact3Phone">Phone</label>
+                            <input type="tel" id="contact3Phone" name="contact3Phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact3Email">Email</label>
+                        <input type="email" id="contact3Email" name="contact3Email">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="property">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Property</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Add User</h3>
+                <span class="close" data-modal="user">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId" name="id">
+                <div class="form-group">
+                    <label for="userUsername">Username *</label>
+                    <input type="text" id="userUsername" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" name="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Password *</label>
+                    <input type="password" id="userPassword" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userRole">Role *</label>
+                    <select id="userRole" name="role" required>
+                        <option value="user">User</option>
+                        <option value="operator">Operator</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Permissions</label>
+                    <div style="margin-bottom: 10px;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPermissionPreset('admin')">Admin (All)</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPermissionPreset('view')">View Only</button>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="setPermissionPreset('custom')">Custom</button>
+                    </div>
+                    <div class="permission-matrix">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #2a2a2a;">
+                                    <th style="padding: 8px; text-align: left; border: 1px solid #444;">Module</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #444;">View</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #444;">Edit</th>
+                                    <th style="padding: 8px; text-align: center; border: 1px solid #444;">Create/Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Vehicles</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="vehicles" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="vehicles" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="vehicles" data-action="create_delete">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Users</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="users" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="users" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="users" data-action="create_delete">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Properties</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="properties" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="properties" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="properties" data-action="create_delete">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #444;">Violations</td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="violations" data-action="view">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="violations" data-action="edit">
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; border: 1px solid #444;">
+                                        <input type="checkbox" class="perm-check" data-module="violations" data-action="create_delete">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-group" id="userPropertiesSection">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Assigned Properties</label>
+                    <div style="color: #94a3b8; font-size: 0.9em; margin-bottom: 10px;">
+                        Select which properties this user can access. Admins can see all properties by default.
+                    </div>
+                    <div id="userPropertiesCheckboxes" style="max-height: 200px; overflow-y: auto; border: 1px solid #444; padding: 10px; border-radius: 4px;">
+                        <!-- Property checkboxes will be loaded dynamically -->
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="user">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Violation Ticket Modal -->
+    <div id="violationModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Create Violation Ticket</h3>
+                <span class="close" data-modal="violation">&times;</span>
+            </div>
+            <form id="violationForm" onsubmit="handleCreateViolation(event)">
+                <input type="hidden" id="violationVehicleId" name="vehicleId">
+                
+                <div class="violation-vehicle-info">
+                    <strong>Vehicle:</strong> <span id="violationVehicleInfo"></span>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Ticket Type *</label>
+                    <select id="ticketType" name="ticketType" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #444; background: #1e293b; color: #f1f5f9;">
+                        <option value="VIOLATION">Violation</option>
+                        <option value="WARNING">Warning</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-weight: bold; margin-bottom: 10px;">Select Violation(s) *</label>
+                    <div id="violationCheckboxes" class="violation-checkboxes"></div>
+                </div>
+
+                <div id="customNoteContainer" class="form-group" style="display: none;">
+                    <label for="customNoteText">Specify Other Violation</label>
+                    <textarea id="customNoteText" name="customNote" rows="3" placeholder="Enter custom violation details..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="violation">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Create Violation Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Violation Type Modal (Admin Only) -->
+    <div id="violationTypeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="violationTypeModalTitle">Add Violation</h3>
+                <span class="close" data-modal="violationType">&times;</span>
+            </div>
+            <form id="violationTypeForm">
+                <input type="hidden" id="violationTypeId" name="id">
+                <div class="form-group">
+                    <label for="violationTypeName">Violation Name *</label>
+                    <input type="text" id="violationTypeName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="violationTypeFineAmount">Fine Amount ($)</label>
+                    <input type="number" id="violationTypeFineAmount" name="fine_amount" min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label for="violationTypeTowDeadline">Towing Deadline (hours)</label>
+                    <input type="number" id="violationTypeTowDeadline" name="tow_deadline_hours" min="0" step="1" placeholder="Enter hours until towing">
+                </div>
+
+                <div class="form-group">
+                    <label for="violationTypeDisplayOrder">Display Order</label>
+                    <input type="number" id="violationTypeDisplayOrder" name="display_order" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="violationTypeIsActive" name="is_active" checked>
+                        Active (shown in violation selection)
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="violationType">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Violation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Violation History Modal -->
+    <div id="violationHistoryModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Violation History</h3>
+                <span class="close" data-modal="violationHistory">&times;</span>
+            </div>
+            <div id="violationHistoryContent" style="padding: 20px;">
+                <p style="text-align: center; color: #888;">Loading...</p>
+            </div>
+            <div id="violationHistoryPagination" style="padding: 10px 20px; display: flex; justify-content: center; align-items: center; gap: 10px; border-top: 1px solid #444;"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-cancel="violationHistory">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Payment Modal -->
+    <div id="recordPaymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Record Payment</h3>
+                <span class="close" data-modal="recordPayment">&times;</span>
+            </div>
+            <form id="recordPaymentForm">
+                <input type="hidden" id="paymentTicketId">
+                
+                <div id="paymentTicketInfo" style="background: #2a2a2a; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>Ticket:</strong> <span id="paymentInfoTicketId">-</span></div>
+                        <div><strong>Plate:</strong> <span id="paymentInfoPlate">-</span></div>
+                        <div><strong>Total Fine:</strong> <span id="paymentInfoTotalFine">-</span></div>
+                        <div><strong>Paid:</strong> <span id="paymentInfoPaid">-</span></div>
+                        <div style="grid-column: 1 / -1;"><strong>Balance Due:</strong> <span id="paymentInfoBalance" style="color: #f59e0b; font-size: 1.2em;">-</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method *</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select Method</option>
+                        <option value="cash">Cash</option>
+                        <option value="check">Check</option>
+                        <option value="card_manual">Manual Card Entry</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentAmount">Amount *</label>
+                    <input type="number" id="paymentAmount" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+
+                <div class="form-group" id="checkNumberGroup" style="display:none;">
+                    <label for="paymentCheckNumber">Check Number *</label>
+                    <input type="text" id="paymentCheckNumber" placeholder="Check number">
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentNotes">Notes (optional)</label>
+                    <textarea id="paymentNotes" rows="3" placeholder="Additional payment notes"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-cancel="recordPayment">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Record Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment History Modal -->
+    <div id="paymentHistoryModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Payment History</h3>
+                <span class="close" data-modal="paymentHistory">&times;</span>
+            </div>
+            <div id="paymentHistoryContent" style="padding: 20px;">
+                <div id="paymentSummary" style="background: #2a2a2a; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    <h4 style="margin-top: 0;">Payment Summary</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>Total Fine:</strong> <span id="summaryTotalFine">-</span></div>
+                        <div><strong>Total Paid:</strong> <span id="summaryTotalPaid">-</span></div>
+                        <div><strong>Balance Due:</strong> <span id="summaryBalanceDue">-</span></div>
+                        <div><strong>Payments Count:</strong> <span id="summaryPaymentCount">-</span></div>
+                    </div>
+                </div>
+                <div id="paymentHistoryList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-cancel="paymentHistory">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/app-secure.js?v=2.0.0"></script>
+</body>
+</html>

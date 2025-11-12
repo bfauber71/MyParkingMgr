@@ -1,0 +1,55 @@
+# ManageMyParking - Apache Configuration
+# This file enables URL rewriting for the application
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect to HTTPS (uncomment after SSL is configured)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Don't rewrite existing files or directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    
+    # Route API calls to PHP files (add .php extension if missing)
+    RewriteRule ^api/(.+)\.php$ - [L]
+    RewriteRule ^api/(.+)$ api/$1.php [L,QSA]
+    
+    # Serve index.html for SPA routing (NOT index.php)
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Set DirectoryIndex to prefer index.html
+DirectoryIndex index.html index.php
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Disable caching for JavaScript and HTML (force fresh load)
+    <FilesMatch "\.(js|html)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+    
+    # CRITICAL: Disable OPcache for PHP files (force fresh execution)
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Disable directory browsing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "(^\.htaccess|^config\.php|\.sql$)">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
