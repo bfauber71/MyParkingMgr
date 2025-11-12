@@ -3895,18 +3895,18 @@ function printGuestPass(vehicle, property) {
     
     // Build URL with parameters (logo will be loaded from printer settings)
     const params = new URLSearchParams({
-        propertyName: property.name || '',
-        propertyAddress: property.address || '',
-        propertyContact: property.contact1_name ? `Contact: ${property.contact1_name} ${property.contact1_phone || ''}` : '',
-        plateNumber: vehicle.plate_number || '',
+        property_name: property.name || '',
+        property_address: property.address || '',
+        property_contact: property.contact1_name ? `Contact: ${property.contact1_name} ${property.contact1_phone || ''}` : '',
+        plate_number: vehicle.plate_number || '',
         state: vehicle.state || '',
         make: vehicle.make || '',
         model: vehicle.model || '',
         color: vehicle.color || '',
         year: vehicle.year || '',
-        guestName: vehicle.owner_name || '',
-        guestOf: vehicle.guest_of ? `Apt/Unit ${vehicle.guest_of}` : '',
-        expirationDate: formattedExpDate
+        guest_name: vehicle.owner_name || '',
+        guest_of: vehicle.guest_of ? `Apt/Unit ${vehicle.guest_of}` : '',
+        expiration_date: formattedExpDate
     });
     
     // Open print window

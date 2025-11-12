@@ -214,20 +214,20 @@
         const params = new URLSearchParams(window.location.search);
         
         // Property information
-        document.getElementById('propertyName').textContent = params.get('propertyName') || '';
-        document.getElementById('propertyAddress').textContent = params.get('propertyAddress') || '';
-        document.getElementById('propertyContact').textContent = params.get('propertyContact') || '';
+        document.getElementById('propertyName').textContent = params.get('property_name') || '';
+        document.getElementById('propertyAddress').textContent = params.get('property_address') || '';
+        document.getElementById('propertyContact').textContent = params.get('property_contact') || '';
         
         // Vehicle information
-        document.getElementById('plateNumber').textContent = params.get('plateNumber') || '';
+        document.getElementById('plateNumber').textContent = params.get('plate_number') || '';
         document.getElementById('state').textContent = params.get('state') || '';
         document.getElementById('make').textContent = params.get('make') || '';
         document.getElementById('model').textContent = params.get('model') || '';
         document.getElementById('color').textContent = params.get('color') || '';
         document.getElementById('year').textContent = params.get('year') || '';
-        document.getElementById('guestName').textContent = params.get('guestName') || '';
-        document.getElementById('guestOf').textContent = params.get('guestOf') || '';
-        document.getElementById('expirationDate').textContent = params.get('expirationDate') || '';
+        document.getElementById('guestName').textContent = params.get('guest_name') || '';
+        document.getElementById('guestOf').textContent = params.get('guest_of') || '';
+        document.getElementById('expirationDate').textContent = params.get('expiration_date') || '';
         
         // Load logo from printer settings (same as violation tickets)
         async function loadLogo() {
