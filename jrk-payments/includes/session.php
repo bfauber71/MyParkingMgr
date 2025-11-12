@@ -25,8 +25,9 @@ class Session {
         
         $secure = $session['secure'] === 'auto' ? $isHttps : (bool)$session['secure'];
         
-        // Use base_path for cookie path (important for subdirectory installs)
-        $cookiePath = $config['base_path'] ? $config['base_path'] . '/' : '/';
+        // CRITICAL FIX: Always use '/' for cookie path so session works with /api/* endpoints
+        // If base_path is set, browser won't send cookies to /api/* URLs causing 401 errors
+        $cookiePath = '/';
         
         // Configure session
         ini_set('session.use_cookies', 1);
