@@ -3154,10 +3154,10 @@ async function handleCreateViolation(event) {
     const ticketType = form.querySelector('[name="ticketType"]')?.value || 'VIOLATION';
     
     const requestData = {
-        vehicleId: vehicleId,
+        vehicle_id: vehicleId,
         violations: violationIds,
-        customNote: customNote.trim(),
-        ticketType: ticketType
+        custom_note: customNote.trim(),
+        ticket_type: ticketType
     };
     
     try {
@@ -3687,21 +3687,21 @@ async function handleVehicleSubmit(e) {
     
     const formData = {
         property: form.querySelector('[name="property"]')?.value || '',
-        tagNumber: form.querySelector('[name="tag_number"]')?.value || '',
-        plateNumber: form.querySelector('[name="plate_number"]')?.value || '',
+        tag_number: form.querySelector('[name="tag_number"]')?.value || '',
+        plate_number: form.querySelector('[name="plate_number"]')?.value || '',
         state: form.querySelector('[name="state"]')?.value || '',
         make: form.querySelector('[name="make"]')?.value || '',
         model: form.querySelector('[name="model"]')?.value || '',
         color: form.querySelector('[name="color"]')?.value || '',
         year: form.querySelector('[name="year"]')?.value || '',
-        aptNumber: form.querySelector('[name="apt_number"]')?.value || '',
-        ownerName: form.querySelector('[name="owner_name"]')?.value || '',
-        ownerPhone: form.querySelector('[name="owner_phone"]')?.value || '',
-        ownerEmail: form.querySelector('[name="owner_email"]')?.value || '',
-        reservedSpace: form.querySelector('[name="reserved_space"]')?.value || '',
+        apt_number: form.querySelector('[name="apt_number"]')?.value || '',
+        owner_name: form.querySelector('[name="owner_name"]')?.value || '',
+        owner_phone: form.querySelector('[name="owner_phone"]')?.value || '',
+        owner_email: form.querySelector('[name="owner_email"]')?.value || '',
+        reserved_space: form.querySelector('[name="reserved_space"]')?.value || '',
         resident: form.querySelector('[name="resident"]')?.checked || false,
         guest: form.querySelector('[name="guest"]')?.checked || false,
-        guestOf: form.querySelector('[name="guest_of"]')?.value || ''
+        guest_of: form.querySelector('[name="guest_of"]')?.value || ''
     };
     
     if (isUpdate) {
@@ -3843,17 +3843,17 @@ async function handleGuestPassSubmit() {
     
     const formData = {
         property: property,
-        plateNumber: document.getElementById('gpPlateNumber').value || '',
+        plate_number: document.getElementById('gpPlateNumber').value || '',
         state: document.getElementById('gpState').value || '',
         make: document.getElementById('gpMake').value || '',
         model: document.getElementById('gpModel').value || '',
         color: document.getElementById('gpColor').value || '',
         year: document.getElementById('gpYear').value || '',
-        ownerName: document.getElementById('gpOwnerName').value || '',
-        tagNumber: document.getElementById('gpPlateNumber').value || '',
+        owner_name: document.getElementById('gpOwnerName').value || '',
+        tag_number: document.getElementById('gpPlateNumber').value || '',
         guest: true,
-        guestOf: document.getElementById('gpGuestOf').value || '',
-        expirationDate: expirationString
+        guest_of: document.getElementById('gpGuestOf').value || '',
+        expiration_date: expirationString
     };
     
     try {
@@ -4036,7 +4036,7 @@ async function closeTicket(ticketId, disposition) {
         const response = await secureApiCall(`${API_BASE}/ticket-close`, {
             method: 'POST',
             body: JSON.stringify({
-                ticketId: ticketId,
+                ticket_id: ticketId,
                 disposition: disposition
             })
         });

@@ -86,21 +86,21 @@ try {
             
             $stmt->execute([
                 $property,
-                $input['tagNumber'] ?? null,
-                $input['plateNumber'] ?? null,
+                $input['tag_number'] ?? null,
+                $input['plate_number'] ?? null,
                 $input['state'] ?? null,
                 $input['make'] ?? null,
                 $input['model'] ?? null,
                 $input['color'] ?? null,
                 $input['year'] ?? null,
-                $input['aptNumber'] ?? null,
-                $input['ownerName'] ?? null,
-                $input['ownerPhone'] ?? null,
-                $input['ownerEmail'] ?? null,
-                $input['reservedSpace'] ?? null,
+                $input['apt_number'] ?? null,
+                $input['owner_name'] ?? null,
+                $input['owner_phone'] ?? null,
+                $input['owner_email'] ?? null,
+                $input['reserved_space'] ?? null,
                 isset($input['resident']) ? ($input['resident'] ? 1 : 0) : 1,
                 isset($input['guest']) ? ($input['guest'] ? 1 : 0) : 0,
-                $input['guestOf'] ?? null,
+                $input['guest_of'] ?? null,
                 $vehicleId
             ]);
         } else {
@@ -126,23 +126,23 @@ try {
             
             $stmt->execute([
                 $property,
-                $input['tagNumber'] ?? null,
-                $input['plateNumber'] ?? null,
+                $input['tag_number'] ?? null,
+                $input['plate_number'] ?? null,
                 $input['state'] ?? null,
                 $input['make'] ?? null,
                 $input['model'] ?? null,
                 $input['color'] ?? null,
                 $input['year'] ?? null,
-                $input['aptNumber'] ?? null,
-                $input['ownerName'] ?? null,
-                $input['ownerPhone'] ?? null,
-                $input['ownerEmail'] ?? null,
-                $input['reservedSpace'] ?? null,
+                $input['apt_number'] ?? null,
+                $input['owner_name'] ?? null,
+                $input['owner_phone'] ?? null,
+                $input['owner_email'] ?? null,
+                $input['reserved_space'] ?? null,
                 $vehicleId
             ]);
         }
         
-        $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "ID $vehicleId";
+        $identifier = $input['tag_number'] ?: $input['plate_number'] ?: "ID $vehicleId";
         if (function_exists('auditLog')) { try { auditLog('update_vehicle', 'vehicles', $vehicleId, "Updated vehicle: $identifier"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
         
         echo json_encode([
@@ -166,21 +166,21 @@ try {
             $stmt->execute([
                 $newId,
                 $property,
-                $input['tagNumber'] ?? null,
-                $input['plateNumber'] ?? null,
+                $input['tag_number'] ?? null,
+                $input['plate_number'] ?? null,
                 $input['state'] ?? null,
                 $input['make'] ?? null,
                 $input['model'] ?? null,
                 $input['color'] ?? null,
                 $input['year'] ?? null,
-                $input['aptNumber'] ?? null,
-                $input['ownerName'] ?? null,
-                $input['ownerPhone'] ?? null,
-                $input['ownerEmail'] ?? null,
-                $input['reservedSpace'] ?? null,
+                $input['apt_number'] ?? null,
+                $input['owner_name'] ?? null,
+                $input['owner_phone'] ?? null,
+                $input['owner_email'] ?? null,
+                $input['reserved_space'] ?? null,
                 isset($input['resident']) ? ($input['resident'] ? 1 : 0) : 1,
                 isset($input['guest']) ? ($input['guest'] ? 1 : 0) : 0,
-                $input['guestOf'] ?? null
+                $input['guest_of'] ?? null
             ]);
         } else {
             // Old schema without resident/guest fields
@@ -194,22 +194,22 @@ try {
             $stmt->execute([
                 $newId,
                 $property,
-                $input['tagNumber'] ?? null,
-                $input['plateNumber'] ?? null,
+                $input['tag_number'] ?? null,
+                $input['plate_number'] ?? null,
                 $input['state'] ?? null,
                 $input['make'] ?? null,
                 $input['model'] ?? null,
                 $input['color'] ?? null,
                 $input['year'] ?? null,
-                $input['aptNumber'] ?? null,
-                $input['ownerName'] ?? null,
-                $input['ownerPhone'] ?? null,
-                $input['ownerEmail'] ?? null,
-                $input['reservedSpace'] ?? null
+                $input['apt_number'] ?? null,
+                $input['owner_name'] ?? null,
+                $input['owner_phone'] ?? null,
+                $input['owner_email'] ?? null,
+                $input['reserved_space'] ?? null
             ]);
         }
         
-        $identifier = $input['tagNumber'] ?: $input['plateNumber'] ?: "New Vehicle";
+        $identifier = $input['tag_number'] ?: $input['plate_number'] ?: "New Vehicle";
         if (function_exists('auditLog')) { try { auditLog('create_vehicle', 'vehicles', $newId, "Created vehicle: $identifier"); } catch (Exception $e) { error_log("Audit log error: " . $e->getMessage()); } }
         
         echo json_encode([

@@ -13,10 +13,10 @@ requireAuth();
 requirePermission(MODULE_DATABASE, ACTION_CREATE_DELETE);
 
 $input = json_decode(file_get_contents('php://input'), true);
-$ticketId = $input['ticketId'] ?? null;
+$ticket_id = $input['ticket_id'] ?? null;
 $disposition = $input['disposition'] ?? null;
 
-if (empty($ticketId)) {
+if (empty($ticket_id)) {
     http_response_code(400);
     echo json_encode(['error' => 'Ticket ID is required']);
     exit;
@@ -50,7 +50,7 @@ try {
     
     // Get current ticket status
     $stmt = $db->prepare("SELECT status, property FROM violation_tickets WHERE id = ?");
-    $stmt->execute([$ticketId]);
+    $stmt->execute([$ticket_id]);
     $ticket = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$ticket) {
@@ -87,12 +87,12 @@ try {
         WHERE id = ?
     ");
     
-    $stmt->execute([$disposition, $userId, $ticketId]);
+    $stmt->execute([$disposition, $userId, $ticket_id]);
     
     // Audit log
     if (function_exists('auditLog')) { 
         try { 
-            auditLog('close_ticket', 'violation_tickets', $ticketId, "Closed ticket with disposition: $disposition"); 
+            auditLog('close_ticket', 'violation_tickets', $ticket_id, "Closed ticket with disposition: $disposition"); 
         } catch (Exception $e) { 
             error_log("Audit log error: " . $e->getMessage()); 
         } 

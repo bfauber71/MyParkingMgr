@@ -13,7 +13,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $user = Session::user();
 
 $property = trim($input['property'] ?? '');
-$plateNumber = trim($input['plateNumber'] ?? '');
+$plateNumber = trim($input['plate_number'] ?? '');
 
 if (empty($property) || empty($plateNumber)) {
     http_response_code(400);
@@ -60,7 +60,7 @@ try {
     }
     
     // Calculate expiration date (7 days from now)
-    $expirationDate = isset($input['expirationDate']) ? $input['expirationDate'] : date('Y-m-d', strtotime('+7 days'));
+    $expirationDate = isset($input['expiration_date']) ? $input['expiration_date'] : date('Y-m-d', strtotime('+7 days'));
     
     $newId = Database::uuid();
     
@@ -85,14 +85,14 @@ try {
             $input['model'] ?? null,
             $input['color'] ?? null,
             $input['year'] ?? null,
-            $input['aptNumber'] ?? null,
-            $input['ownerName'] ?? null,
-            $input['ownerPhone'] ?? null,
-            $input['ownerEmail'] ?? null,
-            $input['reservedSpace'] ?? null,
+            $input['apt_number'] ?? null,
+            $input['owner_name'] ?? null,
+            $input['owner_phone'] ?? null,
+            $input['owner_email'] ?? null,
+            $input['reserved_space'] ?? null,
             0, // resident = false for guest pass
             1, // guest = true for guest pass
-            $input['guestOf'] ?? null,
+            $input['guest_of'] ?? null,
             $expirationDate
         ]);
     } elseif ($hasResidentFields && !$hasExpirationField) {
@@ -115,14 +115,14 @@ try {
             $input['model'] ?? null,
             $input['color'] ?? null,
             $input['year'] ?? null,
-            $input['aptNumber'] ?? null,
-            $input['ownerName'] ?? null,
-            $input['ownerPhone'] ?? null,
-            $input['ownerEmail'] ?? null,
-            $input['reservedSpace'] ?? null,
+            $input['apt_number'] ?? null,
+            $input['owner_name'] ?? null,
+            $input['owner_phone'] ?? null,
+            $input['owner_email'] ?? null,
+            $input['reserved_space'] ?? null,
             0, // resident = false for guest pass
             1, // guest = true for guest pass
-            $input['guestOf'] ?? null
+            $input['guest_of'] ?? null
         ]);
     } else {
         // Old schema without resident/guest or expiration fields
@@ -143,11 +143,11 @@ try {
             $input['model'] ?? null,
             $input['color'] ?? null,
             $input['year'] ?? null,
-            $input['aptNumber'] ?? null,
-            $input['ownerName'] ?? null,
-            $input['ownerPhone'] ?? null,
-            $input['ownerEmail'] ?? null,
-            $input['reservedSpace'] ?? null
+            $input['apt_number'] ?? null,
+            $input['owner_name'] ?? null,
+            $input['owner_phone'] ?? null,
+            $input['owner_email'] ?? null,
+            $input['reserved_space'] ?? null
         ]);
     }
     

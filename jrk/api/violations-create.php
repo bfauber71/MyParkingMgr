@@ -12,9 +12,9 @@ $user = Session::user();
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-$vehicleId = trim($input['vehicleId'] ?? '');
+$vehicleId = trim($input['vehicle_id'] ?? '');
 $violationIds = $input['violations'] ?? [];
-$customNote = trim($input['customNote'] ?? '');
+$customNote = trim($input['custom_note'] ?? '');
 
 if (empty($vehicleId)) {
     http_response_code(400);
@@ -114,7 +114,7 @@ try {
     $issuedAt = $dt->format('Y-m-d H:i:s');
     
     // Get ticket type from input (default to VIOLATION)
-    $ticketType = strtoupper(trim($input['ticketType'] ?? 'VIOLATION'));
+    $ticketType = strtoupper(trim($input['ticket_type'] ?? 'VIOLATION'));
     if (!in_array($ticketType, ['VIOLATION', 'WARNING'])) {
         $ticketType = 'VIOLATION';
     }
