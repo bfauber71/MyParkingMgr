@@ -73,7 +73,7 @@ $sql = "SELECT
     vt.vehicle_color as color,
     v.plate_number,
     v.tag_number,
-    COALESCE(v.property, vt.property_name) as property,
+    COALESCE(v.property_id, vt.property_name) as property,
     $ticketTypeField
     $statusField
     $dispositionField
@@ -85,7 +85,7 @@ FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
-WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
+WHERE (v.id IS NULL OR v.property_id IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
    OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
 
 $params = array_merge($propertyNames, $propertyNames);
@@ -103,7 +103,7 @@ if ($endDate) {
 
 // Property filter
 if ($property) {
-    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+    $sql .= " AND (v.property_id = ? OR vt.property_name = ?)";
     $params[] = $property;
     $params[] = $property;
 }

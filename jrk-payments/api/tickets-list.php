@@ -64,7 +64,7 @@ $sql = "SELECT
     vt.vehicle_color as color,
     v.plate_number,
     v.tag_number,
-    COALESCE(v.property, vt.property_name) as property,
+    COALESCE(v.property_id, vt.property_name) as property,
     GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') as violation_list,
     SUM(COALESCE(violations.fine_amount, 0)) as total_fine
 FROM violation_tickets vt
@@ -72,7 +72,7 @@ LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
 WHERE (
-    (v.id IS NOT NULL AND v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
+    (v.id IS NOT NULL AND v.property_id IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
     OR (v.id IS NULL AND vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
 )";
 
@@ -86,7 +86,7 @@ if ($status && $hasStatus) {
 
 // Property filter
 if ($property) {
-    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+    $sql .= " AND (v.property_id = ? OR vt.property_name = ?)";
     $params[] = $property;
     $params[] = $property;
 }

@@ -71,11 +71,11 @@ try {
         $stmt = $db->prepare("
             SELECT v.* 
             FROM vehicles v
-            INNER JOIN user_assigned_properties uap ON v.property = (
+            INNER JOIN user_assigned_properties uap ON v.property_id = (
                 SELECT name FROM properties WHERE id = uap.property_id
             )
             WHERE uap.user_id = ?
-            ORDER BY v.property, v.created_at DESC
+            ORDER BY v.property_id, v.created_at DESC
         ");
         $stmt->execute([$user['id']]);
     }
