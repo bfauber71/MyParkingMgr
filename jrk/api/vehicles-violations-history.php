@@ -12,7 +12,7 @@ if (!Session::isAuthenticated()) {
 }
 
 $user = Session::user();
-$vehicleId = $_GET['vehicleId'] ?? '';
+$vehicleId = $_GET['vehicle_id'] ?? '';
 
 if (empty($vehicleId)) {
     http_response_code(400);
