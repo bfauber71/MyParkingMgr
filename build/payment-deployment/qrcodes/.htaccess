@@ -1,5 +1,0 @@
-# Allow access to QR code images
-<IfModule mod_rewrite.c>
-    RewriteEngine Off
-</IfModule>
-Options -Indexes
