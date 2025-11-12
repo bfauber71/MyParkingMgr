@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `ticket_payments` (
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`ticket_id`) REFERENCES `violation_tickets`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`recorded_by_user_id`) REFERENCES `users`(`id`),
+    FOREIGN KEY (`recorded_by_user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT,
     INDEX `idx_ticket_id` (`ticket_id`),
     INDEX `idx_payment_date` (`payment_date`),
     INDEX `idx_status` (`status`)

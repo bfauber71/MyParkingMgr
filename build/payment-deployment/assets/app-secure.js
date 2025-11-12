@@ -2685,14 +2685,29 @@ async function loadSettingsSection() {
     
     // Populate property dropdown in payment settings
     const paymentConfigProperty = document.getElementById('paymentConfigProperty');
-    if (paymentConfigProperty && allProperties.length > 0) {
-        paymentConfigProperty.innerHTML = '<option value="">Select Property</option>';
-        allProperties.forEach(prop => {
-            const option = document.createElement('option');
-            option.value = prop.id;
-            option.textContent = prop.property_name || prop.name;
-            paymentConfigProperty.appendChild(option);
-        });
+    if (paymentConfigProperty) {
+        try {
+            const response = await secureApiCall(`${API_BASE}/properties-list`, {
+                method: 'GET'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const allProperties = data.properties || [];
+                
+                if (allProperties.length > 0) {
+                    paymentConfigProperty.innerHTML = '<option value="">Select Property</option>';
+                    allProperties.forEach(prop => {
+                        const option = document.createElement('option');
+                        option.value = prop.id;
+                        option.textContent = prop.property_name || prop.name;
+                        paymentConfigProperty.appendChild(option);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error loading properties for payment settings:', error);
+        }
     }
     
     // Load default sub-tab (users)

@@ -64,7 +64,7 @@ try {
         payment_link_url TEXT NULL,
         qr_code_path VARCHAR(255) NULL,
         status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'completed',
-        recorded_by_user_id INT NOT NULL,
+        recorded_by_user_id VARCHAR(36) NOT NULL,
         notes TEXT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
