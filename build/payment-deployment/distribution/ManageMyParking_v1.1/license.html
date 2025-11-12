@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Management - MyParkingManager</title>
+    <script src="assets/config.js"></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .license-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .status-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .status-trial {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-licensed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .warning-banner {
+            background: #ffeaa7;
+            border-left: 4px solid #fdcb6e;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .expired-banner {
+            background: #ffcccc;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+        }
+        .license-key-input {
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #4a90e2;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a7bc8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .feature-available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .feature-restricted {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .countdown {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .help-text {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="license-container">
+        <h1>License Management</h1>
+        <p>Manage your MyParkingManager subscription and license</p>
+
+        <div id="licenseStatus" class="status-card">
+            <h3>Current Status</h3>
+            <div id="statusContent">
+                <p>Loading license status...</p>
+            </div>
+        </div>
+
+        <div id="trialWarning" class="warning-banner" style="display: none;">
+            <strong>⚠️ Trial Expiring Soon</strong>
+            <p id="trialWarningText"></p>
+        </div>
+
+        <div id="expiredBanner" class="expired-banner" style="display: none;">
+            <strong>❌ Trial Expired</strong>
+            <p>Your 30-day trial has expired. Please enter a license key to continue using premium features.</p>
+        </div>
+
+        <div id="activationForm" style="display: none;">
+            <h3>Activate License</h3>
+            <form id="licenseForm">
+                <div class="form-group">
+                    <label for="licenseKey">License Key</label>
+                    <input type="text" 
+                           id="licenseKey" 
+                           class="license-key-input" 
+                           placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" 
+                           maxlength="39"
+                           required>
+                    <p class="help-text">Enter the license key you received via email</p>
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email Address (optional)</label>
+                    <input type="email" id="customerEmail" placeholder="your@email.com">
+                    <p class="help-text">For license recovery and support purposes</p>
+                </div>
+                <button type="submit" class="btn btn-primary" id="activateBtn">Activate License</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Cancel</button>
+            </form>
+        </div>
+
+        <div id="successMessage" class="success-message" style="display: none;">
+            <strong>✅ License Activated!</strong>
+            <p>Your license has been successfully activated. All features are now available.</p>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <strong>Error</strong>
+            <p id="errorText"></p>
+        </div>
+
+        <div class="features-grid">
+            <h3 style="grid-column: 1 / -1;">Feature Access</h3>
+            <div class="feature-item">
+                <span class="feature-icon" id="vehiclesIcon">✓</span>
+                <span>Vehicle Management</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon" id="violationsIcon">✓</span>
+                <span>Violation System</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon" id="propertiesIcon">✓</span>
+                <span>Property Management</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon" id="usersIcon">✓</span>
+                <span>User Management</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon" id="exportIcon">✓</span>
+                <span>Data Export</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon" id="reportsIcon">✓</span>
+                <span>Reports & Analytics</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check license status on page load
+        async function checkLicenseStatus() {
+            try {
+                const response = await fetch('/api/license-status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateLicenseDisplay(data.license);
+                    updateFeatureAccess(data.license);
+                }
+            } catch (error) {
+                console.error('Failed to check license status:', error);
+            }
+        }
+
+        function updateLicenseDisplay(license) {
+            const statusContent = document.getElementById('statusContent');
+            const trialWarning = document.getElementById('trialWarning');
+            const expiredBanner = document.getElementById('expiredBanner');
+            const activationForm = document.getElementById('activationForm');
+            
+            let statusHTML = '';
+            
+            if (license.status === 'trial') {
+                statusHTML = `
+                    <p><span class="status-badge status-trial">TRIAL PERIOD</span></p>
+                    <p><strong>${license.days_remaining}</strong> days remaining</p>
+                    <p>Trial expires: ${new Date(license.expires_at).toLocaleDateString()}</p>
+                `;
+                
+                if (license.show_warning) {
+                    trialWarning.style.display = 'block';
+                    document.getElementById('trialWarningText').textContent = 
+                        `Your trial expires in ${license.days_remaining} days. Activate a license to continue using all features.`;
+                }
+                
+                activationForm.style.display = 'block';
+                
+            } else if (license.status === 'licensed') {
+                statusHTML = `
+                    <p><span class="status-badge status-licensed">LICENSED</span></p>
+                    <p>License Key: ${license.license_key_prefix}...</p>
+                    <p>Activated: ${new Date(license.activated_at).toLocaleDateString()}</p>
+                `;
+                
+                activationForm.style.display = 'none';
+                
+            } else if (license.status === 'expired') {
+                statusHTML = `
+                    <p><span class="status-badge status-expired">EXPIRED</span></p>
+                    <p>Trial expired ${license.days_expired} days ago</p>
+                `;
+                
+                expiredBanner.style.display = 'block';
+                activationForm.style.display = 'block';
+            }
+            
+            statusContent.innerHTML = statusHTML;
+        }
+
+        function updateFeatureAccess(license) {
+            const features = ['vehicles', 'violations', 'properties', 'users', 'export', 'reports'];
+            const isValid = license.is_valid;
+            
+            features.forEach(feature => {
+                const icon = document.getElementById(feature + 'Icon');
+                if (icon) {
+                    if (isValid) {
+                        icon.className = 'feature-icon feature-available';
+                        icon.textContent = '✓';
+                    } else {
+                        icon.className = 'feature-icon feature-restricted';
+                        icon.textContent = '✗';
+                    }
+                }
+            });
+        }
+
+        // Handle license activation
+        document.getElementById('licenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const licenseKey = document.getElementById('licenseKey').value.trim();
+            const email = document.getElementById('customerEmail').value.trim();
+            
+            document.getElementById('activateBtn').disabled = true;
+            document.getElementById('activateBtn').textContent = 'Activating...';
+            
+            try {
+                const response = await fetch('/api/license-activate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        license_key: licenseKey,
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('activationForm').style.display = 'none';
+                    document.getElementById('expiredBanner').style.display = 'none';
+                    document.getElementById('trialWarning').style.display = 'none';
+                    
+                    // Refresh status
+                    setTimeout(() => {
+                        checkLicenseStatus();
+                    }, 2000);
+                } else {
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorText').textContent = data.error || 'Failed to activate license';
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorText').textContent = 'Network error. Please try again.';
+            } finally {
+                document.getElementById('activateBtn').disabled = false;
+                document.getElementById('activateBtn').textContent = 'Activate License';
+            }
+        });
+
+        // Format license key input
+        document.getElementById('licenseKey').addEventListener('input', (e) => {
+            let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            let formatted = '';
+            
+            for (let i = 0; i < value.length && i < 32; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += '-';
+                }
+                formatted += value[i];
+            }
+            
+            e.target.value = formatted;
+        });
+
+        // Initialize
+        checkLicenseStatus();
+    </script>
+</body>
+</html>
