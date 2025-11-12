@@ -5,10 +5,8 @@
  */
 
 require_once __DIR__ . '/../includes/database.php';
-
-require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/session.php';
-
+require_once __DIR__ . '/../includes/helpers.php';
 
 Session::start();
 
@@ -59,45 +57,23 @@ try {
     $role = strtolower($user['role']);
     
     if ($propertyFilter) {
-        // Export vehicles from specific property (propertyFilter is property NAME from user input)
-        // Need to get property ID first
-        $propStmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
-        $propStmt->execute([$propertyFilter]);
-        $propRow = $propStmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$propRow) {
-            http_response_code(400);
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Property not found']);
-            exit;
-        }
-        
-        $stmt = $db->prepare("
-            SELECT v.*, p.name as property 
-            FROM vehicles v
-            LEFT JOIN properties p ON v.property_id = p.id
-            WHERE v.property_id = ? 
-            ORDER BY v.created_at DESC
-        ");
-        $stmt->execute([$propRow['id']]);
+        // Export vehicles from specific property
+        $stmt = $db->prepare("SELECT * FROM vehicles WHERE property = ? ORDER BY created_at DESC");
+        $stmt->execute([$propertyFilter]);
     } else if ($role === 'admin' || $role === 'operator') {
         // Admin and Operator can export all vehicles
-        $stmt = $db->prepare("
-            SELECT v.*, p.name as property 
-            FROM vehicles v
-            LEFT JOIN properties p ON v.property_id = p.id
-            ORDER BY p.name, v.created_at DESC
-        ");
+        $stmt = $db->prepare("SELECT * FROM vehicles ORDER BY property, created_at DESC");
         $stmt->execute();
     } else {
         // Regular users only export vehicles from assigned properties
         $stmt = $db->prepare("
-            SELECT v.*, p.name as property
+            SELECT v.* 
             FROM vehicles v
-            INNER JOIN user_assigned_properties uap ON v.property_id = uap.property_id
-            LEFT JOIN properties p ON v.property_id = p.id
+            INNER JOIN user_assigned_properties uap ON v.property = (
+                SELECT name FROM properties WHERE id = uap.property_id
+            )
             WHERE uap.user_id = ?
-            ORDER BY p.name, v.created_at DESC
+            ORDER BY v.property, v.created_at DESC
         ");
         $stmt->execute([$user['id']]);
     }

@@ -6,10 +6,8 @@
  */
 
 require_once __DIR__ . '/../includes/database.php';
-
-require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/session.php';
-
+require_once __DIR__ . '/../includes/helpers.php';
 
 requireAuth();
 requirePermission(MODULE_DATABASE, ACTION_VIEW);
@@ -24,14 +22,13 @@ $searchQuery = $input['query'] ?? '';
 
 // Get accessible properties for filtering
 $accessibleProperties = getAccessibleProperties();
-$propertyIds = array_column($accessibleProperties, 'id');
 $propertyNames = array_column($accessibleProperties, 'name');
 
 // Debug logging
 error_log("Violation Search - Accessible properties: " . json_encode($propertyNames));
 error_log("Violation Search - Filters: start_date=$startDate, end_date=$endDate, property=$property, violation_type=$violationType, query=$searchQuery");
 
-if (empty($propertyIds)) {
+if (empty($propertyNames)) {
     error_log("Violation Search - No accessible properties found, returning empty results");
     jsonResponse(['violations' => [], 'total' => 0, 'debug' => 'No accessible properties']);
 }
@@ -74,7 +71,7 @@ $sql = "SELECT
     vt.vehicle_color as color,
     v.plate_number,
     v.tag_number,
-    p.name as property,
+    COALESCE(v.property, vt.property_name) as property,
     $ticketTypeField
     $statusField
     $dispositionField
@@ -84,13 +81,12 @@ $sql = "SELECT
     SUM(COALESCE(violations.fine_amount, 0)) as total_fine
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
-    LEFT JOIN properties p ON vt.property_id = p.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
-WHERE (v.id IS NULL OR vt.property_id IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")";
+WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
+   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
 
-$params = array_merge($propertyIds, $propertyIds);
+$params = array_merge($propertyNames, $propertyNames);
 
 // Date range filter
 if ($startDate) {
@@ -105,7 +101,7 @@ if ($endDate) {
 
 // Property filter
 if ($property) {
-    $sql .= " AND (v.property_id = ? OR vt.property_name = ?)";
+    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
     $params[] = $property;
     $params[] = $property;
 }

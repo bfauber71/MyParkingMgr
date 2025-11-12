@@ -6,10 +6,8 @@
  */
 
 require_once __DIR__ . '/../includes/database.php';
-
-require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/session.php';
-
+require_once __DIR__ . '/../includes/helpers.php';
 
 // Prevent caching
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -23,7 +21,6 @@ requirePermission(MODULE_DATABASE, ACTION_VIEW);
 $input = json_decode(file_get_contents('php://input'), true);
 
 $startDate = $input['start_date'] ?? null;
-$propertyIds = array_column($accessibleProperties, 'id');
 $endDate = $input['end_date'] ?? null;
 $property = $input['property'] ?? null;
 $violationType = $input['violation_type'] ?? null;
@@ -36,7 +33,7 @@ $propertyNames = array_column($accessibleProperties, 'name');
 // Debug logging
 error_log("Violation Export - Accessible properties: " . json_encode($propertyNames));
 
-if (empty($propertyIds)) {
+if (empty($propertyNames)) {
     error_log("Violation Export - No accessible properties found");
     jsonResponse(['error' => 'No accessible properties'], 403);
 }
@@ -55,7 +52,7 @@ $ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_t
 $sql = "SELECT 
     vt.id,
     vt.created_at as ticket_date,
-    p.name as property,
+    COALESCE(v.property, vt.property_name) as property,
     $ticketTypeField
     vt.vehicle_year as year,
     vt.vehicle_make as make,
@@ -69,10 +66,10 @@ $sql = "SELECT
 FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
-WHERE (v.id IS NULL OR vt.property_id IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . ")";
+WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
+   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
 
-$params = array_merge($propertyIds, $propertyIds);
+$params = array_merge($propertyNames, $propertyNames);
 
 // Apply same filters as search
 if ($startDate) {
@@ -86,7 +83,7 @@ if ($endDate) {
 }
 
 if ($property) {
-    $sql .= " AND (v.property_id = ? OR vt.property_name = ?)";
+    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
     $params[] = $property;
     $params[] = $property;
 }
