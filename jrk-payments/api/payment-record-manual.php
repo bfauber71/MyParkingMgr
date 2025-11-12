@@ -1,14 +1,11 @@
 <?php
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/auth.php';
+
+requireAuth();
 
 header('Content-Type: application/json');
-
-if (!isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit;
-}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

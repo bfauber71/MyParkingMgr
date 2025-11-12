@@ -1,15 +1,12 @@
 <?php
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../lib/CryptoHelper.php';
 
-header('Content-Type: application/json');
+requireAuth();
 
-if (!isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit;
-}
+header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $db = Database::connect();

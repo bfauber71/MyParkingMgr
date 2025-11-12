@@ -1,21 +1,11 @@
 <?php
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/auth.php';
+
+requireAdmin();
 
 header('Content-Type: application/json');
-
-// Require authentication and admin role
-if (!isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit;
-}
-
-if (!hasPermission('manage_users')) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Admin access required']);
-    exit;
-}
 
 try {
     $db = Database::connect();

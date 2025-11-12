@@ -1,15 +1,12 @@
 <?php
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/database.php';
-require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../lib/CryptoHelper.php';
 
-header('Content-Type: application/json');
+requireAuth();
 
-if (!isAuthenticated()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit;
-}
+header('Content-Type: application/json');
 
 $db = Database::connect();
 
@@ -35,7 +32,7 @@ try {
         SELECT vt.*, v.plate_number, v.tag_number, p.name as property_name
         FROM violation_tickets vt
         LEFT JOIN vehicles v ON vt.vehicle_id = v.id
-        LEFT JOIN properties p ON vt.property = p.id
+        LEFT JOIN properties p ON vt.property_id = p.id
         WHERE vt.id = ?
     ");
     $stmt->execute([$ticket_id]);
