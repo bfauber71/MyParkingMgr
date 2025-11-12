@@ -1,0 +1,35 @@
+# Encryption Keys (CRITICAL - Never commit!)
+config/encryption.key
+config/encryption.key.backup.*
+
+# Composer Dependencies
+/vendor/
+composer.lock
+
+# Configuration (may contain sensitive data)
+config.php
+config-local.php
+
+# QR Code Generated Files
+qrcodes/*.png
+qrcodes/*.jpg
+!qrcodes/.htaccess
+
+# Development Files
+*.log
+*.bak
+*.tmp
+*.old
+*~
+.DS_Store
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test Files
+test-*.php
+debug-*.php

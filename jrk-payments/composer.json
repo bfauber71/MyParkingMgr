@@ -1,0 +1,28 @@
+{
+    "name": "managemyparking/payment-system",
+    "description": "ManageMyParking Payment System with secure encryption",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-gd": "*",
+        "defuse/php-encryption": "^2.4"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "ManageMyParking\\": "lib/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

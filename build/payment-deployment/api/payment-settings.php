@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../lib/CryptoHelper.php';
 
 header('Content-Type: application/json');
 
@@ -133,11 +134,26 @@ function handlePost($db) {
         }
     }
     
-    // Simple encryption (basic XOR - for demo. Use proper encryption in production!)
-    $encryption_key = 'PAYMENT_ENCRYPTION_KEY_CHANGE_IN_PRODUCTION';
-    $api_key_encrypted = isset($data['api_key']) ? base64_encode($data['api_key'] ^ $encryption_key) : null;
-    $api_secret_encrypted = isset($data['api_secret']) ? base64_encode($data['api_secret'] ^ $encryption_key) : null;
-    $webhook_secret_encrypted = isset($data['webhook_secret']) ? base64_encode($data['webhook_secret'] ^ $encryption_key) : null;
+    // Encrypt sensitive API keys using Defuse PHP Encryption
+    try {
+        $api_key_encrypted = isset($data['api_key']) && !empty($data['api_key']) 
+            ? CryptoHelper::encrypt($data['api_key']) 
+            : null;
+        $api_secret_encrypted = isset($data['api_secret']) && !empty($data['api_secret']) 
+            ? CryptoHelper::encrypt($data['api_secret']) 
+            : null;
+        $webhook_secret_encrypted = isset($data['webhook_secret']) && !empty($data['webhook_secret']) 
+            ? CryptoHelper::encrypt($data['webhook_secret']) 
+            : null;
+    } catch (Exception $e) {
+        error_log("Encryption error: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'Encryption failed. Ensure encryption key is configured.',
+            'details' => $e->getMessage()
+        ]);
+        exit;
+    }
     
     $stmt = $db->prepare("
         INSERT INTO payment_settings (
