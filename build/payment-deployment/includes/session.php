@@ -4,6 +4,9 @@
  * Database-backed PHP sessions with security
  */
 
+// Load helpers first - session.php needs loadUserPermissions() function
+require_once __DIR__ . '/helpers.php';
+
 class Session {
     private static $started = false;
     
