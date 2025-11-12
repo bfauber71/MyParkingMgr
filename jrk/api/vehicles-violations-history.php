@@ -73,7 +73,7 @@ try {
     $statusField = $hasStatus ? "status," : "'active' as status,";
     $dispositionField = $hasStatus ? "fine_disposition," : "NULL as fine_disposition,";
     $closedAtField = $hasStatus ? "closed_at," : "NULL as closed_at,";
-    $closedByField = $hasStatus ? "closed_by_user_id," : "NULL as closed_by_user_id,";
+    $closedByField = $hasStatus ? "closed_by_user_id" : "NULL as closed_by_user_id";
     
     // Fetch violation tickets for this vehicle (limit to 100 most recent)
     $stmt = $db->prepare("
