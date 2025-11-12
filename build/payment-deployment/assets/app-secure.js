@@ -854,6 +854,7 @@ function switchSettingsTab(subTabName) {
     const contentMap = {
         'users': 'settingsUsersTab',
         'violations': 'settingsViolationsTab',
+        'payments': 'settingsPaymentsTab',
         'database-ops': 'settingsDatabaseOpsTab',
         'printer': 'settingsPrinterTab',
         'license': 'settingsLicenseTab'
