@@ -1,0 +1,126 @@
+================================================================================
+DATABASE SCHEMA MISMATCH REPORT
+ManageMyParking v2.0 - Generated November 13, 2025
+================================================================================
+
+SUMMARY:
+--------
+The COMPLETE-V2-MIGRATION.sql file is INCOMPLETE. It creates the basic v2.0 
+schema but is MISSING all payment system and ticket status columns that the 
+codebase requires.
+
+This explains the 500 errors - the code is trying to access columns that 
+don't exist in the database.
+
+================================================================================
+MISSING COLUMNS IN violation_tickets TABLE
+================================================================================
+
+The codebase expects these columns, but COMPLETE-V2-MIGRATION.sql doesn't add them:
+
+1. ticket_type          - ENUM('VIOLATION', 'WARNING')
+2. status               - ENUM('active', 'closed')
+3. fine_disposition     - ENUM('collected', 'dismissed')
+4. closed_at            - TIMESTAMP (when ticket was closed)
+5. closed_by_user_id    - VARCHAR(36) (who closed it)
+6. payment_status       - ENUM('unpaid', 'partial', 'paid')
+7. amount_paid          - DECIMAL(10,2) (total amount paid)
+8. qr_code_generated_at - TIMESTAMP (when QR code was created)
+
+FILES THAT ACCESS THESE COLUMNS:
+---------------------------------
+- api/tickets-list.php           (checks for status, ticket_type)
+- api/ticket-close.php           (updates status, fine_disposition, closed_at, closed_by_user_id)
+- api/violations-search.php      (selects status, ticket_type, fine_disposition)
+- api/violations-create.php      (inserts ticket_type)
+- api/violations-export.php      (selects ticket_type)
+- api/violations-ticket.php      (selects ticket_type)
+- api/violations-zpl.php         (selects ticket_type)
+- api/payment-*.php files        (update payment_status, amount_paid, qr_code_generated_at)
+
+================================================================================
+MISSING TABLES
+================================================================================
+
+The codebase expects these payment-related tables that don't exist:
+
+1. payment_settings
+   - Stores payment provider config per property
+   - Columns: id, property_id, payment_provider, api_key_encrypted, 
+             payment_link_template, auto_close_on_payment
+
+2. ticket_payments
+   - Records all payments made against tickets
+   - Columns: id, ticket_id, payment_method, amount, payment_date, 
+             transaction_id, notes, recorded_by_user_id
+
+3. qr_codes
+   - Stores QR codes for payment links
+   - Columns: id, ticket_id, qr_code_data, payment_link, 
+             generated_at, expires_at
+
+FILES THAT ACCESS THESE TABLES:
+--------------------------------
+- api/payment-settings.php       (SELECT from payment_settings)
+- api/payment-generate-link.php  (INSERT into qr_codes)
+- api/ticket-close.php           (SELECT from ticket_payments)
+
+================================================================================
+SOLUTION
+================================================================================
+
+✅ CREATED: sql/ADD-MISSING-V2-COLUMNS.sql
+
+This file adds ALL missing v2.0 columns and tables. It is:
+- IDEMPOTENT (safe to run multiple times)
+- Uses the same IF NOT EXISTS pattern as COMPLETE-V2-MIGRATION.sql
+- Adds verification queries at the end
+
+INSTALLATION ORDER:
+------------------
+1. Run COMPLETE-V2-MIGRATION.sql  (if not already done)
+2. Run ADD-MISSING-V2-COLUMNS.sql (fixes all missing columns/tables)
+
+After running both files, your database will have the COMPLETE v2.0 schema
+that matches what the codebase expects.
+
+================================================================================
+ADDITIONAL FINDINGS
+================================================================================
+
+COLUMN NAME INCONSISTENCY:
+--------------------------
+The migration creates "property_name" column in violation_tickets (line 261),
+but the codebase uses "property" column instead. This was causing 500 errors.
+
+FIX APPLIED: All API files changed to use "property" not "property_name"
+
+FILES FIXED:
+- api/tickets-list.php
+- api/violations-search.php  
+- api/violations-export.php
+
+================================================================================
+VERIFICATION
+================================================================================
+
+After running ADD-MISSING-V2-COLUMNS.sql, verify with:
+
+SHOW COLUMNS FROM violation_tickets;
+
+You should see:
+- ticket_type, status, fine_disposition
+- closed_at, closed_by_user_id
+- payment_status, amount_paid, qr_code_generated_at
+
+SHOW TABLES LIKE 'payment%';
+SHOW TABLES LIKE 'qr_codes';
+
+You should see:
+- payment_settings
+- ticket_payments
+- qr_codes
+
+================================================================================
+END OF REPORT
+================================================================================
