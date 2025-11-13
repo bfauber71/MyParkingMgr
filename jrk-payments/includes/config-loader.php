@@ -174,6 +174,12 @@ class ConfigLoader {
      */
     public static function getApiBase() {
         $basePath = self::getBasePath();
+        
+        // Handle root installation (base_path = '/')
+        if ($basePath === '/' || $basePath === '') {
+            return '/api';
+        }
+        
         return $basePath . '/api';
     }
     
