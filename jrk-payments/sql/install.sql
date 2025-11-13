@@ -7,6 +7,12 @@ CREATE DATABASE IF NOT EXISTS myparkingmanager CHARACTER SET utf8mb4 COLLATE utf
 USE myparkingmanager;
 
 -- Drop existing tables (if reinstalling)
+DROP TABLE IF EXISTS ticket_payments;
+DROP TABLE IF EXISTS qr_codes;
+DROP TABLE IF EXISTS payment_settings;
+DROP TABLE IF EXISTS violation_ticket_items;
+DROP TABLE IF EXISTS violation_tickets;
+DROP TABLE IF EXISTS violations;
 DROP TABLE IF EXISTS audit_logs;
 DROP TABLE IF EXISTS vehicles;
 DROP TABLE IF EXISTS property_contacts;
@@ -16,6 +22,7 @@ DROP TABLE IF EXISTS login_attempts;
 DROP TABLE IF EXISTS properties;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS printer_settings;
 
 -- Users Table
 CREATE TABLE users (
@@ -139,7 +146,7 @@ CREATE TABLE violations (
     INDEX idx_display_order (display_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Violation Tickets Table
+-- Violation Tickets Table (v2.0 with Payment Support)
 CREATE TABLE violation_tickets (
     id VARCHAR(36) PRIMARY KEY,
     vehicle_id VARCHAR(36) NOT NULL,
@@ -159,6 +166,15 @@ CREATE TABLE violation_tickets (
     property_contact_name VARCHAR(255),
     property_contact_phone VARCHAR(50),
     property_contact_email VARCHAR(255),
+    ticket_type ENUM('WARNING', 'VIOLATION') DEFAULT 'VIOLATION',
+    status ENUM('active', 'closed') DEFAULT 'active',
+    fine_disposition ENUM('collected', 'dismissed', 'pending') NULL,
+    closed_at DATETIME NULL,
+    closed_by_user_id VARCHAR(36) NULL,
+    payment_status ENUM('unpaid', 'partial', 'paid') DEFAULT 'unpaid',
+    amount_paid DECIMAL(10,2) DEFAULT 0.00,
+    payment_link_id VARCHAR(255) NULL,
+    qr_code_generated_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
@@ -166,7 +182,9 @@ CREATE TABLE violation_tickets (
     INDEX idx_vehicle_id (vehicle_id),
     INDEX idx_property (property),
     INDEX idx_issued_by (issued_by_user_id),
-    INDEX idx_issued_at (issued_at)
+    INDEX idx_issued_at (issued_at),
+    INDEX idx_status (status),
+    INDEX idx_payment_status (payment_status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Violation Ticket Items (Join Table)
@@ -284,11 +302,77 @@ INSERT INTO printer_settings (id, setting_key, setting_value) VALUES
 (UUID(), 'timezone', 'America/New_York');
 
 -- ============================================
+-- V2.0 PAYMENT SYSTEM TABLES
+-- ============================================
+
+-- Payment Settings Table (Per-Property Payment Configuration)
+CREATE TABLE payment_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id VARCHAR(36) NOT NULL,
+    processor_type ENUM('stripe', 'square', 'paypal', 'disabled') DEFAULT 'disabled',
+    api_key_encrypted TEXT,
+    api_secret_encrypted TEXT,
+    webhook_secret_encrypted TEXT,
+    publishable_key VARCHAR(255),
+    is_live_mode BOOLEAN DEFAULT FALSE,
+    enable_qr_codes BOOLEAN DEFAULT TRUE,
+    enable_online_payments BOOLEAN DEFAULT TRUE,
+    payment_description_template VARCHAR(500) DEFAULT 'Parking Violation - Ticket #{ticket_id}',
+    success_redirect_url VARCHAR(500),
+    failure_redirect_url VARCHAR(500),
+    allow_cash_payments BOOLEAN DEFAULT TRUE,
+    allow_check_payments BOOLEAN DEFAULT TRUE,
+    allow_manual_card BOOLEAN DEFAULT TRUE,
+    require_check_number BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_property_settings (property_id),
+    INDEX idx_property_id (property_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Ticket Payments Table (Payment Transaction History)
+CREATE TABLE ticket_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id VARCHAR(36) NOT NULL,
+    payment_method ENUM('cash', 'check', 'card_manual', 'stripe_online', 'square_online', 'paypal_online') NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    check_number VARCHAR(50) NULL,
+    transaction_id VARCHAR(255) NULL,
+    payment_link_url TEXT NULL,
+    qr_code_path VARCHAR(255) NULL,
+    status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'completed',
+    recorded_by_user_id VARCHAR(36) NOT NULL,
+    notes TEXT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_ticket_id (ticket_id),
+    INDEX idx_payment_date (payment_date),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- QR Codes Table (Payment QR Code Generation Tracking)
+CREATE TABLE qr_codes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id VARCHAR(36) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    payment_url TEXT NOT NULL,
+    generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NULL,
+    INDEX idx_ticket_id (ticket_id),
+    INDEX idx_generated_at (generated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- INSTALLATION COMPLETE
 -- ============================================
 
 -- Verify installation
-SELECT 'Installation Complete!' AS status;
-SELECT COUNT(*) AS user_count FROM users;
-SELECT COUNT(*) AS property_count FROM properties;
-SELECT COUNT(*) AS vehicle_count FROM vehicles;
+SELECT 'ManageMyParking v2.0 Installation Complete!' AS status;
+SELECT 'Core Tables' AS category, COUNT(*) AS user_count FROM users
+UNION ALL SELECT 'Core Tables', COUNT(*) FROM properties
+UNION ALL SELECT 'Core Tables', COUNT(*) FROM vehicles
+UNION ALL SELECT 'Core Tables', COUNT(*) FROM violations
+UNION ALL SELECT 'Payment Tables', COUNT(*) FROM payment_settings
+UNION ALL SELECT 'Payment Tables', COUNT(*) FROM ticket_payments
+UNION ALL SELECT 'Payment Tables', COUNT(*) FROM qr_codes;
