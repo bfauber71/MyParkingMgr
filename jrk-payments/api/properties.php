@@ -42,10 +42,10 @@ try {
     // Get contacts for each property
     foreach ($properties as &$property) {
         $contactStmt = $db->prepare("
-            SELECT name, phone, email
+            SELECT name, phone, email, position
             FROM property_contacts 
             WHERE property_id = ? 
-            ORDER BY id ASC
+            ORDER BY position ASC
         ");
         $contactStmt->execute([$property['id']]);
         $property['contacts'] = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
