@@ -1,0 +1,104 @@
+================================================================================
+SQL UPDATE INSTRUCTIONS - ManageMyParking v2.0
+================================================================================
+
+WHICH SQL FILE TO USE:
+----------------------
+✅ USE THIS FILE: sql/ADD-MISSING-V2-COLUMNS-SIMPLE.sql
+
+❌ DON'T USE: sql/ADD-MISSING-V2-COLUMNS.sql (has phpMyAdmin compatibility issues)
+
+================================================================================
+STEP-BY-STEP INSTRUCTIONS
+================================================================================
+
+STEP 1: Open phpMyAdmin
+------------------------
+1. Log into your hosting control panel (cPanel)
+2. Click on "phpMyAdmin"
+3. Select your ManageMyParking database from the left sidebar
+
+STEP 2: Run the SQL File
+-------------------------
+1. Click the "SQL" tab at the top
+2. Open this file on your computer:
+   sql/ADD-MISSING-V2-COLUMNS-SIMPLE.sql
+
+3. Copy ALL the contents (Ctrl+A, Ctrl+C)
+4. Paste into the SQL query box in phpMyAdmin
+5. Click the "Go" button at the bottom right
+
+STEP 3: Ignore Expected Errors
+-------------------------------
+⚠️ IMPORTANT: You may see some error messages like:
+   "Duplicate column name 'ticket_type'"
+   "Duplicate column name 'status'"
+   
+   THIS IS NORMAL AND SAFE!
+   
+   These errors just mean the column already exists.
+   The SQL will skip those and continue with the rest.
+
+STEP 4: Verify Success
+----------------------
+Scroll to the bottom of the results.
+
+You should see:
+✅ "v2.0 columns and tables created successfully!"
+✅ A list of columns that were added
+✅ A list of tables that were created
+
+If you see these messages, the update was SUCCESSFUL!
+
+================================================================================
+WHAT THIS SQL FILE DOES
+================================================================================
+
+ADDS 8 NEW COLUMNS to violation_tickets table:
+  1. ticket_type - VIOLATION or WARNING
+  2. status - active or closed
+  3. fine_disposition - collected or dismissed
+  4. closed_at - when ticket was closed
+  5. closed_by_user_id - who closed it
+  6. payment_status - unpaid, partial, or paid
+  7. amount_paid - how much was paid
+  8. qr_code_generated_at - when QR code was created
+
+CREATES 3 NEW TABLES:
+  1. payment_settings - payment provider configurations
+  2. ticket_payments - payment transaction history
+  3. qr_codes - QR code data for payment links
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ERROR: "Table doesn't exist"
+----------------------------
+This means you haven't run the base schema yet.
+You need to run sql/COMPLETE-V2-MIGRATION.sql first.
+
+ERROR: "Access denied"
+----------------------
+Your database user doesn't have ALTER TABLE permissions.
+Contact your hosting provider to grant full permissions.
+
+ERROR: All statements show "Duplicate column"
+----------------------------------------------
+Perfect! This means all columns already exist.
+Your database is already up to date.
+
+================================================================================
+AFTER RUNNING SQL
+================================================================================
+
+1. Upload the updated PHP files from ManageMyParking-v2.0-FINAL.zip
+2. Clear your browser cache (Ctrl + Shift + R)
+3. Test the application:
+   - Go to Settings → Ticket Status
+   - Create a new violation ticket
+   - Try printing a ticket (ZPL or PDF)
+   
+All 500 errors should now be resolved!
+
+================================================================================
