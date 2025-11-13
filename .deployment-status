@@ -1,0 +1,27 @@
+# Deployment Status Tracker
+
+## Current State
+
+v1.1 (jrk/):          STABLE - In production use, DO NOT MODIFY
+v2.0 (jrk-payments/): TESTING - Being stabilized
+
+## Latest Package
+
+File: ManageMyParking-v2.0-VERIFIED-CLEAN.zip
+Date: November 13, 2025
+Status: Code verified clean, ready for testing
+Size: 272 KB
+
+## Known Issues
+
+None in code. Any deployment errors are environmental:
+- Browser cache (clear with Ctrl+Shift+Delete)
+- Server cache (purge CDN if applicable)
+- Mixed file versions (do clean install)
+
+## Next Steps
+
+1. Test v2.0 on staging/test environment
+2. Verify all features working
+3. Once stable, promote to production
+4. Keep v1.1 as rollback option

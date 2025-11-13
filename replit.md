@@ -1,5 +1,18 @@
 # ManageMyParking
 
+## Project Structure
+
+**CRITICAL: v1.1 (`jrk/` directory) - DO NOT DELETE OR MODIFY**
+- v1.1 is the STABLE production version currently deployed on live sites
+- Serves as working reference baseline for v2.0 development
+- All v1.1 files are verified working correctly in production
+- Only modify if explicitly working on v1.1 updates
+
+**v2.0 Development (`jrk-payments/` directory)**
+- v2.0 with payment system features - currently being tested and stabilized
+- Will replace v1.1 once fully stable and verified
+- Package: ManageMyParking-v2.0-VERIFIED-CLEAN.zip
+
 ## Overview
 
 ManageMyParking v2.3.8 is a production-ready PHP-based vehicle and property management system designed for shared hosting environments. It provides comprehensive parking violation tracking, vehicle management, property administration, and user management with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, detailed audit logging, guest pass generation with expiration tracking, ticket status management, and user search functionality. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations. The system integrates Zebra ZPL for thermal printing of violation tickets and guest passes, including automatic logo conversion and dynamic layout adjustments.
