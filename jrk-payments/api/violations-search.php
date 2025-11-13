@@ -10,7 +10,7 @@ require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../includes/helpers.php';
 
 requireAuth();
-requirePermission(MODULE_DATABASE, ACTION_VIEW);
+requirePermission(MODULE_VIOLATIONS, ACTION_VIEW);
 
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -125,18 +125,8 @@ if ($searchQuery) {
     $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
 }
 
-// GROUP BY for aggregation
-$sql .= " GROUP BY vt.id, vt.vehicle_id, vt.custom_note, vt.created_at, vt.issued_by_user_id, vt.issued_by_username, 
-         vt.vehicle_year, vt.vehicle_make, vt.vehicle_model, vt.vehicle_color, 
-         v.plate_number, v.tag_number, v.property, vt.property_name";
-
-// Add dynamic fields to GROUP BY
-if ($hasTicketType) {
-    $sql .= ", vt.ticket_type";
-}
-if ($hasStatus) {
-    $sql .= ", vt.status, vt.fine_disposition, vt.closed_at, vt.closed_by_user_id";
-}
+// GROUP BY for aggregation - only group by ticket ID since all other fields are from the same ticket
+$sql .= " GROUP BY vt.id";
 
 // Violation type filter (HAVING clause after GROUP BY)
 if ($violationType) {
