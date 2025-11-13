@@ -1,0 +1,177 @@
+================================================================================
+INSTALLATION INSTRUCTIONS - ManageMyParking v2.0
+SHARED HOSTING (MySQL Only)
+================================================================================
+
+📦 PACKAGE: ManageMyParking-v2.0-FINAL.zip
+
+================================================================================
+STEP 1: RUN THE SQL UPDATE
+================================================================================
+
+1. Log into cPanel
+2. Open phpMyAdmin
+3. Select your ManageMyParking database (left sidebar)
+4. Click the "SQL" tab at the top
+5. Open the file: sql/ADD-V2-COLUMNS.sql
+6. Copy ALL the contents
+7. Paste into the SQL query box
+8. Click "Go"
+
+EXPECTED RESULT:
+----------------
+You may see some red error messages like:
+  ❌ "Duplicate column name 'ticket_type'"
+  ❌ "Duplicate column name 'status'"
+
+THIS IS NORMAL! It just means the column already exists.
+
+At the bottom, you should see:
+  ✅ "Database update completed! v2.0 columns and tables added."
+
+If you see this green message, the SQL ran successfully!
+
+================================================================================
+STEP 2: UPLOAD THE PHP FILES
+================================================================================
+
+1. Extract ManageMyParking-v2.0-FINAL.zip on your computer
+2. Using FTP or cPanel File Manager:
+   - Upload ALL files to your web directory
+   - Overwrite existing files when prompted
+   - Make sure to upload:
+     ✓ All .php files in /api folder
+     ✓ All .php files in /includes folder
+     ✓ index.html and other HTML files
+     ✓ All .css and .js files
+
+3. Verify file permissions:
+   - PHP files: 644
+   - Folders: 755
+
+================================================================================
+STEP 3: CLEAR YOUR BROWSER CACHE
+================================================================================
+
+IMPORTANT: You must clear your browser cache or you'll see old errors!
+
+Chrome/Edge:
+  Press: Ctrl + Shift + R (Windows)
+  Press: Cmd + Shift + R (Mac)
+
+Firefox:
+  Press: Ctrl + F5 (Windows)
+  Press: Cmd + Shift + R (Mac)
+
+Safari:
+  Press: Cmd + Option + R
+
+Or use Incognito/Private browsing mode to test.
+
+================================================================================
+STEP 4: TEST THE APPLICATION
+================================================================================
+
+1. Log into ManageMyParking
+2. Go to Settings → Ticket Status
+   - Should load without 500 errors
+   - Property dropdown should populate
+
+3. Go to Vehicles tab
+   - Create or edit a vehicle
+   - Should save without errors
+
+4. Create a violation ticket
+   - Should create successfully
+   - Try printing (ZPL or PDF)
+   - Should generate without errors
+
+5. Check browser console (F12 → Console tab)
+   - Should see no red errors
+
+================================================================================
+WHAT THIS UPDATE DOES
+================================================================================
+
+DATABASE CHANGES:
+-----------------
+Adds 8 new columns to violation_tickets:
+  ✓ ticket_type (VIOLATION or WARNING)
+  ✓ status (active or closed)
+  ✓ fine_disposition (collected or dismissed)
+  ✓ closed_at (when closed)
+  ✓ closed_by_user_id (who closed it)
+  ✓ payment_status (unpaid/partial/paid)
+  ✓ amount_paid (payment amount)
+  ✓ qr_code_generated_at (QR timestamp)
+
+Creates 3 new tables:
+  ✓ payment_settings
+  ✓ ticket_payments
+  ✓ qr_codes
+
+PHP CODE FIXES:
+---------------
+Fixed 3 files with column name mismatches:
+  ✓ api/violations-zpl.php
+  ✓ api/violations-ticket.php
+  ✓ api/violations-create.php
+
+All property_name references now use correct property column.
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ERROR: "Table 'violation_tickets' doesn't exist"
+------------------------------------------------
+You need to run the base installation SQL first.
+Run: sql/COMPLETE-V2-MIGRATION.sql
+
+ERROR: Still getting 500 errors after update
+---------------------------------------------
+1. Clear browser cache completely
+2. Check PHP error logs in cPanel
+3. Make sure ALL files were uploaded
+4. Verify database name in includes/config.php
+
+ERROR: "Access denied for user"
+--------------------------------
+Your database user needs these permissions:
+  - SELECT, INSERT, UPDATE, DELETE
+  - CREATE, ALTER, INDEX
+  - CREATE TEMPORARY TABLES
+
+Contact your hosting provider to grant these.
+
+ERROR: Columns still not found
+-------------------------------
+The SQL may not have run completely.
+Try running just the ALTER TABLE statements one at a time.
+
+================================================================================
+SUPPORT FILES INCLUDED
+================================================================================
+
+✓ COMPLETE-DATABASE-AUDIT.txt - Full column audit
+✓ FIXES-APPLIED.txt - All changes documented
+✓ sql/ADD-V2-COLUMNS.sql - Database update (USE THIS!)
+✓ This file - Installation guide
+
+================================================================================
+CRITICAL NOTES
+================================================================================
+
+⚠️ PROTECTED FILES - NEVER MODIFY:
+   - jrk/ directory contains v1.1 production files
+   - These are protected and must not be changed
+
+✅ MySQL ONLY:
+   - This system requires MySQL 5.7+ or MariaDB 10.2+
+   - PostgreSQL is NOT supported
+
+✅ BACKUP FIRST:
+   - Always backup your database before running SQL updates
+   - Use phpMyAdmin → Export to create a backup
+
+================================================================================
