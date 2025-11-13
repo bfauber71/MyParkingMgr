@@ -107,6 +107,15 @@ if ($endDate) {
 
 // Property filter - handle both property text name and property_id
 if ($property) {
+    // Check if vehicles table has property_id column (v2.0) or just property (v1.x)
+    $hasPropertyIdColumn = false;
+    try {
+        $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM vehicles LIKE 'property_id'");
+        $hasPropertyIdColumn = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasPropertyIdColumn = false;
+    }
+    
     // Try to find property_id for this property name
     $propertyId = null;
     foreach ($accessibleProperties as $prop) {
@@ -116,14 +125,14 @@ if ($property) {
         }
     }
     
-    if ($propertyId !== null) {
+    if ($hasPropertyIdColumn && $propertyId !== null) {
         // Filter using property_id (v2.0) OR property name (v1.x backward compatibility)
         $sql .= " AND ((v.property_id = ? OR v.property = ?) OR vt.property = ?)";
         $params[] = $propertyId;
         $params[] = $property;
         $params[] = $property;
     } else {
-        // Fallback to property name only
+        // Fallback to property name only (v1.x)
         $sql .= " AND (v.property = ? OR vt.property = ?)";
         $params[] = $property;
         $params[] = $property;

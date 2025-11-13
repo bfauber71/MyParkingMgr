@@ -1,0 +1,153 @@
+================================================================================
+ManageMyParking v2.0 - Database Compatibility Fixes for v1.1 Production
+================================================================================
+
+OVERVIEW:
+---------
+These fixes ensure v2.0 code works with v1.1 production databases that are
+missing new v2.0 tables and columns. The app gracefully degrades to v1.1
+functionality when new schema elements don't exist.
+
+================================================================================
+FIXES APPLIED
+================================================================================
+
+1. properties-list.php
+----------------------
+ISSUE: Crashes for non-admin users if user_assigned_properties table missing
+FIX: Check if table exists before querying
+FALLBACK: Show all properties if table missing (v1.1 behavior)
+
+LINE 34-62: Added table existence check:
+  - If user_assigned_properties exists → Use INNER JOIN (secure)
+  - If missing → Show all properties (backward compatible)
+
+LINE 47-51: Already had property_contacts table check
+
+
+2. violations-search.php
+------------------------
+ISSUE: Database error when filtering by property - references v.property_id
+      which doesn't exist in v1.1 vehicles table
+FIX: Check if property_id column exists before using it
+FALLBACK: Use property TEXT column only (v1.1 behavior)
+
+LINE 113-120: Added property_id column existence check:
+  - If vehicles.property_id exists → Use numeric ID + text fallback
+  - If missing → Use property TEXT only (v1.1 compatible)
+
+
+3. violations-zpl.php, violations-ticket.php, violations-create.php
+--------------------------------------------------------------------
+ISSUE: Referenced `property_name` column that doesn't exist
+FIX: Changed to use `name` column (standard column name)
+STATUS: Previously fixed in audit
+
+
+================================================================================
+BACKWARD COMPATIBILITY STRATEGY
+================================================================================
+
+All API endpoints now:
+1. Check for table/column existence using SHOW TABLES/SHOW COLUMNS
+2. Build dynamic SQL based on what exists
+3. Gracefully degrade to v1.1 behavior if v2.0 schema missing
+
+This allows:
+✅ Deploy v2.0 code to v1.1 database immediately
+✅ Gradually migrate database using update-database.php
+✅ No breaking changes, no downtime
+✅ Full v2.0 features become available as tables are added
+
+================================================================================
+DEPLOYMENT STEPS
+================================================================================
+
+MINIMAL DEPLOYMENT (Get it working now):
+-----------------------------------------
+1. Upload these 2 fixed files:
+   - api/properties-list.php
+   - api/violations-search.php
+
+2. Clear browser cache (Ctrl+Shift+R)
+
+3. Test:
+   ✅ Properties dropdown should populate
+   ✅ Tickets should load and search
+   ✅ App should work (with v1.1 feature set)
+
+
+FULL v2.0 DEPLOYMENT (Add payment features):
+---------------------------------------------
+1. Complete minimal deployment first (verify app works)
+
+2. Run database migration:
+   Method A (Easiest): Upload and run update-database.php
+   Method B (Manual): Run SQL files in phpMyAdmin:
+     - sql/ADD-ALL-MISSING-COLUMNS.sql
+     - sql/add-user-assigned-properties-table.sql
+     - sql/ADD-PROPERTY-CONTACTS-TABLE.sql
+     - sql/PAYMENT-TABLES.sql
+
+3. Upload remaining v2.0 files (payment system, etc.)
+
+4. Test payment features
+
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+After uploading api/properties-list.php + api/violations-search.php:
+
+□ Login works
+□ Properties dropdown populates
+□ Can view vehicles list
+□ Can create new tickets
+□ Can search/filter tickets
+□ Tickets display correctly
+□ Can close tickets (if status column exists)
+
+If ALL above work → Deploy rest of v2.0 and run database migration
+If ANY fail → Check error_log in phpMyAdmin or contact support
+
+================================================================================
+TABLES THAT MAY BE MISSING
+================================================================================
+
+From v1.1 → v2.0 migration:
+
+1. user_assigned_properties (per-user property access)
+   - NOW OPTIONAL: App works without it
+   - Non-admin users see all properties if missing
+
+2. property_contacts (multiple contacts per property)
+   - NOW OPTIONAL: App works without it
+   - Returns empty contacts[] if missing
+
+3. payment_settings (payment processing config)
+   - REQUIRED FOR: Payment features only
+   - Not needed for basic violation tracking
+
+4. ticket_payments (payment history)
+   - REQUIRED FOR: Payment features only
+   - Not needed for basic violation tracking
+
+5. qr_codes (payment QR code generation)
+   - REQUIRED FOR: Payment QR codes only
+   - Not needed for basic violation tracking
+
+
+COLUMNS THAT MAY BE MISSING:
+
+From violation_tickets table:
+  - status, fine_disposition, closed_at, closed_by_user_id
+  - ticket_type
+  - property_name
+  ALL ARE OPTIONAL - dynamically checked with SHOW COLUMNS
+
+From vehicles table:
+  - property_id (v2.0 adds numeric FK, v1.1 uses property TEXT)
+  NOW OPTIONAL - dynamically checked before use
+
+================================================================================
