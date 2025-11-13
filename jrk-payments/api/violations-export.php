@@ -52,7 +52,7 @@ $ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_t
 $sql = "SELECT 
     vt.id,
     vt.created_at as ticket_date,
-    COALESCE(v.property, vt.property_name) as property,
+    COALESCE(v.property, vt.property) as property,
     $ticketTypeField
     vt.vehicle_year as year,
     vt.vehicle_make as make,
@@ -67,7 +67,7 @@ FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
+   OR vt.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
 
 $params = array_merge($propertyNames, $propertyNames);
 
@@ -83,7 +83,7 @@ if ($endDate) {
 }
 
 if ($property) {
-    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+    $sql .= " AND (v.property = ? OR vt.property = ?)";
     $params[] = $property;
     $params[] = $property;
 }

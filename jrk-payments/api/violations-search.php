@@ -71,7 +71,7 @@ $sql = "SELECT
     vt.vehicle_color as color,
     v.plate_number,
     v.tag_number,
-    COALESCE(v.property, vt.property_name) as property,
+    COALESCE(v.property, vt.property) as property,
     $ticketTypeField
     $statusField
     $dispositionField
@@ -90,7 +90,7 @@ $params = [];
 // Add property filter
 if (!empty($propertyNames)) {
     $placeholders = implode(',', array_fill(0, count($propertyNames), '?'));
-    $sql .= " AND ((v.id IS NULL OR v.property IN ($placeholders)) OR vt.property_name IN ($placeholders))";
+    $sql .= " AND ((v.id IS NULL OR v.property IN ($placeholders)) OR vt.property IN ($placeholders))";
     $params = array_merge($propertyNames, $propertyNames);
 }
 
@@ -118,13 +118,13 @@ if ($property) {
     
     if ($propertyId !== null) {
         // Filter using property_id (v2.0) OR property name (v1.x backward compatibility)
-        $sql .= " AND ((v.property_id = ? OR v.property = ?) OR vt.property_name = ?)";
+        $sql .= " AND ((v.property_id = ? OR v.property = ?) OR vt.property = ?)";
         $params[] = $propertyId;
         $params[] = $property;
         $params[] = $property;
     } else {
         // Fallback to property name only
-        $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+        $sql .= " AND (v.property = ? OR vt.property = ?)";
         $params[] = $property;
         $params[] = $property;
     }
