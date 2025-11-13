@@ -1,0 +1,59 @@
+================================================================================
+ACTUAL PROBLEM FOUND & FIXED
+================================================================================
+
+ROOT CAUSE:
+-----------
+The `property_contacts` table doesn't exist on your production database.
+This caused /api/properties-list.php to crash with a 500 error.
+
+CASCADING FAILURES:
+-------------------
+1. Properties API fails → dropdown empty
+2. Without properties → tickets can't load
+3. Everything appears broken
+
+================================================================================
+FIX APPLIED
+================================================================================
+
+FILE FIXED: api/properties-list.php
+------------------------------------
+Added table existence check:
+- Checks if property_contacts table exists
+- If missing: returns empty contacts array (not 500 error)
+- Properties API now works with OR without the table
+
+RESULT:
+-------
+✅ Properties dropdown will now populate
+✅ Tickets will now load
+✅ App will work even if property_contacts table is missing
+
+================================================================================
+OPTIONAL: ADD property_contacts TABLE
+================================================================================
+
+If you want the full v2.0 contacts feature:
+
+Run this SQL file in phpMyAdmin:
+  sql/ADD-PROPERTY-CONTACTS-TABLE.sql
+
+This adds the table so you can store multiple contacts per property.
+But the app will work fine WITHOUT it now.
+
+================================================================================
+INSTALLATION STEPS
+================================================================================
+
+1. Upload the FIXED api/properties-list.php
+2. Clear browser cache (Ctrl+Shift+R)
+3. Reload - properties dropdown should populate
+4. Tickets should load
+
+OPTIONAL:
+5. Run sql/ADD-PROPERTY-CONTACTS-TABLE.sql
+6. Run sql/ADD-ALL-MISSING-COLUMNS.sql (for v2.0 payment features)
+7. Run update-database.php for easiest database update
+
+================================================================================

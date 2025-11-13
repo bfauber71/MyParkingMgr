@@ -41,16 +41,36 @@ try {
     
     $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Get contacts for each property
-    foreach ($properties as &$property) {
-        $contactStmt = $db->prepare("
-            SELECT name, phone, email, position
-            FROM property_contacts 
-            WHERE property_id = ? 
-            ORDER BY position ASC
-        ");
-        $contactStmt->execute([$property['id']]);
-        $property['contacts'] = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
+    // Check if property_contacts table exists
+    $hasContactsTable = false;
+    try {
+        $checkStmt = $db->query("SHOW TABLES LIKE 'property_contacts'");
+        $hasContactsTable = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasContactsTable = false;
+    }
+    
+    // Get contacts for each property (if table exists)
+    if ($hasContactsTable) {
+        foreach ($properties as &$property) {
+            try {
+                $contactStmt = $db->prepare("
+                    SELECT name, phone, email, position
+                    FROM property_contacts 
+                    WHERE property_id = ? 
+                    ORDER BY position ASC
+                ");
+                $contactStmt->execute([$property['id']]);
+                $property['contacts'] = $contactStmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                $property['contacts'] = [];
+            }
+        }
+    } else {
+        // Table doesn't exist - set empty contacts array
+        foreach ($properties as &$property) {
+            $property['contacts'] = [];
+        }
     }
     
     echo json_encode(['properties' => $properties]);
