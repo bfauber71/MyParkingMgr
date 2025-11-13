@@ -51,18 +51,19 @@ if ($propertyFilter) {
     $params[] = $propertyFilter;
 }
 
-// Add search query - Use correct column names from schema
+// Add search query - Use v2.0 column names (post-migration)
 if ($query) {
     $sql .= " AND (
-        tag_plate LIKE ? OR
+        tag_number LIKE ? OR
+        plate_number LIKE ? OR
         make LIKE ? OR
         model LIKE ? OR
         color LIKE ? OR
-        apartment_unit LIKE ? OR
-        guest_of_unit LIKE ?
+        apt_number LIKE ? OR
+        guest_of LIKE ?
     )";
     $searchTerm = '%' . $query . '%';
-    for ($i = 0; $i < 6; $i++) {
+    for ($i = 0; $i < 7; $i++) {
         $params[] = $searchTerm;
     }
 }
