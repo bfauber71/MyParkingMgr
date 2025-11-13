@@ -147,11 +147,46 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- Add indexes for v2.0
-CREATE INDEX IF NOT EXISTS idx_tag_number ON vehicles(tag_number);
-CREATE INDEX IF NOT EXISTS idx_plate_number ON vehicles(plate_number);
-CREATE INDEX IF NOT EXISTS idx_property ON vehicles(property);
-CREATE INDEX IF NOT EXISTS idx_expiration ON vehicles(expiration_date);
+-- Add indexes for v2.0 (use ALTER TABLE ADD INDEX which is idempotent with IF NOT EXISTS check)
+SET @s = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+     WHERE table_name = 'vehicles' AND index_name = 'idx_tag_number') > 0,
+    'SELECT 1',
+    'ALTER TABLE vehicles ADD INDEX idx_tag_number(tag_number)'
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @s = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+     WHERE table_name = 'vehicles' AND index_name = 'idx_plate_number') > 0,
+    'SELECT 1',
+    'ALTER TABLE vehicles ADD INDEX idx_plate_number(plate_number)'
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @s = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+     WHERE table_name = 'vehicles' AND index_name = 'idx_property') > 0,
+    'SELECT 1',
+    'ALTER TABLE vehicles ADD INDEX idx_property(property)'
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @s = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+     WHERE table_name = 'vehicles' AND index_name = 'idx_expiration') > 0,
+    'SELECT 1',
+    'ALTER TABLE vehicles ADD INDEX idx_expiration(expiration_date)'
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- 2. VIOLATIONS TABLE MIGRATION
 -- ============================================
@@ -255,7 +290,15 @@ PREPARE stmt FROM @s;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
-CREATE INDEX IF NOT EXISTS idx_property_position ON property_contacts(property_id, position);
+SET @s = (SELECT IF(
+    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS 
+     WHERE table_name = 'property_contacts' AND index_name = 'idx_property_position') > 0,
+    'SELECT 1',
+    'ALTER TABLE property_contacts ADD INDEX idx_property_position(property_id, position)'
+));
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- 6. PRINTER SETTINGS - ENSURE KEY-VALUE STRUCTURE
 -- ============================================
