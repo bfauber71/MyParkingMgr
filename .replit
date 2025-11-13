@@ -14,6 +14,10 @@ author = "agent"
 task = "workflow.run"
 args = "Payments App (Port 3000)"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MySQL Server"
+
 [[workflows.workflow]]
 name = "Payments App (Port 3000)"
 author = "agent"
@@ -26,6 +30,18 @@ waitForPort = 3000
 [workflows.workflow.metadata]
 outputType = "console"
 
+[[workflows.workflow]]
+name = "MySQL Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mysqld --datadir=/home/runner/mysql-data --user=runner --port=3001 --bind-address=127.0.0.1"
+waitForPort = 3001
+
 [[ports]]
 localPort = 3000
 externalPort = 3000
@@ -33,11 +49,6 @@ externalPort = 3000
 [[ports]]
 localPort = 3001
 externalPort = 3001
-exposeLocalhost = true
-
-[[ports]]
-localPort = 3306
-externalPort = 8081
 
 [[ports]]
 localPort = 5000
