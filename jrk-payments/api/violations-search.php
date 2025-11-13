@@ -83,10 +83,16 @@ FROM violation_tickets vt
 LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
-WHERE (v.id IS NULL OR v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")) 
-   OR vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . ")";
+WHERE 1=1";
 
-$params = array_merge($propertyNames, $propertyNames);
+$params = [];
+
+// Add property filter
+if (!empty($propertyNames)) {
+    $placeholders = implode(',', array_fill(0, count($propertyNames), '?'));
+    $sql .= " AND ((v.id IS NULL OR v.property IN ($placeholders)) OR vt.property_name IN ($placeholders))";
+    $params = array_merge($propertyNames, $propertyNames);
+}
 
 // Date range filter
 if ($startDate) {
