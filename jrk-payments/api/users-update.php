@@ -114,6 +114,12 @@ try {
 } catch (PDOException $e) {
     error_log("User Update Error: " . $e->getMessage());
     error_log("User Update SQL Error Code: " . $e->getCode());
-    error_log("User Update Stack Trace: " . $e->getTraceAsString());
-    jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
+    http_response_code(500);
+    echo json_encode(['error' => 'Database error']);
+    exit;
+} catch (Exception $e) {
+    error_log("User Update General Error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'Server error']);
+    exit;
 }
