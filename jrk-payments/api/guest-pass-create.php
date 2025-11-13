@@ -71,14 +71,15 @@ try {
         // Full schema with resident/guest and expiration fields
         $stmt = $db->prepare("
             INSERT INTO vehicles (
-                id, property, tag_number, plate_number, state, make, model, color, year,
+                id, property_id, property, tag_number, plate_number, state, make, model, color, year,
                 apt_number, owner_name, owner_phone, owner_email, reserved_space,
                 resident, guest, guest_of, expiration_date, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
         
         $stmt->execute([
             $newId,
+            $propertyId,
             $property,
             'GUEST', // Always set tag_number to GUEST for guest passes
             $plateNumber,
@@ -101,14 +102,15 @@ try {
         // Schema with resident/guest but no expiration
         $stmt = $db->prepare("
             INSERT INTO vehicles (
-                id, property, tag_number, plate_number, state, make, model, color, year,
+                id, property_id, property, tag_number, plate_number, state, make, model, color, year,
                 apt_number, owner_name, owner_phone, owner_email, reserved_space,
                 resident, guest, guest_of, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
         
         $stmt->execute([
             $newId,
+            $propertyId,
             $property,
             'GUEST', // Always set tag_number to GUEST for guest passes
             $plateNumber,
@@ -130,13 +132,14 @@ try {
         // Old schema without resident/guest or expiration fields
         $stmt = $db->prepare("
             INSERT INTO vehicles (
-                id, property, tag_number, plate_number, state, make, model, color, year,
+                id, property_id, property, tag_number, plate_number, state, make, model, color, year,
                 apt_number, owner_name, owner_phone, owner_email, reserved_space, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
         
         $stmt->execute([
             $newId,
+            $propertyId,
             $property,
             'GUEST', // Always set tag_number to GUEST for guest passes
             $plateNumber,

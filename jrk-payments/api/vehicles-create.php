@@ -66,6 +66,7 @@ try {
             // New schema with resident/guest fields
             $stmt = $db->prepare("
                 UPDATE vehicles SET
+                    property_id = ?,
                     property = ?,
                     tag_number = ?,
                     plate_number = ?,
@@ -87,6 +88,7 @@ try {
             ");
             
             $stmt->execute([
+                $propertyId,
                 $property,
                 $input['tag_number'] ?? null,
                 $input['plate_number'] ?? null,
@@ -109,6 +111,7 @@ try {
             // Old schema without resident/guest fields
             $stmt = $db->prepare("
                 UPDATE vehicles SET
+                    property_id = ?,
                     property = ?,
                     tag_number = ?,
                     plate_number = ?,
@@ -127,6 +130,7 @@ try {
             ");
             
             $stmt->execute([
+                $propertyId,
                 $property,
                 $input['tag_number'] ?? null,
                 $input['plate_number'] ?? null,
@@ -159,14 +163,15 @@ try {
             // New schema with resident/guest fields
             $stmt = $db->prepare("
                 INSERT INTO vehicles (
-                    id, property, tag_number, plate_number, state, make, model, color, year,
+                    id, property_id, property, tag_number, plate_number, state, make, model, color, year,
                     apt_number, owner_name, owner_phone, owner_email, reserved_space,
                     resident, guest, guest_of, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ");
             
             $stmt->execute([
                 $newId,
+                $propertyId,
                 $property,
                 $input['tag_number'] ?? null,
                 $input['plate_number'] ?? null,
@@ -188,13 +193,14 @@ try {
             // Old schema without resident/guest fields
             $stmt = $db->prepare("
                 INSERT INTO vehicles (
-                    id, property, tag_number, plate_number, state, make, model, color, year,
+                    id, property_id, property, tag_number, plate_number, state, make, model, color, year,
                     apt_number, owner_name, owner_phone, owner_email, reserved_space, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
             ");
             
             $stmt->execute([
                 $newId,
+                $propertyId,
                 $property,
                 $input['tag_number'] ?? null,
                 $input['plate_number'] ?? null,

@@ -141,18 +141,25 @@ try {
             }
         }
         
+        // Get property_id for the property name
+        $propIdStmt = $db->prepare("SELECT id FROM properties WHERE name = ?");
+        $propIdStmt->execute([$vehicle['property']]);
+        $propIdRow = $propIdStmt->fetch(PDO::FETCH_ASSOC);
+        $vehiclePropertyId = $propIdRow ? $propIdRow['id'] : null;
+        
         // Insert vehicle (includes guest pass fields)
         $stmt = $db->prepare("
             INSERT INTO vehicles (
-                id, property, tag_number, plate_number, state, make, model, color, year,
+                id, property_id, property, tag_number, plate_number, state, make, model, color, year,
                 apt_number, owner_name, owner_phone, owner_email, reserved_space,
                 resident, guest, guest_of, expiration_date
             ) VALUES (
-                UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                UUID(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         ");
         
         $stmt->execute([
+            $vehiclePropertyId,
             $vehicle['property'],
             $vehicle['tag_number'],
             $vehicle['plate_number'],
