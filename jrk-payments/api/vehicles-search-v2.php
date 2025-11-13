@@ -37,35 +37,32 @@ if (empty($propertyIds)) {
     jsonResponse(['vehicles' => []]);
 }
 
-// Build SQL query - FIXED: Use property IDs instead of names
-// Vehicles can have EITHER property IDs (UUID) OR property names, so check both
-$placeholders = implode(',', array_fill(0, count($propertyIds) + count($propertyNames), '?'));
-$sql = "SELECT * FROM vehicles WHERE property IN (" . $placeholders . ")";
-$params = array_merge($propertyIds, $propertyNames);
+// Build SQL query - Use property_id column (not 'property')
+$placeholders = implode(',', array_fill(0, count($propertyIds), '?'));
+$sql = "SELECT * FROM vehicles WHERE property_id IN (" . $placeholders . ")";
+$params = $propertyIds;
 
 error_log("SQL: " . $sql);
 error_log("Params: " . json_encode($params));
 
 // Add property filter
 if ($propertyFilter) {
-    $sql .= " AND property = ?";
+    $sql .= " AND property_id = ?";
     $params[] = $propertyFilter;
 }
 
-// Add search query
+// Add search query - Use correct column names from schema
 if ($query) {
     $sql .= " AND (
-        tag_number LIKE ? OR
-        plate_number LIKE ? OR
+        tag_plate LIKE ? OR
         make LIKE ? OR
         model LIKE ? OR
-        owner_name LIKE ? OR
-        apt_number LIKE ? OR
         color LIKE ? OR
-        year LIKE ?
+        apartment_unit LIKE ? OR
+        guest_of_unit LIKE ?
     )";
     $searchTerm = '%' . $query . '%';
-    for ($i = 0; $i < 8; $i++) {
+    for ($i = 0; $i < 6; $i++) {
         $params[] = $searchTerm;
     }
 }
@@ -77,7 +74,7 @@ $vehicles = Database::query($sql, $params);
 // DEBUG: Log results
 error_log("Vehicles found: " . count($vehicles));
 if (count($vehicles) > 0) {
-    error_log("First vehicle property value: " . ($vehicles[0]['property'] ?? 'NULL'));
+    error_log("First vehicle property_id value: " . ($vehicles[0]['property_id'] ?? 'NULL'));
     error_log("First vehicle data: " . json_encode($vehicles[0]));
 }
 
