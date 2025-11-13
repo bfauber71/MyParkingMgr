@@ -51,17 +51,27 @@ try {
     $hasStatus = false;
 }
 
+// Check if custom_note column exists
+$hasCustomNote = false;
+try {
+    $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM violation_tickets LIKE 'custom_note'");
+    $hasCustomNote = $checkStmt->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasCustomNote = false;
+}
+
 // Build SQL query with violation items and fines
 $ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_type,";
 $statusField = $hasStatus ? "vt.status," : "'active' as status,";
 $dispositionField = $hasStatus ? "vt.fine_disposition," : "NULL as fine_disposition,";
 $closedAtField = $hasStatus ? "vt.closed_at," : "NULL as closed_at,";
 $closedByField = $hasStatus ? "vt.closed_by_user_id," : "NULL as closed_by_user_id,";
+$customNoteField = $hasCustomNote ? "vt.custom_note," : "NULL as custom_note,";
 
 $sql = "SELECT 
     vt.id,
     vt.vehicle_id,
-    vt.custom_note,
+    $customNoteField
     vt.created_at,
     vt.issued_by_user_id,
     vt.issued_by_username as issuing_user,
@@ -142,14 +152,24 @@ if ($property) {
 // Search query (vehicle info or notes) - Use WHERE, not HAVING
 if ($searchQuery) {
     $searchPattern = '%' . $searchQuery . '%';
-    $sql .= " AND (
-        v.plate_number LIKE ? OR
-        v.tag_number LIKE ? OR
-        vt.vehicle_make LIKE ? OR
-        vt.vehicle_model LIKE ? OR
-        vt.custom_note LIKE ?
-    )";
-    $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
+    if ($hasCustomNote) {
+        $sql .= " AND (
+            v.plate_number LIKE ? OR
+            v.tag_number LIKE ? OR
+            vt.vehicle_make LIKE ? OR
+            vt.vehicle_model LIKE ? OR
+            vt.custom_note LIKE ?
+        )";
+        $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
+    } else {
+        $sql .= " AND (
+            v.plate_number LIKE ? OR
+            v.tag_number LIKE ? OR
+            vt.vehicle_make LIKE ? OR
+            vt.vehicle_model LIKE ?
+        )";
+        $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern]);
+    }
 }
 
 // GROUP BY for aggregation - only group by ticket ID since all other fields are from the same ticket
