@@ -33,3 +33,26 @@ Thumbs.db
 # Test Files
 test-*.php
 debug-*.php
+
+# Temporary documentation files
+ACTUAL-FIX.txt
+COMPLETE-DATABASE-AUDIT.txt
+COMPLETE-INSTALLATION-GUIDE.txt
+CONFIG-SETUP-GUIDE.txt
+DATABASE-MISMATCH-REPORT.txt
+DEPLOYMENT-FIXES.txt
+PHPMYADMIN-INSTRUCTIONS.txt
+FIXES-APPLIED.txt
+REAL-FIX-APPLIED.txt
+README-UPDATE.txt
+SQL-UPDATE-INSTRUCTIONS.txt
+
+# Distribution files
+distribution/
+ManageMyParking-v2.0-FINAL.zip
+
+# Cookie files
+cookies.txt
+
+# MySQL data
+mysql-data/
