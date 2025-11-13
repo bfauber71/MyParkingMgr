@@ -17,9 +17,10 @@ $property = $_GET['property'] ?? null;
 
 // Get accessible properties for filtering
 $accessibleProperties = getAccessibleProperties();
+$propertyIds = array_column($accessibleProperties, 'id');
 $propertyNames = array_column($accessibleProperties, 'name');
 
-if (empty($propertyNames)) {
+if (empty($propertyIds)) {
     echo json_encode(['tickets' => [], 'total' => 0]);
     exit;
 }
@@ -70,11 +71,11 @@ LEFT JOIN vehicles v ON vt.vehicle_id = v.id
 LEFT JOIN violation_ticket_items vti ON vt.id = vti.ticket_id
 LEFT JOIN violations ON vti.violation_id = violations.id
 WHERE (
-    (v.id IS NOT NULL AND v.property IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
+    (v.id IS NOT NULL AND v.property_id IN (" . implode(',', array_fill(0, count($propertyIds), '?')) . "))
     OR (v.id IS NULL AND vt.property_name IN (" . implode(',', array_fill(0, count($propertyNames), '?')) . "))
 )";
 
-$params = array_merge($propertyNames, $propertyNames);
+$params = array_merge($propertyIds, $propertyNames);
 
 // Status filter
 if ($status && $hasStatus) {
