@@ -1,0 +1,163 @@
+================================================================================
+DATABASE CONFIGURATION GUIDE - CRITICAL SETUP STEP!
+================================================================================
+
+⚠️ YOUR DATABASE IS NOT CONFIGURED! This is why the app shows errors.
+
+================================================================================
+STEP 1: GET YOUR DATABASE CREDENTIALS
+================================================================================
+
+In cPanel:
+----------
+1. Log into your cPanel
+2. Click "MySQL Databases"
+3. You should see:
+   - Database name (something like: username_parkingdb)
+   - Username (something like: username_park)
+   - You may need to create a password or retrieve existing one
+
+Common patterns:
+- Database: [cpanel_username]_[database_name]
+- Username: [cpanel_username]_[db_user]
+- Host: Usually "localhost"
+
+================================================================================
+STEP 2: EDIT config.php FILE
+================================================================================
+
+Open this file in File Manager or FTP:
+  config.php
+
+Find these lines (around line 13-19):
+
+    'db' => [
+        'host' => 'your_db_host',          ← Change this
+        'port' => '3306',
+        'database' => 'your_db_name',      ← Change this
+        'username' => 'your_db_username',  ← Change this
+        'password' => 'your_db_password',  ← Change this
+        'charset' => 'utf8mb4',
+    ],
+
+REPLACE with your actual values:
+
+    'db' => [
+        'host' => 'localhost',             ← Usually 'localhost'
+        'port' => '3306',                  ← Keep as 3306
+        'database' => 'cpanel_parkingdb',  ← Your actual database name
+        'username' => 'cpanel_parkuser',   ← Your actual MySQL username
+        'password' => 'your_real_pass',    ← Your actual MySQL password
+        'charset' => 'utf8mb4',            ← Keep this
+    ],
+
+SAVE THE FILE!
+
+================================================================================
+STEP 3: VERIFY DATABASE EXISTS AND HAS TABLES
+================================================================================
+
+In phpMyAdmin:
+--------------
+1. Click on your database name in left sidebar
+2. You should see tables like:
+   - users
+   - properties
+   - vehicles
+   - violation_tickets
+   - payment_settings (if you ran the update script)
+
+If tables don't exist:
+----------------------
+You need to run the database schema first!
+Run: sql/COMPLETE-V2-MIGRATION.sql in phpMyAdmin
+
+================================================================================
+STEP 4: TEST THE CONNECTION
+================================================================================
+
+After editing config.php:
+1. Refresh your browser (Ctrl+Shift+R)
+2. The app should load
+3. Properties dropdown should populate
+4. Tickets should load
+
+If it still doesn't work:
+1. Check PHP error logs in cPanel
+2. Make sure database name/username/password are EXACTLY correct
+3. Verify the database user has permissions on the database
+
+================================================================================
+EXAMPLE config.php (with real values)
+================================================================================
+
+<?php
+return [
+    'app_name' => 'ManageMyParking',
+    'app_url' => 'https://yourdomain.com',
+    'base_path' => '',
+    
+    'db' => [
+        'host' => 'localhost',
+        'port' => '3306',
+        'database' => 'myaccount_parking',  ← Example real database
+        'username' => 'myaccount_dbuser',   ← Example real username
+        'password' => 'SecurePass123!',     ← Example real password
+        'charset' => 'utf8mb4',
+    ],
+    
+    'session' => [
+        'name' => 'myparkingmanager_session',
+        'lifetime' => 1440,
+        'secure' => false,
+        'httponly' => true,
+    ],
+    
+    'password_cost' => 10,
+    'setup_token' => 'reconfigure',
+    'max_upload_size' => 52428800,
+    'max_csv_rows' => 10000,
+];
+
+================================================================================
+COMMON ERRORS & SOLUTIONS
+================================================================================
+
+ERROR: "Database not configured"
+--------------------------------
+→ You haven't edited config.php yet
+→ Solution: Edit config.php with real credentials
+
+ERROR: "Access denied for user"
+--------------------------------
+→ Wrong username or password
+→ Solution: Double-check credentials in cPanel
+
+ERROR: "Unknown database"
+--------------------------------
+→ Database doesn't exist or name is wrong
+→ Solution: Create database in cPanel or fix the name
+
+ERROR: "Connection refused"
+--------------------------------
+→ Wrong host
+→ Solution: Try 'localhost' or '127.0.0.1'
+
+ERROR: Properties dropdown empty
+---------------------------------
+→ Database connected but no properties exist
+→ Solution: Add properties in Settings → Properties tab
+
+================================================================================
+STILL NOT WORKING?
+================================================================================
+
+Check these in order:
+1. ✓ Database exists in cPanel/phpMyAdmin
+2. ✓ Database has tables (run migration SQL if not)
+3. ✓ config.php has correct credentials
+4. ✓ Database user has ALL PRIVILEGES on database
+5. ✓ Browser cache cleared (Ctrl+Shift+R)
+6. ✓ Check PHP error logs for specific error messages
+
+================================================================================
