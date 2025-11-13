@@ -28,15 +28,34 @@ try {
         ");
         $stmt->execute();
     } else {
-        // Regular users only see assigned properties
-        $stmt = $db->prepare("
-            SELECT p.id, p.name, p.address, p.custom_ticket_text, p.created_at
-            FROM properties p
-            INNER JOIN user_assigned_properties uap ON p.id = uap.property_id
-            WHERE uap.user_id = ?
-            ORDER BY p.name ASC
-        ");
-        $stmt->execute([$user['id']]);
+        // Check if user_assigned_properties table exists
+        $hasAssignmentsTable = false;
+        try {
+            $checkStmt = $db->query("SHOW TABLES LIKE 'user_assigned_properties'");
+            $hasAssignmentsTable = $checkStmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            $hasAssignmentsTable = false;
+        }
+        
+        if ($hasAssignmentsTable) {
+            // Regular users only see assigned properties
+            $stmt = $db->prepare("
+                SELECT p.id, p.name, p.address, p.custom_ticket_text, p.created_at
+                FROM properties p
+                INNER JOIN user_assigned_properties uap ON p.id = uap.property_id
+                WHERE uap.user_id = ?
+                ORDER BY p.name ASC
+            ");
+            $stmt->execute([$user['id']]);
+        } else {
+            // Fallback: if table doesn't exist, show all properties for backward compatibility
+            $stmt = $db->prepare("
+                SELECT id, name, address, custom_ticket_text, created_at 
+                FROM properties 
+                ORDER BY name ASC
+            ");
+            $stmt->execute();
+        }
     }
     
     $properties = $stmt->fetchAll(PDO::FETCH_ASSOC);

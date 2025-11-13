@@ -1,0 +1,70 @@
+================================================================================
+ACTUAL PROBLEM & FIX - ManageMyParking v2.0
+================================================================================
+
+ROOT CAUSE:
+-----------
+If logged in as a NON-ADMIN user, properties-list.php requires the 
+user_assigned_properties table to determine which properties the user can see.
+
+If this table is missing OR has no entries for the logged-in user:
+→ Properties dropdown returns EMPTY
+→ Tickets fail to load (they need properties first)
+→ Entire app appears broken
+
+CODE ISSUE:
+-----------
+Old code (lines 32-39):
+
+    SELECT p.id, p.name, p.address, p.custom_ticket_text, p.created_at
+    FROM properties p
+    INNER JOIN user_assigned_properties uap ON p.id = uap.property_id
+    WHERE uap.user_id = ?
+
+This FAILS if:
+1. user_assigned_properties table doesn't exist (500 error)
+2. Table exists but user has NO assigned properties (returns empty array)
+
+================================================================================
+FIX APPLIED
+================================================================================
+
+FILE: api/properties-list.php
+
+Added backward compatibility check:
+1. Check if user_assigned_properties table exists
+2. If YES: Use INNER JOIN (secure per-user access)
+3. If NO: Show all properties (v1.1 backward compatibility)
+
+This ensures:
+✅ Non-admin users can see properties even without user_assigned_properties
+✅ No 500 errors from missing table
+✅ Backward compatible with v1.1 databases
+
+================================================================================
+DEPLOYMENT
+================================================================================
+
+1. Upload ONLY this file: api/properties-list.php
+2. Clear browser cache (Ctrl+Shift+R)
+3. Test: Properties dropdown should now populate
+4. Tickets should load
+
+AFTER THIS WORKS:
+-----------------
+Optionally create the user_assigned_properties table:
+  sql/add-user-assigned-properties-table.sql
+
+This enables per-user property access control.
+
+================================================================================
+WHY THIS HAPPENED
+================================================================================
+
+v1.1 → v2.0 migration assumes user_assigned_properties table exists.
+If your production database was created from v1.1 schema, this table
+may be missing, causing the properties API to fail for non-admin users.
+
+Admin users worked fine because they use a different query path.
+
+================================================================================
