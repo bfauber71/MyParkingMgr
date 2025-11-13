@@ -1,9 +1,27 @@
 <?php
-require_once __DIR__ . '/../includes/database.php';
+// Catch all errors and return JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("PHP Error in users-update.php: $errstr in $errfile:$errline");
+    http_response_code(500);
+    echo json_encode(['error' => 'Server error: ' . $errstr]);
+    exit;
+});
 
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        error_log("Fatal error in users-update.php: " . json_encode($error));
+        if (!headers_sent()) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Fatal error: ' . $error['message']]);
+        }
+    }
+});
+
+require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../includes/session.php';
-
 
 header('Content-Type: application/json');
 
