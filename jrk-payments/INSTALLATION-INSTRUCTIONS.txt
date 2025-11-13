@@ -1,0 +1,36 @@
+ManageMyParking v2.0 - Installation Instructions
+=================================================
+
+CRITICAL: Run Database Migration First!
+----------------------------------------
+
+1. In phpMyAdmin, run this SQL to add missing column:
+
+   ALTER TABLE property_contacts 
+   ADD COLUMN position TINYINT UNSIGNED NOT NULL DEFAULT 0 
+   COMMENT '0=first, 1=second, 2=third' 
+   AFTER email;
+
+   CREATE INDEX idx_property_position ON property_contacts(property_id, position);
+
+2. Upload all files from this ZIP to your server
+
+3. Hard refresh browser (Ctrl + Shift + R)
+
+4. App should now work without 500 errors!
+
+Fixed Issues:
+-------------
+✅ API base path double-slash bug (ERR_NAME_NOT_RESOLVED)
+✅ Missing position column in property_contacts table
+✅ Session configuration compatibility
+
+SQL File Location:
+------------------
+sql/add-position-column.sql (contains the ALTER TABLE command)
+
+After Installation:
+-------------------
+Delete these security risk files if they exist:
+- test-api.php
+- check-database.php
