@@ -128,41 +128,8 @@ try {
                 id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
                 custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
                 tag_number, plate_number,
-                property_name, property_address, property_contact_name, property_contact_phone,
+                property_address, property_contact_name, property_contact_phone,
                 property_contact_email, ticket_type
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        
-        $stmt->execute([
-            $ticketId,
-            $vehicleId,
-            $vehicle['property'],
-            $user['id'],
-            $user['username'],
-            $issuedAt,
-            $customNote ?: null,
-            $vehicle['year'],
-            $vehicle['color'],
-            $vehicle['make'],
-            $vehicle['model'],
-            $vehicle['tag_number'],
-            $vehicle['plate_number'],
-            $property['name'],
-            $property['address'],
-            $property['contact_name'],
-            $property['contact_phone'],
-            $property['contact_email'],
-            $ticketType
-        ]);
-    } else {
-        // Old schema without ticket_type field
-        $stmt = $db->prepare("
-            INSERT INTO violation_tickets (
-                id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
-                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
-                tag_number, plate_number,
-                property_name, property_address, property_contact_name, property_contact_phone,
-                property_contact_email
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
@@ -180,7 +147,38 @@ try {
             $vehicle['model'],
             $vehicle['tag_number'],
             $vehicle['plate_number'],
-            $property['name'],
+            $property['address'],
+            $property['contact_name'],
+            $property['contact_phone'],
+            $property['contact_email'],
+            $ticketType
+        ]);
+    } else {
+        // Old schema without ticket_type field
+        $stmt = $db->prepare("
+            INSERT INTO violation_tickets (
+                id, vehicle_id, property, issued_by_user_id, issued_by_username, issued_at,
+                custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
+                tag_number, plate_number,
+                property_address, property_contact_name, property_contact_phone,
+                property_contact_email
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $stmt->execute([
+            $ticketId,
+            $vehicleId,
+            $vehicle['property'],
+            $user['id'],
+            $user['username'],
+            $issuedAt,
+            $customNote ?: null,
+            $vehicle['year'],
+            $vehicle['color'],
+            $vehicle['make'],
+            $vehicle['model'],
+            $vehicle['tag_number'],
+            $vehicle['plate_number'],
             $property['address'],
             $property['contact_name'],
             $property['contact_phone'],

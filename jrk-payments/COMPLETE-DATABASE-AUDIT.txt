@@ -1,0 +1,197 @@
+================================================================================
+COMPLETE DATABASE SCHEMA AUDIT - ManageMyParking v2.0
+Generated: November 13, 2025
+================================================================================
+
+AUDIT METHOD:
+- Searched ALL 76 PHP files
+- Searched ALL 6 HTML files  
+- Cross-referenced with sql/COMPLETE-V2-MIGRATION.sql
+- Identified ALL column mismatches
+
+================================================================================
+PART 1: violation_tickets TABLE ANALYSIS
+================================================================================
+
+COLUMNS IN SCHEMA (COMPLETE-V2-MIGRATION.sql lines 247-272):
+------------------------------------------------------------
+✅ id VARCHAR(36)
+✅ vehicle_id VARCHAR(36)
+✅ property VARCHAR(255)
+✅ issued_by_user_id VARCHAR(36)
+✅ issued_by_username VARCHAR(255)
+✅ issued_at DATETIME                    ← EXISTS in schema
+✅ custom_note TEXT
+✅ vehicle_year VARCHAR(10)
+✅ vehicle_color VARCHAR(50)
+✅ vehicle_make VARCHAR(100)
+✅ vehicle_model VARCHAR(100)
+✅ tag_number VARCHAR(100)
+✅ plate_number VARCHAR(100)
+✅ property_name VARCHAR(255)            ← EXISTS in schema
+✅ property_address TEXT
+✅ property_contact_name VARCHAR(255)
+✅ property_contact_phone VARCHAR(50)
+✅ property_contact_email VARCHAR(255)
+✅ created_at TIMESTAMP
+✅ updated_at TIMESTAMP
+
+COLUMNS MISSING FROM SCHEMA (code expects but schema doesn't create):
+---------------------------------------------------------------------
+❌ ticket_type ENUM('VIOLATION', 'WARNING')
+❌ status ENUM('active', 'closed')  
+❌ fine_disposition ENUM('collected', 'dismissed')
+❌ closed_at TIMESTAMP
+❌ closed_by_user_id VARCHAR(36)
+❌ payment_status ENUM('unpaid', 'partial', 'paid')
+❌ amount_paid DECIMAL(10,2)
+❌ qr_code_generated_at TIMESTAMP
+
+FILES USING MISSING COLUMNS:
+-----------------------------
+ticket_type:
+  - api/violations-zpl.php (lines 40-56)
+  - api/violations-ticket.php (lines 42-60)
+  - api/violations-create.php (lines 41-156)
+  - api/violations-search.php (lines 39, 55)
+  - api/violations-export.php (lines 44, 56)
+  - api/tickets-list.php (lines 36, 47)
+
+status, fine_disposition, closed_at, closed_by_user_id:
+  - api/ticket-close.php (lines 41-90)
+  - api/vehicles-violations-history.php (lines 68-97)
+  - api/violations-search.php (lines 48-59)
+  - api/tickets-list.php (lines 33-46)
+
+payment_status, amount_paid:
+  - api/payment-generate-link.php (lines 79-121)
+  - api/payment-record-manual.php (lines 71-148)
+  - api/payment-webhook.php (lines 145-156)
+
+qr_code_generated_at:
+  - api/payment-generate-qr.php (line 64)
+  - api/payment-generate-link.php (line 121)
+
+================================================================================
+PART 2: COLUMN NAME INCONSISTENCIES
+================================================================================
+
+ISSUE 1: property_name EXISTS but CODE CHANGED TO USE property
+---------------------------------------------------------------
+Schema has: property_name VARCHAR(255) (line 261)
+Code was using: vt.property_name
+
+FILES THAT STILL USE property_name (NEED FIXING):
+  ✓ api/violations-zpl.php (lines 48, 330-331) - SELECT and array access
+  ✓ api/violations-ticket.php (line 51) - SELECT statement
+  ✓ api/violations-create.php (lines 131, 164) - INSERT statements
+
+FILES ALREADY FIXED (using vt.property):
+  ✓ api/tickets-list.php
+  ✓ api/violations-search.php
+  ✓ api/violations-export.php
+
+ISSUE 2: issued_at vs created_at CONFUSION
+-------------------------------------------
+Schema has BOTH:
+  - issued_at DATETIME (line 253) - Original timestamp when ticket was issued
+  - created_at TIMESTAMP (line 266) - Database record creation time
+
+FILES USING issued_at (CORRECT - don't change):
+  ✓ api/violations-zpl.php (lines 46, 289)
+  ✓ api/violations-ticket.php (line 49)
+  ✓ api/violations-create.php (lines 128, 161)
+  ✓ api/vehicles-violations-history.php (lines 84, 97)
+
+FILES USING created_at (for ORDER BY / sorting):
+  ✓ api/violations-search.php (line 65)
+  ✓ api/violations-export.php (line 54)
+  ✓ api/tickets-list.php (line 53, 113)
+
+CONCLUSION: Both columns exist! No changes needed for issued_at/created_at.
+
+================================================================================
+PART 3: MISSING TABLES
+================================================================================
+
+TABLES REFERENCED BY CODE BUT NOT IN SCHEMA:
+---------------------------------------------
+
+1. payment_settings
+   Schema: MISSING
+   Used by: api/payment-settings.php, api/payment-generate-link.php
+   Columns expected: id, property_id, payment_provider, api_key_encrypted,
+                     payment_link_template, auto_close_on_payment
+
+2. ticket_payments  
+   Schema: MISSING
+   Used by: api/payment-record-manual.php, api/payment-webhook.php,
+            api/payment-history.php
+   Columns expected: id, ticket_id, payment_method, amount, payment_date,
+                     transaction_id, notes, recorded_by_user_id
+
+3. qr_codes
+   Schema: MISSING
+   Used by: api/payment-generate-qr.php
+   Columns expected: id, ticket_id, qr_code_data, payment_link,
+                     generated_at, expires_at
+
+================================================================================
+PART 4: FIXES REQUIRED
+================================================================================
+
+FIX #1: ADD MISSING COLUMNS TO violation_tickets
+-------------------------------------------------
+File: sql/ADD-MISSING-V2-COLUMNS.sql (ALREADY CREATED)
+Status: ✅ Ready to run
+
+FIX #2: CHANGE property_name → property IN 3 FILES
+---------------------------------------------------
+Files to update:
+  1. api/violations-zpl.php
+  2. api/violations-ticket.php  
+  3. api/violations-create.php
+
+Changes:
+  - Line 48/51: SELECT ... property_name → SELECT ... property
+  - Line 131/164: INSERT property_name → INSERT property
+  - Line 330-331: $ticket['property_name'] → $ticket['property']
+
+FIX #3: CREATE MISSING PAYMENT TABLES
+---------------------------------------
+File: sql/ADD-MISSING-V2-COLUMNS.sql (ALREADY CREATED)
+Status: ✅ Ready to run
+
+================================================================================
+PART 5: HTML FILES AUDIT
+================================================================================
+
+CHECKED FILES:
+- index.html (no SQL)
+- violations-print.html (no SQL)
+- license.html (no SQL)
+- guest-pass-print.html (no SQL)
+- admin/path-settings.html (no SQL)
+- violations-manage.html (no SQL)
+
+RESULT: ✅ No SQL queries in HTML files
+
+================================================================================
+SUMMARY OF REQUIRED CHANGES
+================================================================================
+
+STEP 1: Run SQL file
+  File: sql/ADD-MISSING-V2-COLUMNS.sql
+  Action: Adds all missing columns and tables
+
+STEP 2: Fix PHP files (3 files need property_name → property change)
+  1. api/violations-zpl.php
+  2. api/violations-ticket.php
+  3. api/violations-create.php
+
+TOTAL FILES TO MODIFY: 3 PHP files
+TOTAL SQL FILES TO RUN: 1 file (ADD-MISSING-V2-COLUMNS.sql)
+
+================================================================================
+END OF AUDIT
+================================================================================

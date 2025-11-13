@@ -45,7 +45,7 @@ try {
     
     $selectFields = "id, vehicle_id, property, issued_by_username, issued_at,
                 custom_note, vehicle_year, vehicle_color, vehicle_make, vehicle_model,
-                property_name, property_address, property_contact_name, 
+                property as property_name, property_address, property_contact_name, 
                 property_contact_phone, property_contact_email";
     
     if ($columnsExist) {
