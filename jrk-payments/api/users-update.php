@@ -27,12 +27,15 @@ header('Content-Type: application/json');
 
 Session::start();
 
+error_log("=== USER UPDATE START ===");
+
 // Require authentication and edit permission for users
 requirePermission(MODULE_USERS, ACTION_EDIT);
 
 $user = Session::user();
 
 $input = json_decode(file_get_contents('php://input'), true);
+error_log("Input data: " . json_encode($input));
 
 $id = trim($input['id'] ?? '');
 $username = trim($input['username'] ?? '');
@@ -74,11 +77,15 @@ try {
         $hasEmailColumn = false;
     }
     
+    error_log("Has email column: " . ($hasEmailColumn ? 'YES' : 'NO'));
+    error_log("Password empty: " . (empty($password) ? 'YES' : 'NO'));
+    
     if (!empty($password)) {
         $config = require __DIR__ . '/../config.php';
         $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => $config['password_cost']]);
         
         if ($hasEmailColumn) {
+            error_log("Updating WITH password and email");
             $stmt = $db->prepare("
                 UPDATE users 
                 SET username = ?, email = ?, password = ?, role = ?, updated_at = NOW()
@@ -86,6 +93,7 @@ try {
             ");
             $stmt->execute([$username, $email, $passwordHash, $role, $id]);
         } else {
+            error_log("Updating WITH password NO email");
             $stmt = $db->prepare("
                 UPDATE users 
                 SET username = ?, password = ?, role = ?, updated_at = NOW()
@@ -95,6 +103,7 @@ try {
         }
     } else {
         if ($hasEmailColumn) {
+            error_log("Updating NO password WITH email");
             $stmt = $db->prepare("
                 UPDATE users 
                 SET username = ?, email = ?, role = ?, updated_at = NOW()
@@ -102,6 +111,7 @@ try {
             ");
             $stmt->execute([$username, $email, $role, $id]);
         } else {
+            error_log("Updating NO password NO email");
             $stmt = $db->prepare("
                 UPDATE users 
                 SET username = ?, role = ?, updated_at = NOW()
@@ -111,11 +121,17 @@ try {
         }
     }
     
+    error_log("UPDATE query executed successfully");
+    
     // Save user permissions
+    error_log("Saving permissions...");
     saveUserPermissions($id, $permissions);
+    error_log("Permissions saved");
     
     // Save assigned properties
+    error_log("Saving assigned properties...");
     saveUserAssignedProperties($id, $assignedProperties);
+    error_log("Assigned properties saved");
     
     if (function_exists('auditLog')) {
         try {
