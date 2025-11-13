@@ -45,10 +45,24 @@ $params = $propertyIds;
 error_log("SQL: " . $sql);
 error_log("Params: " . json_encode($params));
 
-// Add property filter
+// Add property filter - convert property name to property_id
 if ($propertyFilter) {
-    $sql .= " AND property_id = ?";
-    $params[] = $propertyFilter;
+    // Find the property_id for this property name
+    $propertyId = null;
+    foreach ($accessibleProperties as $prop) {
+        if ($prop['name'] === $propertyFilter) {
+            $propertyId = $prop['id'];
+            break;
+        }
+    }
+    
+    if ($propertyId !== null) {
+        $sql .= " AND property_id = ?";
+        $params[] = $propertyId;
+        error_log("Filtering by property_id: " . $propertyId . " (name: " . $propertyFilter . ")");
+    } else {
+        error_log("WARNING: Property filter '$propertyFilter' not found in accessible properties");
+    }
 }
 
 // Add search query - Use v2.0 column names (post-migration)
