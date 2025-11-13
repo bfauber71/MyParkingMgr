@@ -1,0 +1,68 @@
+================================================================================
+QUICK START GUIDE - ManageMyParking v2.0
+================================================================================
+
+⚡ FASTEST PATH TO GET WORKING:
+
+STEP 1: RUN THE SQL (2 minutes)
+================================
+1. Open phpMyAdmin
+2. Select your database
+3. Click "SQL" tab
+4. Copy ALL contents from: sql/ADD-ALL-MISSING-COLUMNS.sql
+5. Paste and click "Go"
+
+EXPECTED: You'll see some red "Duplicate column" errors - THIS IS NORMAL!
+SUCCESS: At bottom you'll see "All missing columns and tables added successfully!"
+
+STEP 2: UPLOAD FILES (5 minutes)
+=================================
+1. Extract ManageMyParking-v2.0-FINAL.zip
+2. Upload ALL files to your server (FTP or File Manager)
+3. Overwrite existing files
+
+STEP 3: CLEAR BROWSER CACHE (30 seconds)
+=========================================
+Press: Ctrl + Shift + R (or Cmd + Shift + R on Mac)
+
+STEP 4: TEST (1 minute)
+========================
+1. Log into ManageMyParking
+2. Go to Settings → Ticket Status
+   ✅ Should load without 500 error
+3. Create a violation ticket
+   ✅ Should work without errors
+
+DONE! 🎉
+
+================================================================================
+WHAT THIS FIXES:
+================================================================================
+
+ADDS THESE MISSING COLUMNS:
+---------------------------
+Base columns (if missing):
+  ✓ tag_number, plate_number
+  ✓ property_name, property_address
+  ✓ property_contact_name, property_contact_phone, property_contact_email
+
+v2.0 columns:
+  ✓ ticket_type, status, fine_disposition
+  ✓ closed_at, closed_by_user_id
+  ✓ payment_status, amount_paid, qr_code_generated_at
+
+CREATES THESE TABLES:
+---------------------
+  ✓ payment_settings
+  ✓ ticket_payments
+  ✓ qr_codes
+
+FIXES THESE PHP FILES:
+----------------------
+  ✓ api/violations-zpl.php
+  ✓ api/violations-ticket.php
+  ✓ api/violations-create.php
+
+All property_name column mismatches resolved!
+
+================================================================================
