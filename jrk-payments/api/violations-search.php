@@ -112,38 +112,36 @@ if ($property) {
     $params[] = $property;
 }
 
+// Search query (vehicle info or notes) - Use WHERE, not HAVING
+if ($searchQuery) {
+    $searchPattern = '%' . $searchQuery . '%';
+    $sql .= " AND (
+        v.plate_number LIKE ? OR
+        v.tag_number LIKE ? OR
+        vt.vehicle_make LIKE ? OR
+        vt.vehicle_model LIKE ? OR
+        vt.custom_note LIKE ?
+    )";
+    $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
+}
+
 // GROUP BY for aggregation
-$sql .= " GROUP BY vt.id";
+$sql .= " GROUP BY vt.id, vt.vehicle_id, vt.custom_note, vt.created_at, vt.issued_by_user_id, vt.issued_by_username, 
+         vt.vehicle_year, vt.vehicle_make, vt.vehicle_model, vt.vehicle_color, 
+         v.plate_number, v.tag_number, v.property, vt.property_name";
+
+// Add dynamic fields to GROUP BY
+if ($hasTicketType) {
+    $sql .= ", vt.ticket_type";
+}
+if ($hasStatus) {
+    $sql .= ", vt.status, vt.fine_disposition, vt.closed_at, vt.closed_by_user_id";
+}
 
 // Violation type filter (HAVING clause after GROUP BY)
 if ($violationType) {
     $sql .= " HAVING GROUP_CONCAT(vti.description ORDER BY vti.display_order SEPARATOR ', ') LIKE ?";
     $params[] = '%' . $violationType . '%';
-}
-
-// Search query (vehicle info or notes)
-if ($searchQuery) {
-    $searchPattern = '%' . $searchQuery . '%';
-    if ($violationType) {
-        // Already have HAVING clause, add AND
-        $sql .= " AND (
-            v.plate_number LIKE ? OR
-            v.tag_number LIKE ? OR
-            vt.vehicle_make LIKE ? OR
-            vt.vehicle_model LIKE ? OR
-            vt.custom_note LIKE ?
-        )";
-    } else {
-        // Need to start HAVING clause
-        $sql .= " HAVING (
-            v.plate_number LIKE ? OR
-            v.tag_number LIKE ? OR
-            vt.vehicle_make LIKE ? OR
-            vt.vehicle_model LIKE ? OR
-            vt.custom_note LIKE ?
-        )";
-    }
-    $params = array_merge($params, [$searchPattern, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
 }
 
 $sql .= " ORDER BY vt.created_at DESC LIMIT 500";
