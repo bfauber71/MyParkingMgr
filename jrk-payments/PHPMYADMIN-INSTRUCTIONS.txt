@@ -1,0 +1,79 @@
+================================================================================
+HOW TO RUN THE DATABASE UPDATE IN PHPMYADMIN
+================================================================================
+
+IMPORTANT: You will see errors for columns that already exist - THIS IS NORMAL!
+MySQL will show "Duplicate column" errors, but it won't break anything.
+
+STEP-BY-STEP INSTRUCTIONS:
+--------------------------
+
+1. Open phpMyAdmin
+
+2. Select your database from the left sidebar
+
+3. Click the "SQL" tab at the top
+
+4. Copy the ENTIRE contents of: sql/MYSQL-V2-DATABASE-UPDATE.sql
+
+5. Paste into the SQL text box
+
+6. Check "Ignore multiple statement errors" if available
+
+7. Click "Go" button
+
+8. You will see ERRORS - this is expected! Examples:
+   - "Duplicate column name 'custom_note'" 
+   - "Duplicate column name 'issued_by_user_id'"
+   
+   These errors mean the column already exists (which is good!)
+
+9. Scroll to the bottom of the results
+
+10. Look for the success messages:
+    - "payment_settings table created"
+    - "ticket_payments table created"
+    - "qr_codes table created"
+
+11. Verify the update worked:
+    Click on "violation_tickets" table in left sidebar
+    Click "Structure" tab
+    You should now see ALL these columns:
+    ✓ custom_note
+    ✓ issued_by_user_id
+    ✓ issued_by_username
+    ✓ issued_at
+    ✓ vehicle_year, vehicle_make, vehicle_model, vehicle_color
+    ✓ tag_number, plate_number
+    ✓ property_address, property_contact_name, etc.
+    ✓ ticket_type
+    ✓ status
+    ✓ fine_disposition
+    ✓ closed_at, closed_by_user_id
+    ✓ payment_status
+    ✓ amount_paid
+    ✓ payment_link_id
+    ✓ qr_code_generated_at
+
+================================================================================
+AFTER RUNNING THE SCRIPT:
+================================================================================
+
+1. Clear your browser cache (Ctrl+Shift+R)
+
+2. Test violations search - should work now!
+
+3. Test creating a ticket - should work now!
+
+4. Check if payment features appear in the UI
+
+================================================================================
+IF YOU GET STUCK:
+================================================================================
+
+Take a screenshot of the phpMyAdmin error messages and let me know.
+
+Most errors about "Duplicate column" are SAFE and mean those columns 
+already exist (which is what we want!)
+
+================================================================================
