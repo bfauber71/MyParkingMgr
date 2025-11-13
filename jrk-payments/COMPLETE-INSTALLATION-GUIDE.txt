@@ -2,96 +2,26 @@
 ManageMyParking v2.0 - COMPLETE Installation Guide
 =====================================================
 
-CRITICAL: Run ALL SQL migrations in order!
+IMPORTANT: Follow steps in EXACT order!
 
 =====================================================
-STEP 1: DATABASE MIGRATIONS (Run in phpMyAdmin)
+STEP 1: RUN COMPLETE MIGRATION (phpMyAdmin)
 =====================================================
 
-Copy and paste each SQL block below into phpMyAdmin SQL tab.
-Run them ONE AT A TIME in this exact order:
+Open phpMyAdmin and run this ENTIRE SQL script:
 
------------------------------------------------------
-Migration A: Fix property_contacts table
------------------------------------------------------
+File: sql/COMPLETE-V2-MIGRATION.sql
 
-ALTER TABLE property_contacts 
-ADD COLUMN position TINYINT UNSIGNED NOT NULL DEFAULT 0 
-COMMENT '0=first, 1=second, 2=third' 
-AFTER email;
+This ONE script fixes ALL schema issues:
+✅ Vehicles table (renames columns, adds missing fields)
+✅ Violations table (adds fine_amount, tow_deadline_hours)
+✅ Violation tickets & items tables (creates if missing)
+✅ Property contacts (adds position column)
+✅ Printer settings (recreates with key-value structure)
+✅ User assigned properties (creates if missing)
+✅ Users table (ensures email column exists)
 
-CREATE INDEX idx_property_position ON property_contacts(property_id, position);
-
-
------------------------------------------------------
-Migration B: Fix printer_settings table
------------------------------------------------------
-
-DROP TABLE IF EXISTS printer_settings;
-
-CREATE TABLE printer_settings (
-    id VARCHAR(36) PRIMARY KEY,
-    setting_key VARCHAR(100) NOT NULL UNIQUE,
-    setting_value LONGTEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_setting_key (setting_key)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO printer_settings (id, setting_key, setting_value) VALUES
-(UUID(), 'ticket_width', '2.5'),
-(UUID(), 'ticket_height', '6'),
-(UUID(), 'ticket_unit', 'in'),
-(UUID(), 'logo_top', NULL),
-(UUID(), 'logo_bottom', NULL),
-(UUID(), 'logo_top_enabled', 'false'),
-(UUID(), 'logo_bottom_enabled', 'false'),
-(UUID(), 'timezone', 'America/New_York');
-
-
------------------------------------------------------
-Migration C: Migrate vehicles table to v2.0 schema
------------------------------------------------------
-
--- Add missing columns
-ALTER TABLE vehicles 
-ADD COLUMN plate_number VARCHAR(50) AFTER tag_plate,
-ADD COLUMN year VARCHAR(4) AFTER color,
-ADD COLUMN owner_name VARCHAR(255) AFTER apartment_unit,
-ADD COLUMN owner_phone VARCHAR(50) AFTER owner_name,
-ADD COLUMN owner_email VARCHAR(255) AFTER owner_phone,
-ADD COLUMN reserved_space VARCHAR(50) AFTER owner_email;
-
--- Add guest flag column
-ALTER TABLE vehicles 
-ADD COLUMN guest TINYINT(1) DEFAULT 0 AFTER is_resident;
-
--- Add property name column
-ALTER TABLE vehicles 
-ADD COLUMN property VARCHAR(255) AFTER id;
-
--- Populate property names from property_id
-UPDATE vehicles v
-INNER JOIN properties p ON v.property_id = p.id
-SET v.property = p.name;
-
--- Make property required
-ALTER TABLE vehicles 
-MODIFY COLUMN property VARCHAR(255) NOT NULL;
-
--- Rename columns to match v2.0
-ALTER TABLE vehicles 
-CHANGE COLUMN tag_plate tag_number VARCHAR(50),
-CHANGE COLUMN apartment_unit apt_number VARCHAR(50),
-CHANGE COLUMN is_resident resident TINYINT(1),
-CHANGE COLUMN guest_of_unit guest_of VARCHAR(50);
-
--- Add performance indexes
-CREATE INDEX idx_tag_number ON vehicles(tag_number);
-CREATE INDEX idx_plate_number ON vehicles(plate_number);
-CREATE INDEX idx_property ON vehicles(property);
-CREATE INDEX idx_expiration ON vehicles(expiration_date);
-
+IDEMPOTENT: Safe to run multiple times!
 
 =====================================================
 STEP 2: UPLOAD FILES
@@ -101,74 +31,146 @@ STEP 2: UPLOAD FILES
 2. Upload ALL files to your server
 3. Overwrite existing files when prompted
 
+=====================================================
+STEP 3: CONFIGURE DATABASE (config.php)
+=====================================================
+
+Edit config.php and set your database credentials:
+
+'db' => [
+    'host' => 'your_db_host',
+    'port' => '3306',
+    'database' => 'your_db_name',
+    'username' => 'your_db_username',
+    'password' => 'your_db_password',
+],
+
+IMPORTANT: Ensure 'password_cost' => 10 (NOT 0!)
 
 =====================================================
-STEP 3: CLEAR BROWSER CACHE
+STEP 4: CLEAR BROWSER CACHE
 =====================================================
 
 Hard refresh your browser:
 - Windows/Linux: Ctrl + Shift + R
 - Mac: Cmd + Shift + R
 
-
 =====================================================
-STEP 4: TEST THE APPLICATION
-=====================================================
-
-1. Login to your app
-2. Try searching for vehicles
-3. Try creating a new vehicle
-4. Check that properties load
-5. Verify printer settings work
-
-
-=====================================================
-STEP 5: DELETE TEST FILES (Security!)
+STEP 5: TEST THE APPLICATION
 =====================================================
 
-Delete these files from your server if they exist:
+Login and test these features:
+✅ Vehicle search
+✅ Add vehicle
+✅ Edit vehicle
+✅ User management
+✅ Violations list
+✅ Violation search
+✅ Properties
+✅ Printer settings
+
+=====================================================
+STEP 6: DELETE TEST FILES (Security!)
+=====================================================
+
+Delete these from your server if they exist:
 - test-api.php
 - test-printer-api.php
 - test-vehicle-search.php
 - check-database.php
-
+- sql/create-violations-table.sql (already included in complete migration)
+- sql/create-all-violation-tables.sql (already included)
+- sql/add-position-column.sql (already included)
+- sql/fix-printer-settings-schema.sql (already included)
+- sql/migrate-vehicles-to-v2.sql (replaced by COMPLETE-V2-MIGRATION.sql)
 
 =====================================================
 WHAT'S BEEN FIXED
 =====================================================
 
-✅ API base path bug (ERR_NAME_NOT_RESOLVED)
-✅ Missing position column in property_contacts
-✅ Wrong printer_settings table schema
-✅ Vehicle search column mismatches
-✅ Vehicle create column mismatches
-✅ All database schema aligned with v2.0 code
+DATABASE SCHEMA:
+✅ Vehicles: tag_plate → tag_number, apartment_unit → apt_number
+✅ Vehicles: Added plate_number, state, year, owner_name, owner_phone, owner_email, reserved_space
+✅ Vehicles: Added property column (backfilled from property_id)
+✅ Violations: Added fine_amount and tow_deadline_hours columns
+✅ Created violation_tickets table
+✅ Created violation_ticket_items table
+✅ Property contacts: Added position column for ordering
+✅ Printer settings: Converted to key-value structure
+✅ Users: Ensured email column exists
+✅ Created user_assigned_properties table
 
+CODE FIXES:
+✅ Vehicle search uses correct column names (tag_number, apt_number, etc.)
+✅ Vehicle create uses correct column names
+✅ Users update handles missing email column gracefully
+✅ Users update handles invalid password_cost gracefully
+✅ All APIs use prepared statements (SQL injection prevention)
 
 =====================================================
-SQL FILES INCLUDED
+SYSTEM REQUIREMENTS
 =====================================================
 
-/sql/add-position-column.sql
-/sql/fix-printer-settings-schema.sql
-/sql/migrate-vehicles-to-v2.sql
+Server Requirements:
+- PHP 7.4+ (8.0+ recommended)
+- MySQL 5.7+ or MariaDB 10.2+
+- Apache/Nginx with mod_rewrite
+- HTTPS (recommended for production)
 
+PHP Extensions Required:
+- pdo
+- pdo_mysql
+- json
+- session
+- mbstring
+- gd (for ZPL image conversion)
+
+=====================================================
+SECURITY NOTES
+=====================================================
+
+✅ All database queries use prepared statements
+✅ CSRF tokens validated on all state-changing operations
+✅ Session-based authentication with secure cookies
+✅ Password hashing with bcrypt (cost: 10)
+✅ Login attempt rate limiting
+✅ Input validation and HTML escaping
+✅ License system with HMAC-SHA256 signing
 
 =====================================================
 TROUBLESHOOTING
 =====================================================
 
-If you still get errors:
-1. Check browser console (F12) for error details
-2. Look for red 500 errors
-3. Contact support with error screenshot
+If you still get errors after migration:
 
+1. Verify migration ran successfully:
+   Run: DESCRIBE vehicles;
+   Should show: tag_number, plate_number, apt_number, owner_name, etc.
+
+2. Check PHP error log in cPanel for specific errors
+
+3. Verify config.php has correct database credentials
+
+4. Ensure password_cost is set to 10 (not 0)
+
+5. Hard refresh browser to clear cached JavaScript
 
 =====================================================
-NOTES
+SUPPORT
 =====================================================
 
-- Your existing 10 vehicles will be preserved
-- property_id column is kept for compatibility
-- New 'property' column stores property names
-- All vehicle fields now match v2.0 requirements
+For issues, check:
+- PHP error logs (cPanel > Error Logs)
+- Browser console (F12 > Console tab)
+- Database query logs
+
+=====================================================
+POST-INSTALLATION NOTES
+=====================================================
+
+- v1.1 files in jrk/ remain untouched (production backup)
+- v2.0 is in jrk-payments/ directory
+- Once stable, you can remove jrk/ directory
+- Default violation types include fines and tow deadlines
+- Printer settings configured for 2.5" x 6" thermal tickets
+- Timezone defaults to America/New_York (configurable)

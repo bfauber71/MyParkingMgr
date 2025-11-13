@@ -1,24 +1,9 @@
 # ManageMyParking
 
-## Project Structure
-
-**CRITICAL: v1.1 (`jrk/` directory) - DO NOT DELETE OR MODIFY**
-- v1.1 is the STABLE production version currently deployed on live sites
-- Serves as working reference baseline for v2.0 development
-- All v1.1 files are verified working correctly in production
-- Only modify if explicitly working on v1.1 updates
-
-**v2.0 Development (`jrk-payments/` directory)**
-- v2.0 with payment system features - currently being tested and stabilized
-- Will replace v1.1 once fully stable and verified
-- Package: ManageMyParking-v2.0-VERIFIED-CLEAN.zip
-
 ## Overview
-
-ManageMyParking v2.3.8 is a production-ready PHP-based vehicle and property management system designed for shared hosting environments. It provides comprehensive parking violation tracking, vehicle management, property administration, and user management with robust role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include managing multiple properties, tracking vehicles and violations, resident information management, detailed audit logging, guest pass generation with expiration tracking, ticket status management, and user search functionality. It features a subscription-based licensing system with a 30-day trial and supports flexible deployment across various hosting configurations. The system integrates Zebra ZPL for thermal printing of violation tickets and guest passes, including automatic logo conversion and dynamic layout adjustments.
+ManageMyParking v2.3.8 is a PHP-based vehicle and property management system for shared hosting environments. It provides comprehensive parking violation tracking, vehicle and resident management, property administration, and user management with role-based access control. The system targets property managers, parking administrators, security personnel, and property owners. Key capabilities include multi-property management, vehicle and violation tracking, resident information, audit logging, guest pass generation, ticket status management, and user search. It features a subscription-based licensing system with a 30-day trial and integrates Zebra ZPL for thermal printing of violation tickets and guest passes. The latest v2.0 development introduces a comprehensive payment system.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
 
 **CRITICAL DATABASE REQUIREMENT:**
@@ -29,89 +14,54 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### UI/UX Decisions
-
-The frontend is a Single Page Application (SPA) built with pure JavaScript (ES6+) and mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation with 3 main tabs (Vehicles, Properties, Settings) and sub-tabs for settings. Accessibility is a priority, with increased contrast on text and elements, adhering to WCAG guidelines. Ticket designs are optimized for thermal printers, utilizing black and white schemes with bold text and border styles for emphasis, and dynamic logo integration via ZPL. 
-
-**Header/Navbar Architecture:** The application uses a two-tier fixed layout with the header and navbar as separate structural elements. The header (app-header) contains branding elements: logo, app name, version, license badge, and real-time clock. The navbar appears directly below the header and contains only navigation controls: dropdown menu, user info, and logout. Mobile header is max 56px, navbar is max 48px (1/2 inch). Desktop header is max 72px with larger navbar. Visual differentiation: header has darker background (#1e293b), navbar has lighter background (#334155). License status badge displays only for TRIAL/EXPIRED states on mobile, always visible on desktop/tablet.
+The frontend is a pure JavaScript (ES6+) Single Page Application (SPA) with mobile-first responsive CSS, avoiding external frameworks. It features streamlined navigation (Vehicles, Properties, Settings tabs), accessibility (WCAG compliance, increased contrast), and thermal printer-optimized ticket designs using black and white schemes with dynamic logo integration via ZPL. A two-tier fixed layout for header and navbar ensures consistent branding and navigation.
 
 ### Technical Implementations
-
-The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture with some OOP elements, following a RESTful API design pattern and session-based authentication.
+The backend is built with PHP 8.3+ (minimum 7.4) using a procedural architecture with OOP elements, following a RESTful API design pattern and session-based authentication.
 
 **Core Architectural Components:**
-
 -   **Configuration System:** `ConfigLoader` for dynamic path resolution and environment-based configurations.
--   **Database Layer:** PDO-based MySQL connectivity with prepared statements for SQL injection prevention.
--   **Authentication & Authorization:** Session-based user authentication, role-based access control (RBAC), login attempt rate limiting, and license-based feature access.
+-   **Database Layer:** PDO-based MySQL connectivity with prepared statements.
+-   **Authentication & Authorization:** Session-based authentication, role-based access control (RBAC), login rate limiting, and license-based feature access.
 -   **License System:** HMAC-SHA256 cryptographic signing, 30-day trial, and installation-specific/universal license keys.
--   **API Structure:** RESTful endpoints under `/api` using JSON, with CSRF token validation and credential-based session management.
--   **Security:** Password hashing (bcrypt/Argon2), session token validation, global security headers (HSTS, CSP), input validation (HTML escaping, prepared statements), and CSRF protection.
--   **ZPL Image Conversion:** `ZPLImageConverter` class handles automatic conversion of various image formats (PNG, JPG, GIF, WEBP) to ZPL ^GF format for thermal printer logos, including transparency handling and resizing.
+-   **API Structure:** RESTful JSON endpoints under `/api` with CSRF token validation.
+-   **Security:** Password hashing (bcrypt/Argon2), session token validation, global security headers (HSTS, CSP), input validation, and CSRF protection.
+-   **ZPL Image Conversion:** `ZPLImageConverter` for automatic conversion of images to ZPL ^GF format for thermal printer logos.
 
 ### Feature Specifications
-
--   **License Status Display:** Dynamic "TRIAL" or "EXPIRED" badges in the app header based on license status.
--   **Deployment Packaging System:** Automated scripts for creating customer distribution and registration packages, ensuring separation of license management files for security.
--   **Navigation Consolidation:** Main navigation consolidated to 3 tabs (Vehicles, Properties, Settings), with Settings having 5 sub-tabs (Users, Violations, Database Ops, Printer, License) for improved organization and mobile responsiveness.
--   **Violation Search:** Reorganized form with date range validation and improved styling.
--   **MySQL Database Setup:** Automated MySQL server workflow in development environment, with a default admin user and pre-assigned properties.
--   **User Management:** Functional user management with correct includes, standardized UI elements, and permission presets.
--   **User Property Assignment:** Admins can assign specific properties to users, enforcing data visibility based on assignments.
--   **Property-Specific Ticket Text:** Custom text field for properties to display on violation tickets.
--   **Black & White Ticket Design:** Optimized ticket designs for thermal printers by converting colors to black and white with enhanced borders and text.
--   **Accessibility:** Improved contrast on text and elements for better readability.
--   **Duplicate Vehicle Detection:** Functionality to find and display duplicate vehicles based on tag/plate number, with options to edit or delete duplicates.
--   **Non-Resident/Guest Vehicle Tracking:** Support for marking vehicles as resident or guest, including tracking the "guest of" apartment number.
--   **Ticket Type System:** Differentiation between 'WARNING' and 'VIOLATION' ticket types, selectable during creation and displayed on tickets.
--   **Zebra ZQ510 Mobile Printer Integration:** Generation of ZPL (Zebra Programming Language) code for thermal tickets, with options to download ZPL files or view code, optimized for the Zebra ZQ510.
--   **Timezone Configuration:** Configurable timezone setting for the system, affecting the real-time clock display and violation ticket timestamps.
--   **Streamlined Unknown Plate Workflow:** When searching for a vehicle that doesn't exist, displays a "Create Ticket for [PLATE]" button that pre-fills the Add Vehicle form with the searched plate number. After creating the vehicle, automatically opens the Create Ticket modal with the newly added vehicle selected, streamlining the ticket creation process for unknown plates.
--   **Guest Pass Generation System (v2.3.8):** Create temporary guest vehicle records with automatic 7-day expiration tracking. Includes professional letter-size guest pass printing with property logo (upper left), property information (upper right), vehicle details, and expiration date in pure black and white design for optimal printing. EXPIRED status displayed in red in vehicle search for expired guest passes. Form has single "Visiting Apt/Unit" field for cleaner UX. Expiration date displays and prints in MM-DD-YYYY format (US standard). Apartment number displays only once under "Visiting" field.
--   **Ticket Status Management (v2.3.8):** Close parking tickets by marking fines as "collected" or "dismissed". Includes dedicated Ticket Status screen with status filters (Active/Closed), property filtering, and comprehensive audit logging. Database tracks status, fine_disposition, closed_at, and closed_by_user_id for full accountability.
--   **User Management Search (v2.3.8):** Functional user search by username or email with real-time filtering. Search input with Enter key support, Search/Show All/Clear buttons properly wired with event listeners using direct assignment (onclick/onkeypress) to prevent duplicate handler accumulation. Backend API supports search parameter with SQL injection prevention via prepared statements.
--   **CSV Import Property Override (v2.3.8):** Enhanced CSV import with modal dialog offering two options: use property from CSV file (default) or assign all vehicles to a specific property selected from dropdown. Property dropdown populated with all available properties. Backend validates property access permissions before import. Success message indicates which property was used. Streamlines bulk vehicle imports to a single property.
--   **CSV Export Property Filter (v2.3.8):** Enhanced CSV export with modal dialog offering two options: export all vehicles from all properties (default) or export vehicles from a specific property selected from dropdown. Property dropdown populated with all available properties. Backend validates property access permissions before export. Filename includes property name when filtering. Success message indicates which property was exported. Streamlines bulk vehicle exports from a single property.
--   **License Management UI (v2.3.8):** Dedicated License tab in Settings menu provides comprehensive license management interface. Displays current license status (Trial/Licensed/Expired/Unlicensed), installation ID, licensed-to name, trial days remaining, activation date, and key prefix. Includes license activation form for entering new license keys with email field (optional). Integrates with existing backend APIs (license-activate.php, license-status-v2.php) for admin-only license installation. Upon successful activation, displays success message, refreshes license status display, and reloads page to update header badge. Event handlers use direct assignment (onsubmit) to prevent duplicate listener accumulation. Full page reload ensures all license-dependent UI elements update correctly.
--   **Payment System v2.0 (jrk-payments):** Comprehensive fine payment processing with multiple payment methods. Supports online payments through Stripe/Square/PayPal Payment Links with QR code generation for contactless payments. Manual payment recording for cash, check (with check number tracking), and manual card entry through operator interface. Payment status tracking with color-coded badges (RED=unpaid, YELLOW=partial with amount, GREEN=paid) displayed in violation search and ticket status screens. Payment history modal showing complete transaction log with summary (total fine, amount paid, balance due). Automatic ticket closure when fines fully paid. Property-specific payment processor configuration with test/live mode toggle. **Production-grade Defuse PHP Encryption** for API keys (v2.0 upgrade complete - see ENCRYPTION_UPGRADE_GUIDE.md). Webhook support for automatic payment confirmation from Stripe. Complete payment audit trail in database. One-click database migration installer. Separate codebase in jrk-payments/ preserves working v1.1 in jrk/. See PAYMENT_SYSTEM_README.md, PAYMENT_TESTING_GUIDE.md, and ENCRYPTION_UPGRADE_GUIDE.md for full documentation.
+-   **License Management:** Dynamic "TRIAL" or "EXPIRED" badges, dedicated license tab for status and activation.
+-   **Navigation:** Consolidated to 3 main tabs (Vehicles, Properties, Settings) with 5 sub-tabs under Settings.
+-   **Vehicle Management:** Duplicate vehicle detection, non-resident/guest vehicle tracking with "guest of" apartment, streamlined unknown plate workflow.
+-   **Violation Ticketing:** "WARNING" vs. "VIOLATION" ticket types, property-specific ticket text, black & white ticket design for thermal printers, Zebra ZQ510 integration for ZPL generation.
+-   **Guest Pass Generation:** Temporary guest vehicle records with automatic 7-day expiration, professional letter-size guest pass printing.
+-   **Ticket Status Management:** Close tickets (collected/dismissed), dedicated status screen with filters and audit logging.
+-   **User Management:** Functional user search, property assignment for user data visibility.
+-   **CSV Import/Export:** Enhanced modals for property-specific filtering during import and export.
+-   **Payment System (v2.0):** Fine payment processing with Stripe/Square/PayPal Payment Links (QR code generation), manual payment recording (cash, check, manual card), payment status tracking (unpaid/partial/paid), payment history modal, automatic ticket closure, property-specific payment configuration, Defuse PHP Encryption for API keys, webhook support.
 
 ### System Design Choices
-
-The system uses **MySQL 5.7+ / MariaDB 10.2+** as its database. Core tables include `users`, `properties`, `vehicles`, `property_contacts`, `user_assigned_properties`, `audit_logs`, `sessions`, and `violation_tickets`. The schema is relational with foreign key constraints, supports multi-property deployments, and includes an audit trail. HTTPS is mandatory for production.
-
-**Database Schema Extensions (v2.3.8):**
--   **vehicles table:** Added `expiration_date` DATE field for guest pass tracking with index
--   **violation_tickets table:** Added `status` ENUM('active','closed'), `fine_disposition` ENUM('collected','dismissed'), `closed_at` DATETIME, `closed_by_user_id` INT with foreign key to users table
-
-**Database Schema Extensions (v2.0 - Payment System):**
--   **payment_settings table:** Stores property-specific payment processor configuration (processor_type, API keys encrypted, test/live mode, QR/online payment toggles, manual payment options)
--   **ticket_payments table:** Complete payment transaction log with payment_method (cash/check/card_manual/stripe_online/square_online/paypal_online), amount, transaction_id, check_number, notes, recorded_by_user_id, status (pending/completed/failed/refunded)
--   **qr_codes table:** Generated QR code tracking with file_path, payment_url, generated_at for each ticket
--   **violation_tickets table extensions:** Added `payment_status` ENUM('unpaid','partial','paid'), `amount_paid` DECIMAL(10,2), `payment_link_id`, `qr_code_generated_at` for payment tracking integration
+Uses **MySQL 5.7+ / MariaDB 10.2+** with a relational schema and foreign key constraints. Core tables include `users`, `properties`, `vehicles`, `violation_tickets`, and audit logs. HTTPS is mandatory for production.
+-   **Key Schema Extensions:** `expiration_date` for guest passes, `status`, `fine_disposition`, `closed_at`, `closed_by_user_id` for violation tickets.
+-   **v2.0 Payment Schema:** `payment_settings`, `ticket_payments`, `qr_codes` tables, and extensions to `violation_tickets` for payment status and linking.
 
 ## External Dependencies
 
 ### Required PHP Extensions
--   `pdo`
--   `pdo_mysql`
--   `json`
--   `session`
--   `mbstring`
--   `gd` (for ZPL Image Conversion)
+-   `pdo`, `pdo_mysql`, `json`, `session`, `mbstring`, `gd`
 
 ### Database
 -   **MySQL**: 5.7+
 -   **MariaDB**: 10.2+
 
 ### Web Server Requirements
--   Apache or Nginx
--   `mod_rewrite` (Apache) or equivalent
+-   Apache or Nginx (`mod_rewrite` or equivalent)
 -   PHP-FPM support
--   HTTPS (recommended for production)
+-   HTTPS (recommended)
 
 ### Deployment Platform
 -   Shared hosting compatible
--   FTP/SFTP for file transfers
--   cPanel/phpMyAdmin for database management
+-   FTP/SFTP
+-   cPanel/phpMyAdmin
 
 ### Third-Party Integrations
--   None (self-contained system)
+-   None (self-contained system, payment system integrations are internal to v2.0 development)
