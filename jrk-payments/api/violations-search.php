@@ -60,6 +60,24 @@ try {
     $hasCustomNote = false;
 }
 
+// Check if issued_by_user_id column exists
+$hasIssuedByUserId = false;
+try {
+    $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM violation_tickets LIKE 'issued_by_user_id'");
+    $hasIssuedByUserId = $checkStmt->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasIssuedByUserId = false;
+}
+
+// Check if issued_by_username column exists
+$hasIssuedByUsername = false;
+try {
+    $checkStmt = Database::getInstance()->query("SHOW COLUMNS FROM violation_tickets LIKE 'issued_by_username'");
+    $hasIssuedByUsername = $checkStmt->rowCount() > 0;
+} catch (PDOException $e) {
+    $hasIssuedByUsername = false;
+}
+
 // Build SQL query with violation items and fines
 $ticketTypeField = $hasTicketType ? "vt.ticket_type," : "'VIOLATION' as ticket_type,";
 $statusField = $hasStatus ? "vt.status," : "'active' as status,";
@@ -67,14 +85,16 @@ $dispositionField = $hasStatus ? "vt.fine_disposition," : "NULL as fine_disposit
 $closedAtField = $hasStatus ? "vt.closed_at," : "NULL as closed_at,";
 $closedByField = $hasStatus ? "vt.closed_by_user_id," : "NULL as closed_by_user_id,";
 $customNoteField = $hasCustomNote ? "vt.custom_note," : "NULL as custom_note,";
+$issuedByUserIdField = $hasIssuedByUserId ? "vt.issued_by_user_id," : "NULL as issued_by_user_id,";
+$issuedByUsernameField = $hasIssuedByUsername ? "vt.issued_by_username as issuing_user," : "NULL as issuing_user,";
 
 $sql = "SELECT 
     vt.id,
     vt.vehicle_id,
     $customNoteField
     vt.created_at,
-    vt.issued_by_user_id,
-    vt.issued_by_username as issuing_user,
+    $issuedByUserIdField
+    $issuedByUsernameField
     vt.vehicle_year as year,
     vt.vehicle_make as make,
     vt.vehicle_model as model,
