@@ -166,5 +166,12 @@ try {
 } catch (Exception $e) {
     error_log("Violation search error: " . $e->getMessage());
     error_log("Violation search SQL: " . $sql);
-    jsonResponse(['error' => 'Failed to search violations: ' . $e->getMessage()], 500);
+    error_log("Violation search params: " . json_encode($params));
+    
+    // Return detailed error for debugging
+    jsonResponse([
+        'error' => 'Database query failed',
+        'details' => $e->getMessage(),
+        'sql_preview' => substr($sql, 0, 200) . '...'
+    ], 500);
 }
