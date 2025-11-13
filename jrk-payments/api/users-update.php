@@ -82,7 +82,9 @@ try {
     
     if (!empty($password)) {
         $config = require __DIR__ . '/../config.php';
-        $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => $config['password_cost']]);
+        $cost = isset($config['password_cost']) && $config['password_cost'] > 0 ? $config['password_cost'] : 10;
+        error_log("Password cost: $cost");
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => $cost]);
         
         if ($hasEmailColumn) {
             error_log("Updating WITH password and email");
