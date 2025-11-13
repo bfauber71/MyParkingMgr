@@ -109,10 +109,16 @@ if ($property) {
 
 $sql .= " GROUP BY vt.id ORDER BY vt.created_at DESC LIMIT 500";
 
+// Debug logging
+error_log("Tickets-list SQL: " . $sql);
+error_log("Tickets-list Params: " . json_encode($params));
+
 try {
     $stmt = Database::getInstance()->prepare($sql);
     $stmt->execute($params);
     $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    error_log("Tickets-list: Found " . count($tickets) . " tickets");
     
     echo json_encode([
         'success' => true,
@@ -120,7 +126,13 @@ try {
         'total' => count($tickets)
     ]);
 } catch (PDOException $e) {
-    error_log("Tickets list error: " . $e->getMessage());
+    error_log("Tickets list ERROR: " . $e->getMessage());
+    error_log("Tickets list SQL: " . $sql);
+    error_log("Tickets list Params: " . json_encode($params));
     http_response_code(500);
-    echo json_encode(['error' => 'Database error']);
+    echo json_encode([
+        'error' => 'Database error',
+        'message' => $e->getMessage(),
+        'sql_preview' => substr($sql, 0, 200)
+    ]);
 }
