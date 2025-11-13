@@ -47,23 +47,50 @@ try {
         jsonResponse(['error' => 'Username already exists'], 400);
     }
     
+    // Check if email column exists (backward compatibility)
+    $hasEmailColumn = false;
+    try {
+        $checkStmt = $db->query("SHOW COLUMNS FROM users LIKE 'email'");
+        $hasEmailColumn = $checkStmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        $hasEmailColumn = false;
+    }
+    
     if (!empty($password)) {
         $config = require __DIR__ . '/../config.php';
         $passwordHash = password_hash($password, PASSWORD_BCRYPT, ['cost' => $config['password_cost']]);
         
-        $stmt = $db->prepare("
-            UPDATE users 
-            SET username = ?, email = ?, password = ?, role = ?, updated_at = NOW()
-            WHERE id = ?
-        ");
-        $stmt->execute([$username, $email, $passwordHash, $role, $id]);
+        if ($hasEmailColumn) {
+            $stmt = $db->prepare("
+                UPDATE users 
+                SET username = ?, email = ?, password = ?, role = ?, updated_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$username, $email, $passwordHash, $role, $id]);
+        } else {
+            $stmt = $db->prepare("
+                UPDATE users 
+                SET username = ?, password = ?, role = ?, updated_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$username, $passwordHash, $role, $id]);
+        }
     } else {
-        $stmt = $db->prepare("
-            UPDATE users 
-            SET username = ?, email = ?, role = ?, updated_at = NOW()
-            WHERE id = ?
-        ");
-        $stmt->execute([$username, $email, $role, $id]);
+        if ($hasEmailColumn) {
+            $stmt = $db->prepare("
+                UPDATE users 
+                SET username = ?, email = ?, role = ?, updated_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$username, $email, $role, $id]);
+        } else {
+            $stmt = $db->prepare("
+                UPDATE users 
+                SET username = ?, role = ?, updated_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$username, $role, $id]);
+        }
     }
     
     // Save user permissions
@@ -86,5 +113,7 @@ try {
     ]);
 } catch (PDOException $e) {
     error_log("User Update Error: " . $e->getMessage());
-    jsonResponse(['error' => 'Failed to update user'], 500);
+    error_log("User Update SQL Error Code: " . $e->getCode());
+    error_log("User Update Stack Trace: " . $e->getTraceAsString());
+    jsonResponse(['error' => 'Database error: ' . $e->getMessage()], 500);
 }
