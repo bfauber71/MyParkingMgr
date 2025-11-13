@@ -106,6 +106,13 @@ INNER JOIN properties p ON v.property_id = p.id
 SET v.property = p.name
 WHERE v.property IS NULL OR v.property = '';
 
+-- CRITICAL: Also populate property_id from property name (reverse direction)
+-- This ensures vehicles added with property name get proper property_id
+UPDATE vehicles v
+INNER JOIN properties p ON v.property = p.name
+SET v.property_id = p.id
+WHERE v.property_id IS NULL OR v.property_id = 0 OR v.property_id = '';
+
 -- Rename columns to v2.0 names (MySQL doesn't error if column doesn't exist in CHANGE)
 SET @s = (SELECT IF(
     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 

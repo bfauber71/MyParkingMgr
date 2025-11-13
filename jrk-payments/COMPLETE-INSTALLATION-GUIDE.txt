@@ -14,6 +14,7 @@ File: sql/COMPLETE-V2-MIGRATION.sql
 
 This ONE script fixes ALL schema issues:
 ✅ Vehicles table (renames columns, adds missing fields)
+✅ Vehicles property_id backfill (syncs property_id with property name)
 ✅ Violations table (adds fine_amount, tow_deadline_hours)
 ✅ Violation tickets & items tables (creates if missing)
 ✅ Property contacts (adds position column)
@@ -22,6 +23,8 @@ This ONE script fixes ALL schema issues:
 ✅ Users table (ensures email column exists)
 
 IDEMPOTENT: Safe to run multiple times!
+
+IMPORTANT: If you already ran the migration, run it AGAIN to fix property_id!
 
 =====================================================
 STEP 2: UPLOAD FILES
