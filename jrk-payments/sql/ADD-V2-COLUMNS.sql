@@ -1,22 +1,22 @@
 -- ============================================
 -- ADD MISSING v2.0 COLUMNS - SHARED HOSTING VERSION
 -- ============================================
--- No INFORMATION_SCHEMA queries - works on restricted hosting
+-- No column position dependencies - works on any schema
 -- Safe to run - ignores errors if columns already exist
 -- ============================================
 
--- 1. ADD TICKET STATUS COLUMNS
-ALTER TABLE violation_tickets ADD COLUMN ticket_type ENUM('VIOLATION', 'WARNING') DEFAULT 'VIOLATION' AFTER property_contact_email;
-ALTER TABLE violation_tickets ADD COLUMN status ENUM('active', 'closed') DEFAULT 'active' AFTER ticket_type;
-ALTER TABLE violation_tickets ADD COLUMN fine_disposition ENUM('collected', 'dismissed') DEFAULT NULL AFTER status;
-ALTER TABLE violation_tickets ADD COLUMN closed_at TIMESTAMP NULL DEFAULT NULL AFTER fine_disposition;
-ALTER TABLE violation_tickets ADD COLUMN closed_by_user_id VARCHAR(36) DEFAULT NULL AFTER closed_at;
+-- 1. ADD TICKET STATUS COLUMNS (no AFTER clause - adds at end of table)
+ALTER TABLE violation_tickets ADD COLUMN ticket_type ENUM('VIOLATION', 'WARNING') DEFAULT 'VIOLATION';
+ALTER TABLE violation_tickets ADD COLUMN status ENUM('active', 'closed') DEFAULT 'active';
+ALTER TABLE violation_tickets ADD COLUMN fine_disposition ENUM('collected', 'dismissed') DEFAULT NULL;
+ALTER TABLE violation_tickets ADD COLUMN closed_at TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE violation_tickets ADD COLUMN closed_by_user_id VARCHAR(36) DEFAULT NULL;
 ALTER TABLE violation_tickets ADD INDEX idx_status(status);
 
 -- 2. ADD PAYMENT TRACKING COLUMNS
-ALTER TABLE violation_tickets ADD COLUMN payment_status ENUM('unpaid', 'partial', 'paid') DEFAULT 'unpaid' AFTER closed_by_user_id;
-ALTER TABLE violation_tickets ADD COLUMN amount_paid DECIMAL(10,2) DEFAULT 0.00 AFTER payment_status;
-ALTER TABLE violation_tickets ADD COLUMN qr_code_generated_at TIMESTAMP NULL DEFAULT NULL AFTER amount_paid;
+ALTER TABLE violation_tickets ADD COLUMN payment_status ENUM('unpaid', 'partial', 'paid') DEFAULT 'unpaid';
+ALTER TABLE violation_tickets ADD COLUMN amount_paid DECIMAL(10,2) DEFAULT 0.00;
+ALTER TABLE violation_tickets ADD COLUMN qr_code_generated_at TIMESTAMP NULL DEFAULT NULL;
 
 -- 3. CREATE PAYMENT SETTINGS TABLE
 CREATE TABLE IF NOT EXISTS payment_settings (
@@ -59,5 +59,5 @@ CREATE TABLE IF NOT EXISTS qr_codes (
     INDEX idx_generated_at (generated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- DONE! If you see this message with no errors above, the update was successful.
+-- DONE! Columns will be added at the end of the table (doesn't matter for functionality)
 SELECT 'Database update completed! v2.0 columns and tables added.' AS Status;
