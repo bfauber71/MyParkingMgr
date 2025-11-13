@@ -113,6 +113,10 @@ $router->post('/api/violations-delete', __DIR__ . '/api/violations-delete.php');
 $router->post('/api/violations-search', __DIR__ . '/api/violations-search.php');
 $router->post('/api/violations-export', __DIR__ . '/api/violations-export.php');
 
+// Ticket status routes
+$router->get('/api/tickets-list', __DIR__ . '/api/tickets-list.php');
+$router->post('/api/ticket-close', __DIR__ . '/api/ticket-close.php');
+
 // Serve frontend for all other routes
 $router->get('/.*', function() use ($config) {
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -105,11 +105,29 @@ if ($endDate) {
     $params[] = $endDate;
 }
 
-// Property filter
+// Property filter - handle both property text name and property_id
 if ($property) {
-    $sql .= " AND (v.property = ? OR vt.property_name = ?)";
-    $params[] = $property;
-    $params[] = $property;
+    // Try to find property_id for this property name
+    $propertyId = null;
+    foreach ($accessibleProperties as $prop) {
+        if ($prop['name'] === $property) {
+            $propertyId = $prop['id'];
+            break;
+        }
+    }
+    
+    if ($propertyId !== null) {
+        // Filter using property_id (v2.0) OR property name (v1.x backward compatibility)
+        $sql .= " AND ((v.property_id = ? OR v.property = ?) OR vt.property_name = ?)";
+        $params[] = $propertyId;
+        $params[] = $property;
+        $params[] = $property;
+    } else {
+        // Fallback to property name only
+        $sql .= " AND (v.property = ? OR vt.property_name = ?)";
+        $params[] = $property;
+        $params[] = $property;
+    }
 }
 
 // Search query (vehicle info or notes) - Use WHERE, not HAVING
