@@ -49,7 +49,7 @@ $sql = "SELECT
     vt.id,
     vt.vehicle_id,
     vt.custom_note,
-    vt.issued_at,
+    vt.created_at,
     vt.issued_by_user_id,
     vt.issued_by_username,
     $statusField
@@ -107,7 +107,7 @@ if ($property) {
     }
 }
 
-$sql .= " GROUP BY vt.id ORDER BY vt.issued_at DESC LIMIT 500";
+$sql .= " GROUP BY vt.id ORDER BY vt.created_at DESC LIMIT 500";
 
 try {
     $stmt = Database::getInstance()->prepare($sql);
